@@ -2,8 +2,8 @@ import tushare as ts
 %matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
-import cvxopt as opt
-from cvxopt import blas, solvers
+#import cvxopt as opt
+#from cvxopt import blas, solvers
 import pandas as pd
 
 
@@ -13,35 +13,69 @@ sz50s=ts.get_sz50s()
 
 #convert np.array
 sz50s_code=sz50s["code"].values
+convertible_bond_code=(['300059.sz','123006.sz'])
 
-sz50s_code_test=sz50s_code[0:4]
+
+
+####################从wind取数据#######################################
+from WindPy import *
+w.start()
+wsddata1=w.wsd('123006.sz', "open,high,low,close,volume,amt",'20190101','20190301', "Fill=Previous")
+wsddata1.Data
+
+
+
+
+
+# 取数据的命令如何写可以用命令生成器来辅助完成
+wsd_data=w.wsd("123006.sz", "open,high,low,close", "2019-01-01", "2019-03-01", "Fill=Previous")
+
+#演示如何将api返回的数据装入Pandas的Series
+open=pd.Series(wsd_data.Data[0])
+high=pd.Series(wsd_data.Data[1])
+low=pd.Series(wsd_data.Data[2])
+close=pd.Series(wsd_data.Data[3])
+
+#print('open:/n',open)
+#print('high:/n',high)
+#print('low:/n',low)
+#print('close:/n',close)
+
+#演示如何将api返回的数据装入Pandas的DataFrame
+fm=pd.DataFrame(wsd_data.Data,index=wsd_data.Fields,columns=wsd_data.Times)
+fm=fm.T #将矩阵转置
+ss123006=fm
+print('fm:/n',fm)
+
+###
+df.to_csv ("testfoo.csv" , encoding = "utf-8")
+'''需要写clas 封装取数据的过程
+def output_data(source,): 
+	  if source 
+'''
+
+def output_data(security,source,begin_date,end_date,column): 
+	  if source=='wind':
+	     wsd_data=w.wsd(security,column, begin_date,end_date, "Fill=Previous")
+	     fm=pd.DataFrame(wsd_data.Data,index=wsd_data.Fields,columns=wsd_data.Times)
+	  return(fm.T) 
+
+
+convertible_bond_code=(['300059.sz','123006.sz'])
+symbols= convertible_bond_code
+column= "open,high,low,close,volume"	   
+pnls2 = {i:output_data(i,'wind',"2019-01-01","2019-01-31",column) for i in symbols}
 	
-# test few data
-symbols= sz50s_code_test 
-#symbols= ['GOOG']  
-#pnls1 = {i:dreader.DataReader(i,'yahoo','2019-01-01','2019-03-01') for i in symbols}
-
-pnls2 = {i:ts.get_hist_data(i,start='2019-01-01',end='2019-03-01') for i in symbols}
 	
 	
-#modify index type
-#pnls['600000']['close'].index = pnls['600000']['close'].index.astype('datetime64[ns]')
-
-# for modify
-for i in symbols:        # 第二个实例
-   pnls2[i]['close'].index = pnls2[i]['close'].index.astype('datetime64[ns]')
-
-
-
+###############################
 ###########################plot########################
 # solve  chinese dislay
 plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
 # plot them
-plt.plot(pnls2['600000']['close'], label='浦发银行')
-plt.plot(pnls2['600016']['close'], label='民生银行')
-plt.plot(pnls2['600019']['close'], label='宝钢股份')
-plt.plot(pnls2['600028']['close'], label='中国石化')
+plt.plot(pnls2['300059.sz']['CLOSE'], label='东方财富')
+plt.plot(pnls2['123006.sz']['CLOSE'], label='东财转债')
 	
 	
 # generate a legend box
@@ -52,145 +86,106 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=0,
 #plt.annotate("Important value", (55,20), xycoords='data',
 #         xytext=(5, 38),
 #         arrowprops=dict(arrowstyle='->'))
-plt.show()
-
-
-
+plt.show()	
 
 
 ##############difference#############
-def total_data(data_p):
+def total_data(data_p,symbols_code):
     # for modify
-    symbols_func=sz50s["code"].values[1:4]
-    total_data =pd.DataFrame([data_p['600000']['close'].sort_index().pct_change()])
-    for i in symbols_func:        # 第二个实例
-       total_data= total_data.append(pd.DataFrame([data_p[i]['close'].sort_index().pct_change()]))
+    symbols_func=symbols_code[1:len(symbols_code)]
+    total_data =pd.DataFrame([data_p[symbols_code[0]]['CLOSE'].sort_index().pct_change()])
+    for i in symbols_func:       
+       total_data= total_data.append(pd.DataFrame([data_p[i]['CLOSE'].sort_index().pct_change()]))
     return(total_data)
+    
+    ################################################
 
-################################################
-total_data=total_data(pnls2)
+total_data1=total_data(pnls2,convertible_bond_code)
+
+total_data1.index=convertible_bond_code
+#去掉na值
+total_data1=total_data1.dropna(axis=1,how='all') 
+###################plot#############################
 
 
-total_data.index=sz50s["code"].values[0:4]
-total_data=total_data.dropna(axis=1,how='all') 
 
-plt.plot(total_data.T, alpha=.4);
+
+plt.rcParams['figure.figsize'] = (10.0, 4.0) 
+plt.plot(total_data1.T, alpha=.4);
 plt.xlabel('time')
 plt.ylabel('returns')
-##################assign#################################
+####################转债折溢价######################
+###########(可转债价格/（100/转股价）)/正股股价
+###########(可转债价格*转股价*0.01)/正股股价
+def conversion_data(data_p,symbols_code):
+    # for modify
+    symbols_func=symbols_code[1:len(symbols_code)]
+    total_data =pd.DataFrame([(data_p[symbols_code[1]]['CLOSE']*0.1136)/data_p[symbols_code[0]]['CLOSE']])
 
-def assign_portfolio(returns,assign_weights):
-    ''' 
-    Returns the mean and standard deviation of returns for a random portfolio
-    '''
+    return(total_data)
 
-    p = np.asmatrix(np.mean(returns, axis=1))
-    w = np.asmatrix(assign_weights.T)
-    C = np.asmatrix(np.cov(returns))
-    
-    mu = w * p.T
-    sigma = np.sqrt(w * C * w.T)
-    
-    # This recursion reduces outliers to keep plots pretty
-    #if sigma > 2:
-        #return random_portfolio(returns)
-    return mu, sigma
-#########################################################
-############################################################
-def random_portfolio(returns):
-    ''' 
-    Returns the mean and standard deviation of returns for a random portfolio
-    '''
 
-    p = np.asmatrix(np.mean(returns, axis=1))
-    w = np.asmatrix(rand_weights(returns.shape[0]))
-    C = np.asmatrix(np.cov(returns))
-    
-    mu = w * p.T
-    sigma = np.sqrt(w * C * w.T)
-    
-    # This recursion reduces outliers to keep plots pretty
-    #if sigma > 2:
-        #return random_portfolio(returns)
-    return mu, sigma
+conversion_data1=conversion_data(pnls2,convertible_bond_code)
 
-def rand_weights(n):
-    ''' Produces n random weights that sum to 1 '''
-    k = np.random.rand(n)
-    return k / sum(k)
+##################################################
+
+conversion_data1.index=['conversion']
+#去掉na值
+conversion_data1=conversion_data1.dropna(axis=1,how='all') 
+###################plot#############################
+
+
+
+
+plt.rcParams['figure.figsize'] = (10.0, 4.0) 
+plt.plot(conversion_data1.T, alpha=.4);
+plt.plot()
+plt.xlabel('time')
+plt.ylabel('returns')
+###############################################
+###########################plot########################
+#x=conversion_data1.T.index
+
+#y=np.random.rand(len(conversion_data1.T.index))*0+
+#plt.plot(x,y)	
+
+#################dataframe转list############
+conv_min=min(conversion_data1.T.index)
+conv_max=max(conversion_data1.T.index)
+conv_mean=np.array(conversion_data1).mean()
+conv_std=np.array(conversion_data1).std()
+# solve  chinese dislay
+plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
+plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
+# plot them
+plt.plot(conversion_data1.T, alpha=.4)
+
+plt.hlines(conv_mean,conv_min,conv_max)
+plt.hlines(conv_mean-conv_std,conv_min,conv_max,colors = "c", linestyles = "dashed")
+plt.hlines(conv_mean+conv_std,conv_min,conv_max,colors = "c", linestyles = "dashed")
+  
+# generate a legend box
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=0,
+       ncol=4, mode="expand", borderaxespad=0.)
+ 
+# annotate an important value
+#plt.annotate("Important value", (55,20), xycoords='data',
+#         xytext=(5, 38),
+#         arrowprops=dict(arrowstyle='->'))
+plt.show()	
+
+
+
 #################################################################
-n_portfolios = 10000
-means, stds = np.column_stack([
-    random_portfolio(total_data) 
-    for _ in range(n_portfolios)
-])
 
 
-plt.plot(stds, means, 'o', markersize=5)
-plt.xlabel('std')
-plt.ylabel('mean')
-plt.title('Mean and standard deviation of returns of randomly generated portfolios')
+# test few data
+symbols= convertible_bond_code 
+#symbols= ['GOOG']  
+#pnls1 = {i:dreader.DataReader(i,'yahoo','2019-01-01','2019-03-01') for i in symbols}
 
+pnls2 = {i:ts.get_hist_data(i,start='2019-01-01',end='2019-03-01') for i in symbols}
 
-
-############################################################
-#######################optimal portfolio function##########################################
-def optimal_portfolio(returns):
-    n = len(returns)
-    returns = np.asmatrix(returns)
-    
-    N = 100
-    mus = [10**(5.0 * t/N - 1.0) for t in range(N)]
-    
-    # Convert to cvxopt matrices
-    S = opt.matrix(np.cov(returns))
-    pbar = opt.matrix(np.mean(returns, axis=1))
-    
-    # Create constraint matrices
-    G = -opt.matrix(np.eye(n))   # negative n x n identity matrix
-    h = opt.matrix(0.0, (n ,1))
-    A = opt.matrix(1.0, (1, n))
-    b = opt.matrix(1.0)
-    
-    # Calculate efficient frontier weights using quadratic programming
-    portfolios = [solvers.qp(mu*S, -pbar, G, h, A, b)['x'] 
-                  for mu in mus]
-    ## CALCULATE RISKS AND RETURNS FOR FRONTIER
-    returns = [blas.dot(pbar, x) for x in portfolios]
-    risks = [np.sqrt(blas.dot(x, S*x)) for x in portfolios]
-    ## CALCULATE THE 2ND DEGREE POLYNOMIAL OF THE FRONTIER CURVE
-    m1 = np.polyfit(returns, risks, 2)
-    x1 = np.sqrt(m1[2] / m1[0])
-    # CALCULATE THE OPTIMAL PORTFOLIO
-    wt = solvers.qp(opt.matrix(x1 * S), -pbar, G, h, A, b)['x']
-    return np.asarray(wt), returns, risks
-
-#############################################################
-weights, returns, risks = optimal_portfolio(total_data)
-
-###########annotate optimal weights####################
-optimal_mu,optimal_sigma=assign_portfolio(total_data,weights)
-show_max=str(optimal_mu)+' '+str(optimal_sigma)
-
-
-plt.plot(stds, means, 'o')
-
-
-plt.annotate(show_max,xytext=(optimal_sigma,optimal_mu),xy=(optimal_sigma,optimal_mu))
-
-
-
-plt.ylabel('mean')
-plt.xlabel('std')
-plt.plot(risks, returns, 'y-o')
-plt.plot(optimal_sigma,optimal_mu,'ks')
-plt.show()
-##print (weights)
-
-
-
-##########################
-#########################
-#########################
-cons = ts.get_apis()
-df_day =ts.bar("IF1801",conn=cons,asset='X',freq='D')
+# for modify
+for i in symbols:        # 第二个实例
+   pnls2[i]['close'].index = pnls2[i]['close'].index.astype('datetime64[ns]')
