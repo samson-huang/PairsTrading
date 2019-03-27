@@ -1,10 +1,11 @@
-ï»¿import tushare as ts
+import tushare as ts
 %matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
-import cvxopt as opt
-from cvxopt import blas, solvers
+#import cvxopt as opt
+#from cvxopt import blas, solvers
 import pandas as pd
+
 
 ts.get_sz50s()
 
@@ -15,18 +16,21 @@ sz50s_code=sz50s["code"].values
 convertible_bond_code=(['300059.sz','123006.sz'])
 
 
-
-####################ä»Žwindå–æ•°æ®#######################################
+#######################test½×¶Î##########################
+####################´ÓwindÈ¡Êý¾Ý#######################################
 from WindPy import *
 w.start()
 wsddata1=w.wsd('123006.sz', "open,high,low,close,volume,amt",'20190101','20190301', "Fill=Previous")
 wsddata1.Data
 
 
-# å–æ•°æ®çš„å‘½ä»¤å¦‚ä½•å†™å¯ä»¥ç”¨å‘½ä»¤ç”Ÿæˆå™¨æ¥è¾…åŠ©å®Œæˆ
+
+
+
+# È¡Êý¾ÝµÄÃüÁîÈçºÎÐ´¿ÉÒÔÓÃÃüÁîÉú³ÉÆ÷À´¸¨ÖúÍê³É
 wsd_data=w.wsd("123006.sz", "open,high,low,close", "2019-01-01", "2019-03-01", "Fill=Previous")
 
-#æ¼”ç¤ºå¦‚ä½•å°†apiè¿”å›žçš„æ•°æ®è£…å…¥Pandasçš„Series
+#ÑÝÊ¾ÈçºÎ½«api·µ»ØµÄÊý¾Ý×°ÈëPandasµÄSeries
 open=pd.Series(wsd_data.Data[0])
 high=pd.Series(wsd_data.Data[1])
 low=pd.Series(wsd_data.Data[2])
@@ -37,18 +41,21 @@ close=pd.Series(wsd_data.Data[3])
 #print('low:/n',low)
 #print('close:/n',close)
 
-#æ¼”ç¤ºå¦‚ä½•å°†apiè¿”å›žçš„æ•°æ®è£…å…¥Pandasçš„DataFrame
+#ÑÝÊ¾ÈçºÎ½«api·µ»ØµÄÊý¾Ý×°ÈëPandasµÄDataFrame
 fm=pd.DataFrame(wsd_data.Data,index=wsd_data.Fields,columns=wsd_data.Times)
-fm=fm.T #å°†çŸ©é˜µè½¬ç½®
+fm=fm.T #½«¾ØÕó×ªÖÃ
 ss123006=fm
 print('fm:/n',fm)
 
-
-'''éœ€è¦å†™clas å°è£…å–æ•°æ®çš„è¿‡ç¨‹
+###
+df.to_csv ("testfoo.csv" , encoding = "utf-8")
+'''ÐèÒªÐ´clas ·â×°È¡Êý¾ÝµÄ¹ý³Ì
 def output_data(source,): 
 	  if source 
 '''
-
+##################################################################################
+############################µÚÒ»²½###############################################
+########################################################################################
 def output_data(security,source,begin_date,end_date,column): 
 	  if source=='wind':
 	     wsd_data=w.wsd(security,column, begin_date,end_date, "Fill=Previous")
@@ -66,11 +73,11 @@ pnls2 = {i:output_data(i,'wind',"2019-01-01","2019-01-31",column) for i in symbo
 ###############################
 ###########################plot########################
 # solve  chinese dislay
-plt.rcParams['font.sans-serif']=['SimHei'] #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºä¸­æ–‡æ ‡ç­¾
-plt.rcParams['axes.unicode_minus']=False #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºè´Ÿå·
+plt.rcParams['font.sans-serif']=['SimHei'] #ÓÃÀ´Õý³£ÏÔÊ¾ÖÐÎÄ±êÇ©
+plt.rcParams['axes.unicode_minus']=False #ÓÃÀ´Õý³£ÏÔÊ¾¸ººÅ
 # plot them
-plt.plot(pnls2['300059.sz']['CLOSE'], label='ä¸œæ–¹è´¢å¯Œ')
-plt.plot(pnls2['123006.sz']['CLOSE'], label='ä¸œè´¢è½¬å€º')
+plt.plot(pnls2['300059.sz']['CLOSE'], label='¶«·½²Æ¸»')
+plt.plot(pnls2['123006.sz']['CLOSE'], label='¶«²Æ×ªÕ®')
 	
 	
 # generate a legend box
@@ -92,37 +99,142 @@ def total_data(data_p,symbols_code):
     for i in symbols_func:       
        total_data= total_data.append(pd.DataFrame([data_p[i]['CLOSE'].sort_index().pct_change()]))
     return(total_data)
-####################è½¬å€ºæŠ˜æº¢ä»·######################
-###########(å¯è½¬å€ºä»·æ ¼/ï¼ˆ100/è½¬è‚¡ä»·ï¼‰)/æ­£è‚¡è‚¡ä»·
+    
+    ################################################
 
-################################################
+total_data1=total_data(pnls2,convertible_bond_code)
 
-total_data=total_data(pnls2,convertible_bond_code)
-
-total_data.index=convertible_bond_code
-#åŽ»æŽ‰naå€¼
-total_data=total_data.dropna(axis=1,how='all') 
+total_data1.index=convertible_bond_code
+#È¥µônaÖµ
+total_data1=total_data1.dropna(axis=1,how='all') 
 ###################plot#############################
 
 
-mp.mean
+
 
 plt.rcParams['figure.figsize'] = (10.0, 4.0) 
-plt.plot(total_data.T, alpha=.4);
-plt.plot()
+plt.plot(total_data1.T, alpha=.4);
 plt.xlabel('time')
 plt.ylabel('returns')
+####################×ªÕ®ÕÛÒç¼Û######################
+###########(¿É×ªÕ®¼Û¸ñ/£¨100/×ª¹É¼Û£©)/Õý¹É¹É¼Û
+###########(¿É×ªÕ®¼Û¸ñ*×ª¹É¼Û*0.01)/Õý¹É¹É¼Û
+def conversion_data(data_p,symbols_code):
+    # for modify
+    symbols_func=symbols_code[1:len(symbols_code)]
+    total_data =pd.DataFrame([(data_p[symbols_code[1]]['CLOSE']*0.1136)/data_p[symbols_code[0]]['CLOSE']])
+
+    return(total_data)
+
+
+conversion_data1=conversion_data(pnls2,convertible_bond_code)
 
 ##################################################
 
-###############################################
+conversion_data1.index=['conversion']
+#È¥µônaÖµ
+conversion_data1=conversion_data1.dropna(axis=1,how='all') 
+###################plot#############################
 
+
+
+
+plt.rcParams['figure.figsize'] = (10.0, 4.0) 
+plt.plot(conversion_data1.T, alpha=.4);
+plt.plot()
+plt.xlabel('time')
+plt.ylabel('returns')
+###############################################
+###########################plot########################
+#x=conversion_data1.T.index
+
+#y=np.random.rand(len(conversion_data1.T.index))*0+
+#plt.plot(x,y)	
+
+#################dataframe×ªlist############
+conv_min=min(conversion_data1.T.index)
+conv_max=max(conversion_data1.T.index)
+conv_mean=np.array(conversion_data1).mean()
+conv_std=np.array(conversion_data1).std()
+# solve  chinese dislay
+plt.rcParams['font.sans-serif']=['SimHei'] #ÓÃÀ´Õý³£ÏÔÊ¾ÖÐÎÄ±êÇ©
+plt.rcParams['axes.unicode_minus']=False #ÓÃÀ´Õý³£ÏÔÊ¾¸ººÅ
+# plot them
+plt.plot(conversion_data1.T, alpha=.4)
+
+plt.hlines(conv_mean,conv_min,conv_max)
+plt.hlines(conv_mean-conv_std,conv_min,conv_max,colors = "c", linestyles = "dashed")
+plt.hlines(conv_mean+conv_std,conv_min,conv_max,colors = "c", linestyles = "dashed")
+  
+# generate a legend box
+plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=0,
+       ncol=4, mode="expand", borderaxespad=0.)
+ 
+# annotate an important value
+#plt.annotate("Important value", (55,20), xycoords='data',
+#         xytext=(5, 38),
+#         arrowprops=dict(arrowstyle='->'))
+plt.show()	
 
 
 
 #################################################################
+#######################################
+# e.g.,  findNextPosition(r)
+#        findNextPosition(r, 1174)
+# Check they are increasing and correctly offset
+def findNextPosition(ratio, startDay = 1, k = 1):
+    m = ratio.mean()
+    s = ratio.std()
+    up = m + k *s
+    down = m - k *s
 
+    if(startDay > 1):
+      ratio = ratio[0][startDay-1:]
+    
+    isExtreme = ratio >= up | ratio <= down
+  
+    #if(!any(isExtreme))
+       #return(integer())
 
+    start = which(isExtreme)[1]
+    backToNormal = if(ratio[0][start] > up)
+                      ratio[ - (1:start) ] <= m
+                    else
+                     ratio[ - (1:start) ] >= m
+
+   # return either the end of the position or the index 
+   # of the end of the vector.
+   # Could return NA for not ended, i.e. which(backToNormal)[1]
+   # for both cases. But then the caller has to interpret that.
+   
+    end = if(any(backToNormal))
+             which(backToNormal)[1] + start
+          else
+             length(ratio)
+  
+    return(c(start, end) + startDay - 1) 
+
+#############################################
+def getPositions(ratio, k = 1, m = ratio.mean(), s = ratio.std()):
+
+    {
+       ##when = list()
+       cur = 1
+    
+       while(cur < length(ratio)) {
+          tmp = findNextPosition(ratio, cur, k, m, s)
+          if(length(tmp) == 0)  # done
+             break
+          when[[length(when) + 1]] = tmp
+          if(is.na(tmp[2]) || tmp[2] == length(ratio))
+             break
+          cur = tmp[2]
+        }
+    
+       return(cur)
+    }
+######################################################
 # test few data
 symbols= convertible_bond_code 
 #symbols= ['GOOG']  
@@ -131,5 +243,5 @@ symbols= convertible_bond_code
 pnls2 = {i:ts.get_hist_data(i,start='2019-01-01',end='2019-03-01') for i in symbols}
 
 # for modify
-for i in symbols:        # ç¬¬äºŒä¸ªå®žä¾‹
+for i in symbols:        # µÚ¶þ¸öÊµÀý
    pnls2[i]['close'].index = pnls2[i]['close'].index.astype('datetime64[ns]')
