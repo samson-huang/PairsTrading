@@ -16,7 +16,7 @@ sz50s_code=sz50s["code"].values
 convertible_bond_code=(['300059.sz','123006.sz'])
 
 
-
+#######################test阶段##########################
 ####################从wind取数据#######################################
 from WindPy import *
 w.start()
@@ -53,6 +53,14 @@ df.to_csv ("testfoo.csv" , encoding = "utf-8")
 def output_data(source,): 
 	  if source 
 '''
+##################################################################################
+############################第一步###############################################
+########################################################################################
+from WindPy import *
+w.start()
+convertible_bond_code=(['300059.sz','123006.sz'])
+
+
 
 def output_data(security,source,begin_date,end_date,column): 
 	  if source=='wind':
@@ -66,8 +74,9 @@ symbols= convertible_bond_code
 column= "open,high,low,close,volume"	   
 pnls2 = {i:output_data(i,'wind',"2019-01-01","2019-01-31",column) for i in symbols}
 	
-	
-	
+pnls2['300059.sz'].to_csv ("D:/python/sz300059.csv" , encoding = "utf-8")	
+pnls2['123006.sz'].to_csv ("D:/python/sz123006.csv" , encoding = "utf-8")	
+
 ###############################
 ###########################plot########################
 # solve  chinese dislay
@@ -133,25 +142,14 @@ conversion_data1.index=['conversion']
 #去掉na值
 conversion_data1=conversion_data1.dropna(axis=1,how='all') 
 ###################plot#############################
-
-
-
-
-plt.rcParams['figure.figsize'] = (10.0, 4.0) 
-plt.plot(conversion_data1.T, alpha=.4);
-plt.plot()
-plt.xlabel('time')
-plt.ylabel('returns')
-###############################################
-###########################plot########################
 #x=conversion_data1.T.index
 
 #y=np.random.rand(len(conversion_data1.T.index))*0+
 #plt.plot(x,y)	
 
 #################dataframe转list############
-conv_min=min(conversion_data1.T.index)
-conv_max=max(conversion_data1.T.index)
+conv_min=min(conversion_data1)
+conv_max=max(conversion_data1)
 conv_mean=np.array(conversion_data1).mean()
 conv_std=np.array(conversion_data1).std()
 # solve  chinese dislay
@@ -177,8 +175,70 @@ plt.show()
 
 
 #################################################################
+#######################################
+# e.g.,  findNextPosition(r)
+#        findNextPosition(r, 1174)
+# Check they are increasing and correctly offset
 
 
+def findNextPosition(ratio, startDay = 1, k = 1):
+    m = ratio.mean()
+    s = ratio.std()
+    up = m + k *s
+    down = m - k *s
+
+    if(startDay > 1):
+      ratio = ratio[0][startDay-1:]
+    
+    #isExtreme = ratio >= up | ratio <= down
+    isExtreme =np.bitwise_xor(ratio >= up,ratio <= down)
+    #if(!any(isExtreme))
+       #return(0)
+
+    #start = which(isExtreme)[1]
+    start =np.where(isExtreme==1)[1][0]+1
+
+    if(ratio[0][start]>up):
+       backToNormal =ratio[0][startDay-1:] <= m 
+    else:
+       backToNormal =ratio[0][startDay-1:] >= m
+
+   # return either the end of the position or the index 
+   # of the end of the vector.
+   # Could return NA for not ended, i.e. which(backToNormal)[1]
+   # for both cases. But then the caller has to interpret that.
+   
+    if(any(backToNormal)):
+       end =np.where(backToNormal==1)[0][0]+1+ start
+    else:
+       end =length(ratio)
+  
+    return(np.array([start,end]) + startDay - 1) 
+
+
+
+k = 1
+a = findNextPosition(np.array(conversion_data1),1, k = k)
+#############################################
+def getPositions(ratio, k = 1, m = ratio.mean(), s = ratio.std()):
+
+    {
+       ##when = list()
+       cur = 1
+    
+       while(cur < length(ratio)) {
+          tmp = findNextPosition(ratio, cur, k, m, s)
+          if(length(tmp) == 0)  # done
+             break
+          when[[length(when) + 1]] = tmp
+          if(is.na(tmp[2]) || tmp[2] == length(ratio))
+             break
+          cur = tmp[2]
+        }
+    
+       return(cur)
+    }
+######################################################
 # test few data
 symbols= convertible_bond_code 
 #symbols= ['GOOG']  
