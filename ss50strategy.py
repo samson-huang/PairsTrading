@@ -74,9 +74,15 @@ symbols= convertible_bond_code
 column= "open,high,low,close,volume"	   
 pnls2 = {i:output_data(i,'wind',"2019-01-01","2019-01-31",column) for i in symbols}
 	
-pnls2['300059.sz'].to_csv ("D:/python/sz300059.csv" , encoding = "utf-8")	
-pnls2['123006.sz'].to_csv ("D:/python/sz123006.csv" , encoding = "utf-8")	
+pnls2['300059.sz'].to_csv ("C:/quants/wind_api/sz300059.csv" , encoding = "utf-8")	
+pnls2['123006.sz'].to_csv ("C:/quants/wind_api/sz123006.csv" , encoding = "utf-8")	
 
+
+
+
+sz300059=pd.read_csv("C:/quants/wind_api/sz300059.csv",index_col=0 , encoding = "utf-8")
+sz123006=pd.read_csv("C:/quants/wind_api/sz123006.csv",index_col=0 , encoding = "utf-8")
+pnls3 = {'300059.sz': sz300059,  '123006.sz':sz123006}
 ###############################
 ###########################plot########################
 # solve  chinese dislay
@@ -218,7 +224,11 @@ def findNextPosition(ratio, startDay = 1, k = 1):
 
 
 k = 1
-a = findNextPosition(np.array(conversion_data1),1, k = k)
+r=np.array(conversion_data1)
+a = findNextPosition(r,1, k = k)
+b = findNextPosition(r, a[1], k = k)
+
+c = findNextPosition(r, b[1], k = k)
 #############################################
 def getPositions(ratio, k = 1, m = ratio.mean(), s = ratio.std()):
 
