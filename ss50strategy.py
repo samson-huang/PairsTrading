@@ -78,11 +78,11 @@ pnls2['300059.sz'].to_csv ("C:/quants/wind_api/sz300059.csv" , encoding = "utf-8
 pnls2['123006.sz'].to_csv ("C:/quants/wind_api/sz123006.csv" , encoding = "utf-8")	
 
 
-
+#########################直接导入本地csv文件###################################
 
 sz300059=pd.read_csv("C:/quants/wind_api/sz300059.csv",index_col=0 , encoding = "utf-8")
 sz123006=pd.read_csv("C:/quants/wind_api/sz123006.csv",index_col=0 , encoding = "utf-8")
-pnls3 = {'300059.sz': sz300059,  '123006.sz':sz123006}
+pnls2 = {'300059.sz': sz300059,  '123006.sz':sz123006}
 ###############################
 ###########################plot########################
 # solve  chinese dislay
@@ -125,10 +125,7 @@ total_data1=total_data1.dropna(axis=1,how='all')
 
 
 
-plt.rcParams['figure.figsize'] = (10.0, 4.0) 
-plt.plot(total_data1.T, alpha=.4);
-plt.xlabel('time')
-plt.ylabel('returns')
+
 ####################转债折溢价######################
 ###########(可转债价格/（100/转股价）)/正股股价
 ###########(可转债价格*转股价*0.01)/正股股价
@@ -176,6 +173,12 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=0,
 #plt.annotate("Important value", (55,20), xycoords='data',
 #         xytext=(5, 38),
 #         arrowprops=dict(arrowstyle='->'))
+#############################################
+########################################
+plt.scatter(sz300059.index[a], r[a], color='r', marker='+')
+plt.scatter(sz300059.index[b], r[b], color='b', marker='o')
+#plt.scatter(sz300059.index[c], r[c], color='y', marker='*')
+#################################################
 plt.show()	
 
 
@@ -192,22 +195,24 @@ def findNextPosition(ratio, startDay = 1, k = 1):
     s = ratio.std()
     up = m + k *s
     down = m - k *s
-
-    if(startDay > 1):
-      ratio = ratio[0][startDay-1:]
+     
+    ratio = ratio[startDay-1:]
+    #if(startDay > 1):
+      #ratio = ratio[0][startDay-1:]
     
     #isExtreme = ratio >= up | ratio <= down
     isExtreme =np.bitwise_xor(ratio >= up,ratio <= down)
     #if(!any(isExtreme))
        #return(0)
 
-    #start = which(isExtreme)[1]
-    start =np.where(isExtreme==1)[1][0]+1
 
-    if(ratio[0][start]>up):
-       backToNormal =ratio[0][startDay-1:] <= m 
+    #x_data[x_data == '?'] = 0
+    #start = which(isExtreme)[1]
+    start =np.where(isExtreme==1)[0][0]
+    if(ratio[start]>up):
+       backToNormal =ratio[startDay-1:] <= m 
     else:
-       backToNormal =ratio[0][startDay-1:] >= m
+       backToNormal =ratio[startDay-1:] >= m
 
    # return either the end of the position or the index 
    # of the end of the vector.
@@ -215,7 +220,7 @@ def findNextPosition(ratio, startDay = 1, k = 1):
    # for both cases. But then the caller has to interpret that.
    
     if(any(backToNormal)):
-       end =np.where(backToNormal==1)[0][0]+1+ start
+       end =np.where(backToNormal==1)[0][0]+ start
     else:
        end =length(ratio)
   
@@ -224,30 +229,33 @@ def findNextPosition(ratio, startDay = 1, k = 1):
 
 
 k = 1
-r=np.array(conversion_data1)
+r=np.array(conversion_data1.iloc[0])
 a = findNextPosition(r,1, k = k)
 b = findNextPosition(r, a[1], k = k)
 
 c = findNextPosition(r, b[1], k = k)
 #############################################
-def getPositions(ratio, k = 1, m = ratio.mean(), s = ratio.std()):
+def getPositions(ratio, k = 1):
 
-    {
+
+       m = ratio.mean()
+       s = ratio.std()
        ##when = list()
        cur = 1
     
-       while(cur < length(ratio)) {
-          tmp = findNextPosition(ratio, cur, k, m, s)
-          if(length(tmp) == 0)  # done
+       while(cur < len(ratio)):
+          tmp = findNextPosition(ratio, cur, k)
+          if(len(tmp) == 0): 
              break
-          when[[length(when) + 1]] = tmp
-          if(is.na(tmp[2]) || tmp[2] == length(ratio))
+          elsif([[len(when) + 1]] = tmp):
+          if(np.isnan(tmp[2]) and tmp[2] == len(ratio)):
              break
           cur = tmp[2]
-        }
+        
     
        return(cur)
-    }
+############################################
+pos = getPositions(r, k)
 ######################################################
 # test few data
 symbols= convertible_bond_code 
