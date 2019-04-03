@@ -56,8 +56,9 @@ def output_data(source,):
 ##################################################################################
 ############################第一步###############################################
 ########################################################################################
-from WindPy import *
-w.start()
+#可以从本地取数据
+#from WindPy import *
+#w.start()
 convertible_bond_code=(['300059.sz','123006.sz'])
 
 
@@ -150,6 +151,74 @@ conversion_data1=conversion_data1.dropna(axis=1,how='all')
 #y=np.random.rand(len(conversion_data1.T.index))*0+
 #plt.plot(x,y)	
 
+
+
+
+
+#################################################################
+#######################################
+# e.g.,  findNextPosition(r)
+#        findNextPosition(r, 1174)
+# Check they are increasing and correctly offset
+
+
+def findNextPosition(ratio, startDay = 1, k = 1):
+    m = ratio.mean()
+    s = ratio.std()
+    up = m + k *s
+    down = m - k *s
+    
+    
+    if(startDay > 1): 
+      ratio = ratio[startDay:]
+    #if(startDay > 1):
+      #ratio = ratio[0][startDay-1:]
+    
+    #isExtreme = ratio >= up | ratio <= down
+    isExtreme =np.bitwise_xor(ratio >= up,ratio <= down)
+    
+    if(any(isExtreme)):
+    	 1==1
+    else:
+       return list()
+
+
+    #x_data[x_data == '?'] = 0
+    #start = which(isExtreme)[1]
+    start =np.where(isExtreme==1)[0][0]
+    if(ratio[start]>up):
+       backToNormal =ratio[start:] <= m 
+    else:
+       backToNormal =ratio[start:] >= m
+
+   # return either the end of the position or the index 
+   # of the end of the vector.
+   # Could return NA for not ended, i.e. which(backToNormal)[1]
+   # for both cases. But then the caller has to interpret that.
+   
+    if(any(backToNormal)):
+       end =np.where(backToNormal==1)[0][0]+ start
+    else:
+       end =len(ratio)-1
+    if(startDay > 1): 
+       return(np.array([start,end]) + startDay) 
+    else:
+       return(np.array([start,end])) 
+
+
+k = 1
+r=np.array(conversion_data1.iloc[0])
+a = findNextPosition(r,1, k = k)
+
+b = findNextPosition(r, a[1], k = k)
+
+c = findNextPosition(r, b[1], k = k)
+
+d = findNextPosition(r, c[1], k = k)
+e=findNextPosition(r, d[1], k = k)
+print(a,b,c,d,e)
+print(d,sz300059.index[d], r[d])
+#############################################
 #################dataframe转list############
 conv_min=min(conversion_data1)
 conv_max=max(conversion_data1)
@@ -177,83 +246,35 @@ plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=0,
 ########################################
 plt.scatter(sz300059.index[a], r[a], color='r', marker='+')
 plt.scatter(sz300059.index[b], r[b], color='b', marker='o')
-#plt.scatter(sz300059.index[c], r[c], color='y', marker='*')
+plt.scatter(sz300059.index[c], r[c], color='y', marker='*')
+plt.scatter(sz300059.index[d], r[d], color='y', marker='>')
+#plt.scatter(sz300059.index[e], r[e], color='y', marker='<')
 #################################################
-plt.show()	
-
-
-
-#################################################################
-#######################################
-# e.g.,  findNextPosition(r)
-#        findNextPosition(r, 1174)
-# Check they are increasing and correctly offset
-
-
-def findNextPosition(ratio, startDay = 1, k = 1):
-    m = ratio.mean()
-    s = ratio.std()
-    up = m + k *s
-    down = m - k *s
-     
-    ratio = ratio[startDay-1:]
-    #if(startDay > 1):
-      #ratio = ratio[0][startDay-1:]
-    
-    #isExtreme = ratio >= up | ratio <= down
-    isExtreme =np.bitwise_xor(ratio >= up,ratio <= down)
-    #if(!any(isExtreme))
-       #return(0)
-
-
-    #x_data[x_data == '?'] = 0
-    #start = which(isExtreme)[1]
-    start =np.where(isExtreme==1)[0][0]
-    if(ratio[start]>up):
-       backToNormal =ratio[startDay-1:] <= m 
-    else:
-       backToNormal =ratio[startDay-1:] >= m
-
-   # return either the end of the position or the index 
-   # of the end of the vector.
-   # Could return NA for not ended, i.e. which(backToNormal)[1]
-   # for both cases. But then the caller has to interpret that.
-   
-    if(any(backToNormal)):
-       end =np.where(backToNormal==1)[0][0]+ start
-    else:
-       end =length(ratio)
-  
-    return(np.array([start,end]) + startDay - 1) 
-
-
-
-k = 1
-r=np.array(conversion_data1.iloc[0])
-a = findNextPosition(r,1, k = k)
-b = findNextPosition(r, a[1], k = k)
-
-c = findNextPosition(r, b[1], k = k)
-#############################################
+plt.show()
+#########################################################
+#############################################################
+###################################################################
 def getPositions(ratio, k = 1):
 
 
        m = ratio.mean()
        s = ratio.std()
-       ##when = list()
+       when = list()
        cur = 1
     
        while(cur < len(ratio)):
           tmp = findNextPosition(ratio, cur, k)
-          if(len(tmp) == 0): 
+          print(str(cur)+"   ")
+          if(len(tmp)<1): 
              break
-          elsif([[len(when) + 1]] = tmp):
-          if(np.isnan(tmp[2]) and tmp[2] == len(ratio)):
+          #when[(len(when) + 1):]= tmp
+          when.append(tmp)
+          if(np.isnan(tmp[1]) and tmp[1] == len(ratio)):
              break
-          cur = tmp[2]
+          cur = tmp[1]
         
     
-       return(cur)
+       return(when)
 ############################################
 pos = getPositions(r, k)
 ######################################################
