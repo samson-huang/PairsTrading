@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 #import cvxopt as opt
 #from cvxopt import blas, solvers
 import pandas as pd
-
+import random
 
 ts.get_sz50s()
 
@@ -83,6 +83,10 @@ pnls2['123006.sz'].to_csv ("C:/quants/wind_api/sz123006.csv" , encoding = "utf-8
 
 sz300059=pd.read_csv("C:/quants/wind_api/sz300059.csv",index_col=0 , encoding = "utf-8")
 sz123006=pd.read_csv("C:/quants/wind_api/sz123006.csv",index_col=0 , encoding = "utf-8")
+###############
+sz300059=pd.read_csv("D:/quant/python/PairsTrading-master/sz300059.csv",index_col=0 , encoding = "utf-8")
+sz123006=pd.read_csv("D:/quant/python/PairsTrading-master/sz123006.csv",index_col=0 , encoding = "utf-8")
+####################
 pnls2 = {'300059.sz': sz300059,  '123006.sz':sz123006}
 ###############################
 ###########################plot########################
@@ -122,6 +126,8 @@ total_data1.index=convertible_bond_code
 #去掉na值
 total_data1=total_data1.dropna(axis=1,how='all') 
 ###################plot#############################
+
+plt.plot(total_data1.T)
 
 
 
@@ -220,39 +226,37 @@ print(a,b,c,d,e)
 print(d,sz300059.index[d], r[d])
 #############################################
 #################dataframe转list############
-conv_min=min(conversion_data1)
-conv_max=max(conversion_data1)
-conv_mean=np.array(conversion_data1).mean()
-conv_std=np.array(conversion_data1).std()
-# solve  chinese dislay
-plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
-plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
-# plot them
-plt.plot(conversion_data1.T, alpha=.4)
+def  plotRatio(conversion_data1):
+     conv_min=min(conversion_data1)
+     conv_max=max(conversion_data1)
+     conv_mean=np.array(conversion_data1).mean()
+     conv_std=np.array(conversion_data1).std()
+     # solve  chinese dislay
+     plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
+     plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
+     # plot them
+     plt.plot(conversion_data1.T, alpha=.4)
 
-plt.hlines(conv_mean,conv_min,conv_max)
-plt.hlines(conv_mean-conv_std,conv_min,conv_max,colors = "c", linestyles = "dashed")
-plt.hlines(conv_mean+conv_std,conv_min,conv_max,colors = "c", linestyles = "dashed")
+     plt.hlines(conv_mean,conv_min,conv_max)
+     plt.hlines(conv_mean-conv_std,conv_min,conv_max,colors = "c", linestyles = "dashed")
+     plt.hlines(conv_mean+conv_std,conv_min,conv_max,colors = "c", linestyles = "dashed")
   
-# generate a legend box
-plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=0,
-       ncol=4, mode="expand", borderaxespad=0.)
- 
-# annotate an important value
-#plt.annotate("Important value", (55,20), xycoords='data',
-#         xytext=(5, 38),
-#         arrowprops=dict(arrowstyle='->'))
+     # generate a legend box
+     plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=0,
+                 ncol=4, mode="expand", borderaxespad=0.)
+
 #############################################
 ########################################
-plt.scatter(sz300059.index[a], r[a], color='r', marker='+')
-plt.scatter(sz300059.index[b], r[b], color='b', marker='o')
-plt.scatter(sz300059.index[c], r[c], color='y', marker='*')
-plt.scatter(sz300059.index[d], r[d], color='y', marker='>')
-#plt.scatter(sz300059.index[e], r[e], color='y', marker='<')
-#################################################
-plt.show()
-#########################################################
-#############################################################
+def  showPosition(pos,stock_index):
+     cur = 0
+     color=['b','c','g','k','m','r','y']
+     marker =['*','+','o','>','x','<']
+     while(cur < len(pos)):
+     	
+     	plt.scatter(stock_index.index[pos[cur]], r[pos[cur]], 
+     	 color=color[random.randint(0,6)], marker=marker[random.randint(0,5)])
+     	cur=cur+1     
+#######################################
 ###################################################################
 def getPositions(ratio, k = 1):
 
@@ -264,7 +268,7 @@ def getPositions(ratio, k = 1):
     
        while(cur < len(ratio)):
           tmp = findNextPosition(ratio, cur, k)
-          print(str(cur)+"   ")
+          #print(str(cur)+"   ")
           if(len(tmp)<1): 
              break
           #when[(len(when) + 1):]= tmp
@@ -278,6 +282,76 @@ def getPositions(ratio, k = 1):
 ############################################
 pos = getPositions(r, k)
 ######################################################
+
+##############图像展示所有的点###########################
+plotRatio(conversion_data1)
+showPosition(pos,sz300059)
+'''
+plt.scatter(sz300059.index[a], r[a], color='r', marker='+')
+plt.scatter(sz300059.index[b], r[b], color='b', marker='o')
+plt.scatter(sz300059.index[c], r[c], color='y', marker='*')
+plt.scatter(sz300059.index[d], r[d], color='y', marker='>')
+'''
+#plt.scatter(sz300059.index[e], r[e], color='y', marker='<')
+#################################################
+plt.show()
+#########################################################
+#############################################################
+##################第一阶段完成############################
+                 
+
+
+
+################第二阶段###############
+##############盈利计算函数###########        
+def positionProfit(pos, stockPriceA, stockPriceB,ratioMean, 
+    p = .001, byStock = FALSE)：
+    '''
+    #  r = overlap$att/overlap$verizon
+    #  k = 1.7
+    #  pos = getPositions(r, k)
+    #  positionProfit(pos[[1]], overlap$att, overlap$verizon)
+    '''
+     
+    if(type(pos)==list):
+      ans = sapply(pos, positionProfit, 
+                    stockPriceA, stockPriceB, p, byStock)
+      if(byStock)
+         rownames(ans) = c("A", "B", "commission")
+      return(ans)
+    
+      # prices at the start and end of the positions
+      #pnls2['300059.sz']['CLOSE'][1]
+    priceA = stockPriceA[np.array(pos).ravel().tolist()]
+    priceB = stockPriceB[np.array(pos).ravel().tolist()]
+    
+      # how many units can we by of A and B with $1
+    unitsOfA = 1/priceA[1]
+    unitsOfB = 1/priceB[1]
+    
+      # The dollar amount of how many units we would buy of A and B
+      # at the cost at the end of the position of each.
+    amt = c(unitsOfA * priceA[2], unitsOfB * priceB[2])
+    
+      # Which stock are we selling
+    sellWhat = if(priceA[1]/priceB[1] > ratioMean) "A" else "B"
+    
+    profit = if(sellWhat == "A") 
+                c((1 - amt[1]),  (amt[2] - 1), - p * sum(amt))
+             else 
+                c( (1 - amt[2]),  (amt[1] - 1),  - p * sum(amt))
+    
+    if(byStock):
+       return(profit)
+    else:
+     return(sum(profit))
+
+         
+                 
+                 
+ 
+
+##############################################
 # test few data
 symbols= convertible_bond_code 
 #symbols= ['GOOG']  
