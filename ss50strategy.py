@@ -303,28 +303,22 @@ plt.show()
 
 
 ################第二阶段###############
-##############盈利计算函数###########        
-def positionProfit(pos, stockPriceA, stockPriceB,ratioMean, 
-    p = .001, byStock = FALSE)：
-    '''
-    #  r = overlap$att/overlap$verizon
-    #  k = 1.7
-    #  pos = getPositions(r, k)
-    #  positionProfit(pos[[1]], overlap$att, overlap$verizon)
-    '''
+##############盈利计算函数########### 
+############apply函数只能用在dataframe类型下############
+pos_pd=pd.DataFrame(pos)
      
-    if(type(pos)==list):
-      ans = sapply(pos, positionProfit, 
-                    stockPriceA, stockPriceB, p, byStock)
-      if(byStock)
-         rownames(ans) = c("A", "B", "commission")
-      return(ans)
-    
-      # prices at the start and end of the positions
-      #pnls2['300059.sz']['CLOSE'][1]
+def positionProfit(pos, stockPriceA, stockPriceB,ratioMean,p = .001):
+    byStock = bool(0)
     priceA = stockPriceA[np.array(pos).ravel().tolist()]
     priceB = stockPriceB[np.array(pos).ravel().tolist()]
-    
+
+    if(type(pos)==list):
+       #ans=apply(pos, positionProfit,stockPriceA, stockPriceB, ratioMean, p)
+       ans=pos.apply(positionProfit,stockPriceA, stockPriceB, ratioMean, p)
+       if(byStock):
+          #rownames(ans) = c("A", "B", "commission")
+          ans.columns= c("A", "B", "commission")
+       return(ans)
       # how many units can we by of A and B with $1
     unitsOfA = 1/priceA[1]
     unitsOfB = 1/priceB[1]
@@ -334,18 +328,25 @@ def positionProfit(pos, stockPriceA, stockPriceB,ratioMean,
     amt = c(unitsOfA * priceA[2], unitsOfB * priceB[2])
     
       # Which stock are we selling
-    sellWhat = if(priceA[1]/priceB[1] > ratioMean) "A" else "B"
+    if(priceA[1]/priceB[1] > ratioMean):
+       sellWhat = "A"
+    else: 
+       sellWhat = "B"
     
-    profit = if(sellWhat == "A") 
-                c((1 - amt[1]),  (amt[2] - 1), - p * sum(amt))
-             else 
-                c( (1 - amt[2]),  (amt[1] - 1),  - p * sum(amt))
+    if(sellWhat == "A"):
+       profit = c((1 - amt[1]),  (amt[2] - 1), - p * sum(amt))
+    else: 
+       profit = c( (1 - amt[2]),  (amt[1] - 1),  - p * sum(amt))
     
     if(byStock):
        return(profit)
     else:
      return(sum(profit))
 
+#######################################                 
+r.mean()     
+pos = getPositions(r, k)
+prof = positionProfit(pos,pnls2['300059.sz']['CLOSE'],pnls2['123006.sz']['CLOSE'],r.mean())
          
                  
                  
