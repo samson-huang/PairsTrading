@@ -314,29 +314,35 @@ def positionProfit(pos, stockPriceA, stockPriceB,ratioMean,p = .001):
 
     if(type(pos)==list):
        #ans=apply(pos, positionProfit,stockPriceA, stockPriceB, ratioMean, p)
-       ans=pos.apply(positionProfit,stockPriceA, stockPriceB, ratioMean, p)
+       #pos_t=pd.DataFrame(pos).T
+       cur=0
+       ans=[]
+       while(cur < len(pos)):
+             ans.append(positionProfit(pos[cur],stockPriceA,stockPriceB,ratioMean))    
+             cur=cur+1 
+       #ans=pos_t.apply(positionProfit,args=(stockPriceA, stockPriceB,ratioMean,p,))
        if(byStock):
           #rownames(ans) = c("A", "B", "commission")
           ans.columns= c("A", "B", "commission")
        return(ans)
       # how many units can we by of A and B with $1
-    unitsOfA = 1/priceA[1]
-    unitsOfB = 1/priceB[1]
+    unitsOfA = 1/priceA.tolist()[0]
+    unitsOfB = 1/priceB.tolist()[0]
     
       # The dollar amount of how many units we would buy of A and B
       # at the cost at the end of the position of each.
-    amt = c(unitsOfA * priceA[2], unitsOfB * priceB[2])
+    amt = [unitsOfA * priceA.tolist()[1], unitsOfB * priceB.tolist()[1]]
     
       # Which stock are we selling
-    if(priceA[1]/priceB[1] > ratioMean):
+    if(priceA.tolist()[1]/priceB.tolist()[1] > ratioMean):
        sellWhat = "A"
     else: 
        sellWhat = "B"
     
     if(sellWhat == "A"):
-       profit = c((1 - amt[1]),  (amt[2] - 1), - p * sum(amt))
+       profit = [(1 - amt[0]),  (amt[1] - 1), - p * sum(amt)]
     else: 
-       profit = c( (1 - amt[2]),  (amt[1] - 1),  - p * sum(amt))
+       profit = [(1 - amt[1]),  (amt[0] - 1),  - p * sum(amt)]
     
     if(byStock):
        return(profit)
@@ -349,8 +355,14 @@ pos = getPositions(r, k)
 prof = positionProfit(pos,pnls2['300059.sz']['CLOSE'],pnls2['123006.sz']['CLOSE'],r.mean())
          
                  
-                 
- 
+ ########################################
+ ###############第三阶段测试K值的取值###################                
+alist = np.random.rand(range(r.min(),r.max()),10) 
+alist=[]
+random = np.random.RandomState(0)#RandomState生成随机数种子
+for i in range(100):#随机数个数
+    a = random.uniform(r.min(),r.max())#随机数范围
+    alist.append(round(a,5))#随机数精度要求
 
 ##############################################
 # test few data
