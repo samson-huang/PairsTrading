@@ -305,7 +305,7 @@ plt.show()
 ################第二阶段###############
 ##############盈利计算函数########### 
 ############apply函数只能用在dataframe类型下############
-pos_pd=pd.DataFrame(pos)
+#pos_pd=pd.DataFrame(pos)
      
 def positionProfit(pos, stockPriceA, stockPriceB,ratioMean,p = .001):
     byStock = bool(0)
@@ -357,12 +357,53 @@ prof = positionProfit(pos,pnls2['300059.sz']['CLOSE'],pnls2['123006.sz']['CLOSE'
                  
  ########################################
  ###############第三阶段测试K值的取值###################                
-alist = np.random.rand(range(r.min(),r.max()),10) 
+#alist = np.random.rand(range(r.min(),r.max()),10) 
 alist=[]
 random = np.random.RandomState(0)#RandomState生成随机数种子
 for i in range(100):#随机数个数
     a = random.uniform(r.min(),r.max())#随机数范围
     alist.append(round(a,5))#随机数精度要求
+
+
+#################按随机生成的K测试盈利分布############################
+profits
+profits=[]
+cur=0
+while(cur < len(alist)):
+      profits.append(sum(positionProfit(getPositions(r,alist[cur]),
+        pnls2['300059.sz']['CLOSE'],pnls2['123006.sz']['CLOSE'],r.mean())))    
+      cur=cur+1 
+
+
+
+
+
+
+
+##############################################################
+########################第四阶段##################
+
+with open('c://excel-export//write.csv', 'w', newline='') as csv_file:
+    csv_writer = csv.writer(csv_file)
+    for list in data:
+        print(list)
+        csv_writer.writerow(list)
+############################################################
+#profits_se = pd.Series(profits)
+
+plt.plot(alist,profits, alpha=.4)
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
 
 ##############################################
 # test few data
