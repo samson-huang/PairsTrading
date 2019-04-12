@@ -73,7 +73,7 @@ def output_data(security,source,begin_date,end_date,column):
 convertible_bond_code=(['300059.sz','123006.sz'])
 symbols= convertible_bond_code
 column= "open,high,low,close,volume"	   
-pnls2 = {i:output_data(i,'wind',"2019-01-01","2019-01-31",column) for i in symbols}
+pnls2 = {i:output_data(i,'wind',"2019-01-01","2019-04-10",column) for i in symbols}
 	
 pnls2['300059.sz'].to_csv ("C:/quants/wind_api/sz300059.csv" , encoding = "utf-8")	
 pnls2['123006.sz'].to_csv ("C:/quants/wind_api/sz123006.csv" , encoding = "utf-8")	
@@ -247,13 +247,13 @@ def  plotRatio(conversion_data1):
 
 #############################################
 ########################################
-def  showPosition(pos,stock_index):
+def  showPosition(pos,stock_index,stock_close):
      cur = 0
      color=['b','c','g','k','m','r','y']
      marker =['*','+','o','>','x','<']
      while(cur < len(pos)):
      	
-     	plt.scatter(stock_index.index[pos[cur]], r[pos[cur]], 
+     	plt.scatter(stock_index.index[pos[cur]], stock_close[pos[cur]], 
      	 color=color[random.randint(0,6)], marker=marker[random.randint(0,5)])
      	cur=cur+1     
 #######################################
@@ -285,7 +285,7 @@ pos = getPositions(r, k)
 
 ##############图像展示所有的点###########################
 plotRatio(conversion_data1)
-showPosition(pos,sz300059)
+showPosition(pos,sz300059,r)
 '''
 plt.scatter(sz300059.index[a], r[a], color='r', marker='+')
 plt.scatter(sz300059.index[b], r[b], color='b', marker='o')
@@ -381,13 +381,33 @@ while(cur < len(alist)):
 
 
 ##############################################################
-########################第四阶段##################
+########################第四阶段 生成下单##################
+######在可转债上的图像#############
+r=np.array(conversion_data1.iloc[0])
+plotRatio(conversion_data1)
 
+showPosition(pos,sz300059,r)
+
+plt.show()
+
+#plt.plot(sz300059, label='东方财富')
+plotRatio(sz300059['CLOSE'])
+
+showPosition(pos,sz300059,sz300059['CLOSE'])
+
+plt.show()
+
+
+
+#####################
+pos = getPositions(r, k)
+test1.index[np.array(pos).ravel().tolist()]
 with open('c://excel-export//write.csv', 'w', newline='') as csv_file:
     csv_writer = csv.writer(csv_file)
     for list in data:
         print(list)
         csv_writer.writerow(list)
+        
 ############################################################
 #profits_se = pd.Series(profits)
 
