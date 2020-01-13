@@ -36,4 +36,4 @@ for i in range(1,len(symbols)):
    outdata = outdata.join(output_data(symbols[i],'tushare',"20190101","20190131",column))
 
 ####[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
-outdata.index=[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
+
