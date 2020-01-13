@@ -1,6 +1,6 @@
 ﻿#jupyter notebook --no-browser --port 6061 --ip=192.168.56.102
 #https://pypi.tuna.tsinghua.edu.cn/simple/
-
+#source code url https://www.quantopian.com/posts/the-efficient-frontier-markowitz-portfolio-optimization-in-python
 %matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
