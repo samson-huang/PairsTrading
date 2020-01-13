@@ -1,4 +1,4 @@
-jupyter notebook --no-browser --port 6061 --ip=192.168.56.102
+#jupyter notebook --no-browser --port 6061 --ip=192.168.56.102
 
 import pandas as pd
 import numpy as np

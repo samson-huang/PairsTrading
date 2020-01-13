@@ -1,5 +1,5 @@
 #jupyter notebook --no-browser --port 6061 --ip=192.168.56.102
-
+#https://pypi.tuna.tsinghua.edu.cn/simple/ 
 import pandas as pd
 import numpy as np
 from pandas import Series, DataFrame

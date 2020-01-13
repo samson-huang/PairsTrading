@@ -31,7 +31,7 @@ def rand_weights(n):
     return k / sum(k)
 
 print (rand_weights(n_assets))
-
+print (rand_weights(n_assets))
 
 def random_portfolio(returns):
     ''' 
