@@ -37,3 +37,24 @@ for i in range(1,len(symbols)):
 
 ####[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
 outdata.index=[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
+
+# Specify number of days to shift
+shift = 5
+# Compute returns over the time period specified by shift
+shift_returns = outdata/outdata.shift(shift) - 1
+
+
+# Specify filter "length"
+filter_len = shift
+# Compute mean and variance
+shift_returns_mean = shift_returns.ewm(span=filter_len).mean()
+shift_returns_var = shift_returns.ewm(span=filter_len).var()
+
+# Compute covariances
+StockList=convertible_bond_code
+NumStocks = len(convertible_bond_code)
+covariance = pd.DataFrame()
+for FirstStock in np.arange(NumStocks-1):
+    for SecondStock in np.arange(FirstStock+1,NumStocks):
+        ColumnTitle = StockList[FirstStock] + '-' + StockList[SecondStock]
+        covariance[ColumnTitle] = shift_returns[StockList[FirstStock]].ewm(span=filter_len).cov(shift_returns[StockList[SecondStock]])
