@@ -28,9 +28,14 @@ def output_data(security,source,begin_date,end_date,column):
 	     fm=pd.DataFrame(fm['close'])
 	     fm=fm.rename(columns={'close':security})
 	  return(fm)
-	  
+
+#initialize date	  
 begin_date='20190101'
-end_date='20191231'	  
+end_date='20191231'	
+interest_rate = 0.03/12								# Fixed interest rate
+min_return = 0.02									# Minimum desired return
+
+  
 convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
 symbols= convertible_bond_code
 column= "close"	
@@ -71,12 +76,14 @@ for FirstStock in np.arange(NumStocks-1):
 
 # Variable Initialization
 
-start_date = '2019-01-09'
+start_date = '2019-01-10'
 index = shift_returns.index
 start_index = index.get_loc(start_date)
 end_date = index[-1]
 end_index = index.get_loc(end_date)
 date_index_iter = start_index
+convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
+StockList=convertible_bond_code
 StockList.append('InterestRate')
 distribution = pd.DataFrame(index=StockList)
 returns = pd.Series(index=index)
@@ -84,16 +91,16 @@ returns = pd.Series(index=index)
 total_value = 1.0
 returns[index[date_index_iter]] = total_value
 
-while date_index_iter + 20 < end_index:
+while date_index_iter + 5 < end_index:
 	date = index[date_index_iter]
 	portfolio_alloc = MarkowitzOpt(shift_returns_mean.ix[date], shift_returns_var.ix[date], covariance.ix[date], interest_rate, min_return)
 	distribution[date.strftime('%Y-%m-%d')] = portfolio_alloc
 
 	# Calculating portfolio return
 	date2 = index[date_index_iter+shift]
-	temp1 = price.ix[date2]/price.ix[date]
+	temp1 = outdata.ix[date2]/outdata.ix[date]
 	temp1.ix[StockList[-1]] = interest_rate+1
-	temp2 = Series(np.array(portfolio_alloc.ravel()).reshape(len(portfolio_alloc)),index=StockList)
+	temp2 = pd.Series(np.array(portfolio_alloc.ravel()).reshape(len(portfolio_alloc)),index=StockList)
 	total_value = np.sum(total_value*temp2*temp1)
 	# Increment Date
 	date_index_iter += shift
@@ -101,3 +108,39 @@ while date_index_iter + 20 < end_index:
 
 # Remove dates that there are no trades from returns
 returns = returns[np.isfinite(returns)]
+
+
+
+# Plot portfolio allocation of last 10 periods
+ax = distribution.T.ix[-10:].plot(kind='bar',stacked=True)
+plt.ylim([0,1])
+plt.xlabel('Date')
+plt.ylabel('distribution')
+plt.title('distribution vs. Time')
+ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+# plt.savefig('allocation.png')
+
+# Plot stock prices and shifted returns
+fig, axes = plt.subplots(nrows=2,ncols=1)
+outdata.plot(ax=axes[0])
+shift_returns.plot(ax=axes[1])
+axes[0].set_title('Stock Prices')
+axes[0].set_xlabel('Date')
+axes[0].set_ylabel('Price')
+axes[0].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+axes[1].set_title(str(shift)+ ' Day Shift returns')
+axes[1].set_xlabel('Date')
+axes[1].set_ylabel('returns ' + str(shift) + ' Days Apart')
+axes[1].legend(loc='center left', bbox_to_anchor=(1, 0.5))
+# plt.savefig('stocks.png', pad_inches=1)
+fig.tight_layout()
+
+# Plot portfolio returns vs. time
+plt.figure()
+returns.plot()
+plt.xlabel('Date')
+plt.ylabel('Portolio returns')
+plt.title('Portfolio returns vs. Time')
+# plt.savefig('returns.png')
+
+plt.show()
