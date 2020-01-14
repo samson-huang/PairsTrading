@@ -122,7 +122,7 @@ ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
 # Plot stock prices and shifted returns
 fig, axes = plt.subplots(nrows=2,ncols=1)
-price.plot(ax=axes[0])
+outdata.plot(ax=axes[0])
 shift_returns.plot(ax=axes[1])
 axes[0].set_title('Stock Prices')
 axes[0].set_xlabel('Date')
