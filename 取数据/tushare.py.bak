@@ -91,7 +91,7 @@ returns = pd.Series(index=index)
 total_value = 1.0
 returns[index[date_index_iter]] = total_value
 
-while date_index_iter + 5 < end_index:
+while date_index_iter + shift < end_index:
 	date = index[date_index_iter]
 	portfolio_alloc = MarkowitzOpt(shift_returns_mean.ix[date], shift_returns_var.ix[date], covariance.ix[date], interest_rate, min_return)
 	distribution[date.strftime('%Y-%m-%d')] = portfolio_alloc

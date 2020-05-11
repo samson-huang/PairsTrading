@@ -82,7 +82,7 @@ start_index = index.get_loc(start_date)
 end_date = index[-1]
 end_index = index.get_loc(end_date)
 date_index_iter = start_index
-convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
+#convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
 StockList=convertible_bond_code
 StockList.append('InterestRate')
 distribution = pd.DataFrame(index=StockList)
