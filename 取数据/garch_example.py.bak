@@ -1,5 +1,5 @@
 #jupyter notebook --no-browser --port 6061 --ip=192.168.56.101
-#sudo pip3 --default-timeout=100 install mpl_finance -i https://pypi.tuna.tsinghua.edu.cn/simple
+#sudo pip3 install mpl_finance -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 import datetime as dt
 import sys
