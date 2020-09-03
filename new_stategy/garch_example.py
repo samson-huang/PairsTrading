@@ -1,5 +1,5 @@
 #jupyter notebook --no-browser --port 6061 --ip=192.168.56.101
-#sudo pip3 install mpl_finance -i https://pypi.tuna.tsinghua.edu.cn/simple
+#sudo pip3 --default-timeout=100 install mpl_finance -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 import datetime as dt
 import sys
@@ -64,6 +64,8 @@ df['Volatility'].plot()
 plt.title("Rolling Volatility With 30 Time Periods By Annualized Standard Deviation")
 plt.show()
 
+
+#####################################
 df = df.dropna()
 vol = df["Volatility"] * 100
 
@@ -82,6 +84,7 @@ df["forecast_vol"].plot()
 plt.title("Real Rolling Volatility vs Forecast by GARCH(1,1)")
 plt.legend()
 plt.show()
+###########################################################
 
 def rmse_tr(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())

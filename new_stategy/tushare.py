@@ -70,15 +70,16 @@ plt.ylabel('daily returns')
 # Specify number of days to shift
 shift = 1
 # Compute returns over the time period specified by shift
-shift_returns = outdata/outdata.shift(shift) - 1
+shift_returns = outdata.pct_change()
 
 
 # Specify filter "length"
 filter_len = 2
-# Compute mean and variance
-shift_returns_mean = shift_returns.ewm(span=filter_len).mean()
-shift_returns_var = shift_returns.ewm(span=filter_len).var()
-
+# Compute mean and variance,delete 1 NaN  rolling(window=7)
+#shift_returns_mean = shift_returns[1:].ewm(span=filter_len).mean()
+#shift_returns_var = shift_returns[1:].ewm(span=filter_len).var()
+shift_returns_mean = shift_returns.rolling(window=filter_len).mean()
+shift_returns_var = shift_returns.rolling(window=filter_len).var()
 # Compute covariances
 convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
 StockList=convertible_bond_code

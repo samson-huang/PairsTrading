@@ -367,7 +367,7 @@ def random_portfolios_new(num_portfolios, mean_returns, cov_matrix, risk_free_ra
     return results, weights_record
     
 def display_calculated_ef_with_random_old(table,mean_returns, cov_matrix, num_portfolios, risk_free_rate,sum_day):
-    results, _ = random_portfolios_new(num_portfolios,mean_returns, cov_matrix, risk_free_rate)
+    results, _ = random_portfolios_new(num_portfolios,mean_returns, cov_matrix, risk_free_rate,sum_day)
     
     max_sharpe = max_sharpe_ratio(mean_returns, cov_matrix, risk_free_rate)
     sdp, rp = portfolio_annualised_performance_new(max_sharpe['x'], mean_returns, cov_matrix,sum_day)

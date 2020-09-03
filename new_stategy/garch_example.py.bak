@@ -64,6 +64,8 @@ df['Volatility'].plot()
 plt.title("Rolling Volatility With 30 Time Periods By Annualized Standard Deviation")
 plt.show()
 
+
+#####################################
 df = df.dropna()
 vol = df["Volatility"] * 100
 
