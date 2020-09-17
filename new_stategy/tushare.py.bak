@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import pandas as pd
 
+
+#调用本地Markowitz优化类本地包
 import sys
 sys.path.append('/home/huangtuo/gitdoc/markowitz-portfolio-optimization')
 from markowitz import MarkowitzOpt
@@ -15,12 +17,16 @@ from markowitz import MarkowitzOpt
 #import cvxopt as opt
 #from cvxopt import blas, solvers
 
+##################第一步#######################
+#1.取基础数据现在国内可靠得数据源只有tushare一个
+#以后多策略并行估计需要大批量数据读取是个大问题
+###############################################
 #tushare升级需要用api进行调用
 ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
 pro = ts.pro_api()
 
 
-
+#封装取数据函数，可以兼容其他数据源
 def output_data(security,source,begin_date,end_date,column): 
 	  if source=='tushare':
 	     fm=pro.daily(ts_code=security, start_date=begin_date, end_date=end_date)
@@ -35,7 +41,8 @@ end_date='20191231'
 interest_rate = 0								# Fixed interest rate
 min_return = 0.003								# Minimum desired return
 
-  
+##拿'300059.sz','000001.sz','000783.sz','300335.sz'四只股票做投资
+##组合的例子，取这4只股票数据
 convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
 symbols= convertible_bond_code
 column= "close"	
@@ -49,7 +56,8 @@ outdata.index=[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
 
 #reset by index order
 outdata=outdata.sort_index()
-
+#####
+########画图，查看基础数据效果
 ############
 
 plt.figure(figsize=(14, 7))
@@ -59,6 +67,8 @@ plt.legend(loc='upper left', fontsize=12)
 plt.ylabel('price in $')
 
 
+
+################日波动率图
 returns = outdata.pct_change()
 
 plt.figure(figsize=(14, 7))
@@ -67,19 +77,24 @@ for c in returns.columns.values:
 plt.legend(loc='upper right', fontsize=12)
 plt.ylabel('daily returns')
 ################outdata generate end####################################
+##################第一步结束###########################
+
+
+##################第二步##########################
+###进行基础数据处理，生成个股收益，方差，协方差矩阵
+#########
+#################################
 # Specify number of days to shift
 shift = 1
 # Compute returns over the time period specified by shift
 shift_returns = outdata.pct_change()
-
-
 # Specify filter "length"
 filter_len = 2
 # Compute mean and variance,delete 1 NaN  rolling(window=7)
 #shift_returns_mean = shift_returns[1:].ewm(span=filter_len).mean()
 #shift_returns_var = shift_returns[1:].ewm(span=filter_len).var()
-shift_returns_mean = shift_returns.(window=filter_len).mean()
-shift_returns_var = shift_returns.(window=filter_len).var()
+shift_returns_mean = shift_returns.rolling(window=filter_len).mean()
+shift_returns_var = shift_returns.rolling(window=filter_len).var()
 # Compute covariances
 convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
 StockList=convertible_bond_code

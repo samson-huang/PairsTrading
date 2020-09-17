@@ -136,7 +136,7 @@ while date_index_iter + shift < end_index:
   mean_returns = an_rt
   cov_matrix = returns.cov()
    
-	portfolio_alloc = MarkowitzOpt(shift_returns_mean.ix[date], shift_returns_var.ix[date], covariance.ix[date], interest_rate, min_return)
+	portfolio_alloc = MarkowitzOpt(mean_returns, shift_returns_var.ix[date],cov_matrix, interest_rate, min_return)
 	distribution[date.strftime('%Y-%m-%d')] = portfolio_alloc
 
 	# Calculating portfolio return

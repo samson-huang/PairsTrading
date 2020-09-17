@@ -9,20 +9,21 @@ from datetime import datetime
 import pandas as pd
 import seaborn as sns
 import scipy.optimize as sco
+from cvxopt import blas, solvers
 import sys
 
-sys.path.append('/home/huangtuo/gitdoc/markowitz-portfolio-optimization')
-from markowitz import MarkowitzOpt
 
-#import cvxopt as opt
-#from cvxopt import blas, solvers
 
+##################第一步#######################
+#1.取基础数据现在国内可靠得数据源只有tushare一个
+#以后多策略并行估计需要大批量数据读取是个大问题
+###############################################
 #tushare升级需要用api进行调用
 ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
 pro = ts.pro_api()
 
 
-
+#封装取数据函数，可以兼容其他数据源
 def output_data(security,source,begin_date,end_date,column): 
 	  if source=='tushare':
 	     fm=pro.daily(ts_code=security, start_date=begin_date, end_date=end_date)
@@ -37,7 +38,8 @@ end_date='20191231'
 interest_rate = 0								# Fixed interest rate
 min_return = 0.003								# Minimum desired return
 
-  
+##拿'300059.sz','000001.sz','000783.sz','300335.sz'四只股票做投资
+##组合的例子，取这4只股票数据
 convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
 symbols= convertible_bond_code
 column= "close"	
@@ -51,6 +53,9 @@ outdata.index=[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
 
 #reset by index order
 outdata=outdata.sort_index()
+#####
+########画图，查看基础数据效果
+############
 
 plt.figure(figsize=(14, 7))
 for c in outdata.columns.values:
@@ -58,6 +63,9 @@ for c in outdata.columns.values:
 plt.legend(loc='upper left', fontsize=12)
 plt.ylabel('price in $')
 
+
+
+################日波动率图
 returns = outdata.pct_change()
 
 plt.figure(figsize=(14, 7))
@@ -65,9 +73,14 @@ for c in returns.columns.values:
     plt.plot(returns.index, returns[c], lw=3, alpha=0.8,label=c)
 plt.legend(loc='upper right', fontsize=12)
 plt.ylabel('daily returns')
+################outdata generate end####################################
+##################第一步结束###########################
 
-##############################################
 
+##################第二步##########################
+###进行基础数据处理，个股收益，方差，协方差矩阵函数
+#########
+#################################
 # Variable Initialization
 
 start_date = '2019-01-04'
@@ -95,8 +108,10 @@ cov_matrix = returns.cov()
 num_portfolios = 25000
 risk_free_rate = 0.0178
 ##########MarkowitzOpt_new function #######
+#########Markowitz 优化函数后续可以封装
 ###################################################
 #####20200324
+
 def portfolio_annualised_performance_new(weights, mean_returns, cov_matrix,sum_day):
     returns = np.sum(mean_returns*weights )*100 
     std = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))*np.sqrt(sum_day)
@@ -192,8 +207,13 @@ def display_ef_with_selected(table, mean_returns, cov_matrix, risk_free_rate):
     return max_sharpe_allocation
 
 ##############################################
+#####################Markowitz 优化函数结束###########################
+######################第二步结束######################
 
-
+####################第三步，按日时间循环优化###################
+#主要投资组合主要涉及个股2个变量，收益及波动率。
+#我们每日循环计算时按当前日期前一步累积收益率及波动率进行预测
+############################################
 while date_index_iter + shift <= end_index:
   date = index[date_index_iter]
   #index_returns=original_returns[date_index_iter-1:date_index_iter+1]
@@ -231,8 +251,9 @@ while date_index_iter + shift <= end_index:
 
 # Remove dates that there are no trades from returns
 loop_returns = loop_returns[np.isfinite(loop_returns)]
+#######################单步日循环结束#################################
 
-
+###画图显示结果
 # Plot portfolio allocation of last 10 periods
 ax = distribution.T.ix[-10:].plot(kind='bar',stacked=True)
 plt.ylim([0,1])
@@ -265,6 +286,12 @@ plt.ylabel('Portolio returns')
 plt.title('Portfolio returns vs. Time')
 # plt.savefig('returns.png')
 
+
+####################画图结束################################
+###################第三步结束###################################
+
+####################第四步，最终投资组合优化结果###################
+############################################
 
 
 ################################################
@@ -326,32 +353,6 @@ def display_ef_with_selected_old(table, mean_returns, cov_matrix, risk_free_rate
     ax.set_ylabel('annualised returns')
     ax.legend(labelspacing=0.8)
 
-
-
-#############
-date_index_iter=243
-date = index[date_index_iter]
-#index_returns=original_returns[date_index_iter-1:date_index_iter+1]
-index_returns=original_returns[1:date_index_iter+1]
-index_returns.insert(4,'InterestRate',np.zeros(date_index_iter))
-#table = outdata[date_index_iter-1:date_index_iter+1]
-table = outdata[1:date_index_iter+1]
-table.insert(4,'InterestRate',np.ones(date_index_iter))	
-returns = index_returns
- #  ##############################
-      ##################-20200324
-end_price   = np.array(table.tail(1))
-start_price = np.array(table.head(1))
-an_rt=(end_price-start_price)/table.head(1)
-an_rt=pd.DataFrame(an_rt)
-an_rt.columns=table.columns
-an_rt=an_rt.ix[0,]
-      ######################   
- #  ################################ 
-mean_returns = an_rt
-cov_matrix = index_returns.cov()
-display_ef_with_selected_old(table,mean_returns, cov_matrix, risk_free_rate,date_index_iter)
-display_calculated_ef_with_random_old(table,mean_returns, cov_matrix, num_portfolios, risk_free_rate,date_index_iter)
 ##################
 def random_portfolios_new(num_portfolios, mean_returns, cov_matrix, risk_free_rate,sum_day):
     results = np.zeros((3,num_portfolios))
@@ -408,3 +409,29 @@ def display_calculated_ef_with_random_old(table,mean_returns, cov_matrix, num_po
     plt.xlabel('annualised volatility')
     plt.ylabel('annualised returns')
     plt.legend(labelspacing=0.8)
+
+#############
+date_index_iter=243
+date = index[date_index_iter]
+#index_returns=original_returns[date_index_iter-1:date_index_iter+1]
+index_returns=original_returns[1:date_index_iter+1]
+index_returns.insert(4,'InterestRate',np.zeros(date_index_iter))
+#table = outdata[date_index_iter-1:date_index_iter+1]
+table = outdata[1:date_index_iter+1]
+table.insert(4,'InterestRate',np.ones(date_index_iter))	
+returns = index_returns
+ #  ##############################
+      ##################-20200324
+end_price   = np.array(table.tail(1))
+start_price = np.array(table.head(1))
+an_rt=(end_price-start_price)/table.head(1)
+an_rt=pd.DataFrame(an_rt)
+an_rt.columns=table.columns
+an_rt=an_rt.ix[0,]
+      ######################   
+ #  ################################ 
+mean_returns = an_rt
+cov_matrix = index_returns.cov()
+display_ef_with_selected_old(table,mean_returns, cov_matrix, risk_free_rate,date_index_iter)
+display_calculated_ef_with_random_old(table,mean_returns, cov_matrix, num_portfolios, risk_free_rate,date_index_iter)
+##################
