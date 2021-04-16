@@ -80,7 +80,7 @@ def main():
     else:
         factors = factors.split(',')
         
-    single_factor_test(factors)
+    #single_factor_test(factors)
     layer_division_bt(factors)
     
 if __name__ == '__main__':
