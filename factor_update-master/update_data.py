@@ -747,7 +747,9 @@ if __name__ == '__main__':
     updatefreq = input("Choose update frequency between 'w' and 'M': ")
     z = UpdateOriginData(updatefreq, update_only=True)
     #z.update_meta_data()
+    #20210513
     z.update_meta_data(pd.to_datetime('2018-05-11'))
+    #---------------modify
     if updatefreq == 'M':
         z.update_month_map_data()
         z.update_monthly_data()

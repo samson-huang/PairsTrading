@@ -14,7 +14,7 @@
   <component name="ProjectId" id="1qsUIzokwtdCn3QuIDM2JYNDsHl" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../Quantitative-Trading-Strategy-Based-on-Machine-Learning-master/five_factors_extract" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../factor_update-master" />
     <property name="settings.editor.selected.configurable" value="reference.idesettings.debugger.python" />
   </component>
   <component name="PyDebuggerOptionsProvider">
@@ -135,6 +135,11 @@
           <url>file://$PROJECT_DIR$/factor_calculate.py</url>
           <line>1418</line>
           <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/update_data.py</url>
+          <line>753</line>
+          <option name="timeStamp" value="16" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
