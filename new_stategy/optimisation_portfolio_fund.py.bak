@@ -26,7 +26,7 @@ pro = ts.pro_api()
 def output_data_fund(security,source,begin_date,end_date,column): 
 	  if source=='tushare':
 	     fm=pro.fund_nav(ts_code=security, start_date=begin_date, end_date=end_date)
-	     fm.index=fm['end_date']
+	     fm.index=fm['nav_date']
 	     fm=pd.DataFrame(fm['adj_nav'])
 	     fm=fm.rename(columns={'adj_nav':security})
 	  return(fm)
@@ -78,7 +78,7 @@ start_index = index.get_loc(start_date)
 end_date = index[-1]
 end_index = index.get_loc(end_date)
 date_index_iter = start_index
-convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
+
 StockList=convertible_bond_code
 StockList.append('InterestRate')
 distribution = pd.DataFrame(index=StockList)
@@ -198,10 +198,10 @@ while date_index_iter + shift <= end_index:
   date = index[date_index_iter]
   #index_returns=original_returns[date_index_iter-1:date_index_iter+1]
   index_returns=original_returns[1:date_index_iter+1]
-  index_returns.insert(4,'InterestRate',np.zeros(date_index_iter))
+  index_returns.insert(original_returns.shape[1],'InterestRate',np.zeros(date_index_iter))
   #table = outdata[date_index_iter-1:date_index_iter+1]
   table = outdata[1:date_index_iter+1]
-  table.insert(4,'InterestRate',np.ones(date_index_iter))	
+  table.insert(original_returns.shape[1],'InterestRate',np.ones(date_index_iter))	
   returns = index_returns
  ###############################
     ##################-20200324
@@ -333,10 +333,10 @@ date_index_iter=243
 date = index[date_index_iter]
 #index_returns=original_returns[date_index_iter-1:date_index_iter+1]
 index_returns=original_returns[1:date_index_iter+1]
-index_returns.insert(4,'InterestRate',np.zeros(date_index_iter))
+index_returns.insert(original_returns.shape[1],'InterestRate',np.zeros(date_index_iter))
 #table = outdata[date_index_iter-1:date_index_iter+1]
 table = outdata[1:date_index_iter+1]
-table.insert(4,'InterestRate',np.ones(date_index_iter))	
+table.insert(original_returns.shape[1],'InterestRate',np.ones(date_index_iter))	
 returns = index_returns
  #  ##############################
       ##################-20200324

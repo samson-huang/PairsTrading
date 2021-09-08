@@ -32,8 +32,8 @@ def output_data_fund(security,source,begin_date,end_date,column):
 	  return(fm)
 
 #initialize date	  
-begin_date='20190101'
-end_date='20210907'	
+begin_date='20190901'
+end_date='20191031'	
 interest_rate = 0								# Fixed interest rate
 min_return = 0.003								# Minimum desired return
 
@@ -78,7 +78,7 @@ start_index = index.get_loc(start_date)
 end_date = index[-1]
 end_index = index.get_loc(end_date)
 date_index_iter = start_index
-convertible_bond_code=(['300059.sz','000001.sz','000783.sz','300335.sz'])
+
 StockList=convertible_bond_code
 StockList.append('InterestRate')
 distribution = pd.DataFrame(index=StockList)
@@ -198,10 +198,10 @@ while date_index_iter + shift <= end_index:
   date = index[date_index_iter]
   #index_returns=original_returns[date_index_iter-1:date_index_iter+1]
   index_returns=original_returns[1:date_index_iter+1]
-  index_returns.insert(4,'InterestRate',np.zeros(date_index_iter))
+  index_returns.insert(original_returns.shape[1],'InterestRate',np.zeros(date_index_iter))
   #table = outdata[date_index_iter-1:date_index_iter+1]
   table = outdata[1:date_index_iter+1]
-  table.insert(4,'InterestRate',np.ones(date_index_iter))	
+  table.insert(original_returns.shape[1],'InterestRate',np.ones(date_index_iter))	
   returns = index_returns
  ###############################
     ##################-20200324
@@ -333,10 +333,10 @@ date_index_iter=243
 date = index[date_index_iter]
 #index_returns=original_returns[date_index_iter-1:date_index_iter+1]
 index_returns=original_returns[1:date_index_iter+1]
-index_returns.insert(4,'InterestRate',np.zeros(date_index_iter))
+index_returns.insert(original_returns.shape[1],'InterestRate',np.zeros(date_index_iter))
 #table = outdata[date_index_iter-1:date_index_iter+1]
 table = outdata[1:date_index_iter+1]
-table.insert(4,'InterestRate',np.ones(date_index_iter))	
+table.insert(original_returns.shape[1],'InterestRate',np.ones(date_index_iter))	
 returns = index_returns
  #  ##############################
       ##################-20200324
