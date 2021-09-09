@@ -26,6 +26,7 @@ pro = ts.pro_api()
 def output_data_fund(security,source,begin_date,end_date,column): 
 	  if source=='tushare':
 	     fm=pro.fund_nav(ts_code=security, start_date=begin_date, end_date=end_date)
+	     fm=fm.drop_duplicates(subset=['nav_date'], keep='last', inplace=False)
 	     fm.index=fm['nav_date']
 	     fm=pd.DataFrame(fm['adj_nav'])
 	     fm=fm.rename(columns={'adj_nav':security})
@@ -33,7 +34,7 @@ def output_data_fund(security,source,begin_date,end_date,column):
 
 #initialize date	  
 begin_date='20190101'
-end_date='20210907'	
+end_date='20210908'	
 interest_rate = 0								# Fixed interest rate
 min_return = 0.003								# Minimum desired return
 
@@ -43,8 +44,9 @@ symbols= convertible_bond_code
 column= "adj_nav"	
 #outdata 初始化 生成
 outdata=output_data_fund(convertible_bond_code[0],'tushare',begin_date,end_date,column)	
-for i in range(1,len(symbols)): 
-   outdata = outdata.join(output_data_fund(symbols[i],'tushare',begin_date,end_date,column))
+for i in range(1,len(symbols)):
+   frist_outdata=output_data_fund(symbols[i],'tushare',begin_date,end_date,column)
+   outdata = outdata.join(frist_outdata)
 
 ####[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
 outdata.index=[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
