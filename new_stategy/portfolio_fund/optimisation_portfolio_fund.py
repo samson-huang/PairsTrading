@@ -234,7 +234,7 @@ while date_index_iter + shift <= end_index:
   an_rt=(end_price-start_price)/start_price
   an_rt=pd.DataFrame(an_rt)
   an_rt.columns=table.columns
-  an_rt=an_rt.loc[0,]
+  an_rt=an_rt.iloc[0,]
     ######################   
  ################################# 
   mean_returns = an_rt
@@ -314,7 +314,7 @@ def display_ef_with_selected_old(table, mean_returns, cov_matrix, risk_free_rate
     an_rt=(end_price-start_price)/end_price
     an_rt=pd.DataFrame(an_rt)
     an_rt.columns=table.columns
-    an_rt=an_rt.ix[0,]*100
+    an_rt=an_rt.iloc[0,]*100
     ######################
     print ("-"*80)
     print ("Maximum Sharpe Ratio Portfolio Allocation\n")
@@ -331,7 +331,7 @@ def display_ef_with_selected_old(table, mean_returns, cov_matrix, risk_free_rate
     print ("-"*80)
     print ("Individual Stock Returns and Volatility\n")
     for i, txt in enumerate(table.columns):
-        print (txt,":","annuaised return",round(an_rt.ix[i],2),", annualised volatility:",round(an_vol[i],2))
+        print (txt,":","annuaised return",round(an_rt.iloc[i],2),", annualised volatility:",round(an_vol[i],2))
     print ("-"*80)
     
     fig, ax = plt.subplots(figsize=(10, 7))
@@ -426,7 +426,7 @@ start_price = np.array(table.head(1))
 an_rt=(end_price-start_price)/table.head(1)
 an_rt=pd.DataFrame(an_rt)
 an_rt.columns=table.columns
-an_rt=an_rt.ix[0,]
+an_rt=an_rt.iloc[0,]
       ######################   
  #  ################################ 
 mean_returns = an_rt
