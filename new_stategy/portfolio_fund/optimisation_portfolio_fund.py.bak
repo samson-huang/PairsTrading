@@ -143,7 +143,7 @@ def random_portfolios(num_portfolios, mean_returns, cov_matrix, risk_free_rate):
         results[1,i] = portfolio_return
         results[2,i] = (portfolio_return - risk_free_rate) / portfolio_std_dev
     return results, weights_record
-#####求shparpe率
+
 def neg_sharpe_ratio(weights, mean_returns, cov_matrix, risk_free_rate):
     p_var, p_ret = portfolio_annualised_performance(weights, mean_returns, cov_matrix)
     return -(p_ret - risk_free_rate) / p_var
@@ -218,7 +218,7 @@ def display_ef_with_selected(table, mean_returns, cov_matrix, risk_free_rate):
 ##############################################
 
 
-while date_index_iter+shift  <= end_index:
+while date_index_iter + shift <= end_index:
   date = index[date_index_iter]
   #index_returns=original_returns[date_index_iter-1:date_index_iter+1]
   index_returns=original_returns[1:date_index_iter+1]
@@ -244,12 +244,12 @@ while date_index_iter+shift  <= end_index:
   distribution[date.strftime('%Y-%m-%d')] = portfolio_alloc
   
   # Calculating portfolio return
-  date2 = index[date_index_iter+shift]  #取t+1日期
-  temp1 = outdata.loc[date2]/outdata.loc[date]  #得到t+1日收益率
+  date2 = index[date_index_iter+shift]
+  temp1 = outdata.loc[date2]/outdata.loc[date]
   temp1.loc[StockList[-1]] = interest_rate+1
   temp2 = pd.Series(np.array(portfolio_alloc.ravel()).reshape(len(portfolio_alloc)),index=StockList)
-  total_value = np.sum(loop_returns[index[date_index_iter]]*temp2*temp1) #根据t日算出的持仓比例，算出t+1日的累积收益
-  # Increment Datedate
+  total_value = np.sum(loop_returns[index[date_index_iter]]*temp2*temp1)
+  # Increment Date
   date_index_iter += shift
   loop_returns[index[date_index_iter]] = total_value
 
@@ -331,7 +331,7 @@ def display_ef_with_selected_old(table, mean_returns, cov_matrix, risk_free_rate
     print ("-"*80)
     print ("Individual Stock Returns and Volatility\n")
     for i, txt in enumerate(table.columns):
-        print (txt,":","annuaised return",round(an_rt.iloc[i],2),", annualised volatility:",round(an_vol[i],2))
+        print (txt,":","annuaised return",round(an_rt.ix[i],2),", annualised volatility:",round(an_vol[i],2))
     print ("-"*80)
     
     fig, ax = plt.subplots(figsize=(10, 7))
