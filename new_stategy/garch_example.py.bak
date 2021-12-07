@@ -84,6 +84,7 @@ df["forecast_vol"].plot()
 plt.title("Real Rolling Volatility vs Forecast by GARCH(1,1)")
 plt.legend()
 plt.show()
+###########################################################
 
 def rmse_tr(predictions, targets):
     return np.sqrt(((predictions - targets) ** 2).mean())

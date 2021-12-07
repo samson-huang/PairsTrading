@@ -1,4 +1,4 @@
-#jupyter notebook --no-browser --port 6061 --ip=192.168.56.101
+#jupyter notebook --no-browser --port 6061 --ip=192.168.56.102
 #sudo pip3 --default-timeout=100 install mpl_finance -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 import datetime as dt
@@ -16,8 +16,6 @@ returns = 100 * market.pct_change().dropna()
 
 
 
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 

@@ -1,3 +1,10 @@
+#
+import sys
+sys.path.append('C:/Users/huangtuo/Documents/GitHub/PairsTrading/new_stategy/RNN_GARCH_vol_forecast/')
+#
+
+
+
 import pandas as pd
 import numpy as np
 #from RNNnumpy import RNN as rnn
@@ -6,9 +13,13 @@ import scipy.optimize as op
 import json
 import time
 
+
+
 # Data load and manipulation
 # --------------------------
-df = pd.read_csv('./gitdoc/RNN_GARCH/data/sp500.csv',index_col='Date',parse_dates=True).sort_index() # Load data from CSV
+#df = pd.read_csv('./gitdoc/RNN_GARCH/data/sp500.csv',index_col='Date',parse_dates=True).sort_index() # Load data from CSV
+df = pd.read_csv('C:/demo_test/data/sp500.csv',index_col='Date',parse_dates=True).sort_index() # Load data from CSV
+
 df['return'] = np.log(df['Close']).diff()*100 # Calculate returns
 df = df.dropna() # Remove missings
 print('Dimension of loaded CSV file:',df.shape)
