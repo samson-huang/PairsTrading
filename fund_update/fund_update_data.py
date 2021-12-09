@@ -238,6 +238,42 @@ class UpdateOriginData(FactorProcess):
         self.close_file(res, 'tradedays')
 
         print("Update meta data complete.")
+
+    def update_daliy_fund_meta_data(self, date=None):  # 更新所有funds截至当天前所有行情数据
+
+        '''
+        '''
+        tradedays_init = pd.read_excel("C:\\funds_data\\src\\tradedays.xlsx", index_col=[0])
+        now = datetime.now()
+        nowday = now.strftime("%Y%m%d")
+        tradedays_mediate = tradedays_init[
+            (tradedays_init["is_open"] == 1) & (tradedays_init['cal_date'] < int(nowday))]
+        tradedays_mediate = tradedays_mediate['cal_date'].apply(str)
+
+        fund_init = pd.read_excel("C:\\funds_data\\src\\all_funds.xlsx", index_col=[0])
+        fund_init_mediate = fund_init[fund_init.delist_date.isin(['NaN']) & fund_init.due_date.isin(['NaN'])]
+        fund_init_mediate = fund_init_mediate['ts_code'].apply(str)
+
+        try:
+            fund_count = fund_init_mediate.count()
+            for date_temp in tradedays_mediate:
+                data1 = pro.fund_nav(nav_date='99991212')
+                i = 0
+                while (i < fund_count):
+                    if i + 90 >= fund_count:
+                        data2 = pro.fund_nav(ts_code=fund_init_mediate[i:fund_count].str.cat(sep=','),
+                                             nav_date=date_temp)
+                    else:
+                        data2 = pro.fund_nav(ts_code=fund_init_mediate[i:i + 90].str.cat(sep=','), nav_date=date_temp)
+                    i = i + 90
+                    data1 = pd.concat([data1, data2], axis=0)
+                    time.sleep(1)
+                    data1.to_csv(os.path.join('C:\\funds_data\\daily_data\\', date_temp + '.csv'))
+        except Exception as e:
+            raise TuShareQueryFailError("Updating fund data failed, errorcode={}".e.value)
+
+        #self.close_file(res, 'meta')  # metafile = 'all_stocks.xlsx'
+        print("Update meta data complete.")
     
     def _update_new_data(self, ori_data, tdays, stockslist, qname, freq):
         qname = "_".join(qname.split('_')[:-1]) if qname.endswith('_d') else qname
@@ -780,7 +816,8 @@ if __name__ == '__main__':
     #updatefreq = input("Choose update frequency between 'D' and 'M': ")
     z = UpdateOriginData('M', update_only=False)
 
-    z.update_meta_data()
+    z.update_meta_data()#更新funds代码列表跟交易日历
+    z.update_daliy_fund_meta_data()#更新funds所有行情数据
     #z.update_daily_data(include_today=True)
     #z.update_meta_data(pd.to_datetime('2009-01-23'))
 

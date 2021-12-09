@@ -79,7 +79,7 @@ import tushare as ts
 tradedays_init=pd.read_excel("C:\\funds_data\\src\\tradedays.xlsx", index_col=[0])
 now = datetime.now()
 nowday= now.strftime("%Y%m%d")
-tradedays_mediate=tradedays_init[(tradedays_init["is_open"] == 1) & (tradedays_init['cal_date']<int(nowday))]
+tradedays_mediate=tradedays_init[(tradedays_init["is_open"] == 1) & (tradedays_init['cal_date']<int(nowday))].tail()
 tradedays_mediate=tradedays_mediate['cal_date'].apply(str)
 
 fund_init=pd.read_excel("C:\\funds_data\\src\\all_funds.xlsx", index_col=[0])
