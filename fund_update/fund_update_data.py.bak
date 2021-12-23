@@ -115,6 +115,8 @@ class UpdateOriginData(FactorProcess):
             print(f"Restore backup \'{SOURCE}\' to \'{dst}\' successfully.")
         
     def update_all(self):
+        ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
+        pro = ts.pro_api()
         date = datetime.now().date()
         self.make_backup(dirname='src')
         try:

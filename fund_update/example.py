@@ -87,7 +87,7 @@ fund_init_mediate=fund_init[fund_init.delist_date.isin(['NaN'])&fund_init.due_da
 fund_init_mediate=fund_init_mediate['ts_code'].apply(str)
 
 
-ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
+ts.set_token('*********************************')
 pro = ts.pro_api()
 
 fund_count=fund_init_mediate.count()
