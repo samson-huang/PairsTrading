@@ -13,7 +13,7 @@ import pandas as pd
 import pandas.tseries.offsets as toffsets
 from WindPy import w
 from functools import wraps
-from factor_calculate import FactorProcess, WindQueryFailError
+from factor_calculate import FactorProcess, WindQueryFailError, TuShareQueryFailError
 from datetime import datetime
 import tushare as ts
 START_YEAR = 2006
@@ -268,11 +268,36 @@ class UpdateOriginData(FactorProcess):
                     time.sleep(1)
                     data1.to_csv(os.path.join('C:\\funds_data\\daily_data\\', date_temp + '.csv'))
         except Exception as e:
-            raise TuShareQueryFailError("Updating fund data failed, errorcode={}".e.value)
+            raise print("Updating fund data failed, errorcode={}".e.value)
 
         #self.close_file(res, 'meta')  # metafile = 'all_stocks.xlsx'
         print("Update meta data complete.")
-    
+
+    def update__fund_single_meta_data(self, date=None):  # 更新所有funds截至当天前所有行情数据-单个fund list
+
+        '''
+        '''
+
+        fund_init = pd.read_excel("C:\\funds_data\\src\\all_funds.xlsx", index_col=[0])
+        fund_init_mediate = fund_init[fund_init.delist_date.isin(['NaN']) & fund_init.due_date.isin(['NaN'])]
+        fund_init_mediate = fund_init_mediate['ts_code'].apply(str)
+        fund_init_mediate.reset_index(drop=True, inplace=True)
+
+        try:
+            fund_count = fund_init_mediate.count()
+            i = 0
+            while (i < fund_count):
+                  data2 = pro.fund_nav(ts_code=fund_init_mediate[i])
+
+                  #time.sleep(1)
+                  data2.to_csv(os.path.join('C:\\funds_data\\fund_daily_data\\', fund_init_mediate[i] + '.csv'))
+                  i = i + 1
+        except Exception as e:
+            raise TuShareQueryFailError("Updating fund data failed, errorcode={}".e.value)
+
+        #self.close_file(res, 'meta')  # metafile = 'all_stocks.xlsx'
+        print("Update fund_single data complete.")
+
     def _update_new_data(self, ori_data, tdays, stockslist, qname, freq):
         qname = "_".join(qname.split('_')[:-1]) if qname.endswith('_d') else qname
         wsscond = self.ind_wsscond[qname]
@@ -809,13 +834,20 @@ class UpdateOriginData(FactorProcess):
             return pd.NaT 
 
 if __name__ == '__main__':
-    ts.set_token('*************')
+    #ts.set_token('*************')
+    ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
     pro = ts.pro_api()
     #updatefreq = input("Choose update frequency between 'D' and 'M': ")
     z = UpdateOriginData('M', update_only=False)
 
-    z.update_meta_data()#更新funds代码列表跟交易日历
-    z.update_daliy_fund_meta_data()#更新funds所有行情数据
+
+    ############20220207注释
+    #z.update_meta_data()#更新funds代码列表跟交易日历
+    #z.update_daliy_fund_meta_data()#更新funds所有行情数据
+    ###########20220207 end
+    z.update__fund_single_meta_data()
+
+
     #z.update_daily_data(include_today=True)
     #z.update_meta_data(pd.to_datetime('2009-01-23'))
 

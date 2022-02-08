@@ -1,8 +1,8 @@
-#jupyter notebook --no-browser --port 6061 --ip=192.168.56.102
+ï»¿#jupyter notebook --no-browser --port 6061 --ip=192.168.56.102
 
 
 import tushare as ts
-%matplotlib inline
+#%matplotlib inline
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -11,13 +11,13 @@ import seaborn as sns
 import scipy.optimize as sco
 import sys
 
-sys.path.append('/home/huangtuo/gitdoc/markowitz-portfolio-optimization')
-from markowitz import MarkowitzOpt
+#sys.path.append('/home/huangtuo/gitdoc/markowitz-portfolio-optimization')
+#from markowitz import MarkowitzOpt
 
 #import cvxopt as opt
 #from cvxopt import blas, solvers
 
-#tushareÉı¼¶ĞèÒªÓÃapi½øĞĞµ÷ÓÃ
+#tushareå‡çº§éœ€è¦ç”¨apiè¿›è¡Œè°ƒç”¨
 ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
 pro = ts.pro_api()
 
@@ -34,15 +34,15 @@ def output_data_fund(security,source,begin_date,end_date,column):
 
 #initialize date	  
 begin_date='20190101'
-end_date='20210909'	
+end_date='20191231'
 interest_rate = 0								# Fixed interest rate
 min_return = 0.003								# Minimum desired return
 
   
-convertible_bond_code=(['163817.OF','229002.OF','006395.OF','008087.OF'])
+convertible_bond_code=(['163817.OF','229002.OF','006395.OF','006381.OF'])
 symbols= convertible_bond_code
 column= "adj_nav"	
-#outdata ³õÊ¼»¯ Éú³É
+#outdata åˆå§‹åŒ– ç”Ÿæˆ
 outdata=output_data_fund(convertible_bond_code[0],'tushare',begin_date,end_date,column)	
 for i in range(1,len(symbols)):
    frist_outdata=output_data_fund(symbols[i],'tushare',begin_date,end_date,column)
@@ -51,6 +51,8 @@ for i in range(1,len(symbols)):
 ####[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
 outdata.index=[datetime.strptime(x,'%Y%m%d') for x in outdata.index]
 
+#fill nan value
+outdata=outdata.fillna(method='ffill')
 #reset by index order
 outdata=outdata.sort_index()
 
@@ -67,6 +69,8 @@ for c in returns.columns.values:
     plt.plot(returns.index, returns[c], lw=3, alpha=0.8,label=c)
 plt.legend(loc='upper right', fontsize=12)
 plt.ylabel('daily returns')
+
+
 
 ##############################################
 
@@ -212,7 +216,7 @@ while date_index_iter + shift <= end_index:
   an_rt=(end_price-start_price)/start_price
   an_rt=pd.DataFrame(an_rt)
   an_rt.columns=table.columns
-  an_rt=an_rt.ix[0,]
+  an_rt=an_rt.loc[0,]
     ######################   
  ################################# 
   mean_returns = an_rt
@@ -223,8 +227,8 @@ while date_index_iter + shift <= end_index:
   
   # Calculating portfolio return
   date2 = index[date_index_iter+shift]
-  temp1 = outdata.ix[date2]/outdata.ix[date]
-  temp1.ix[StockList[-1]] = interest_rate+1
+  temp1 = outdata.loc[date2]/outdata.loc[date]
+  temp1.loc[StockList[-1]] = interest_rate+1
   temp2 = pd.Series(np.array(portfolio_alloc.ravel()).reshape(len(portfolio_alloc)),index=StockList)
   total_value = np.sum(loop_returns[index[date_index_iter]]*temp2*temp1)
   # Increment Date
@@ -236,7 +240,7 @@ loop_returns = loop_returns[np.isfinite(loop_returns)]
 
 
 # Plot portfolio allocation of last 10 periods
-ax = distribution.T.ix[-10:].plot(kind='bar',stacked=True)
+ax = distribution.T.loc[-10:].plot(kind='bar',stacked=True)
 plt.ylim([0,1])
 plt.xlabel('Date')
 plt.ylabel('distribution')
@@ -268,7 +272,7 @@ plt.title('Portfolio returns vs. Time')
 # plt.savefig('returns.png')
 
 
-
+"""
 ################################################
 def display_ef_with_selected_old(table, mean_returns, cov_matrix, risk_free_rate,sum_day):
     max_sharpe = max_sharpe_ratio(mean_returns, cov_matrix, risk_free_rate)
@@ -467,3 +471,4 @@ def display_calculated_ef_with_random_old(table,mean_returns, cov_matrix, num_po
     plt.xlabel('annualised volatility')
     plt.ylabel('annualised returns')
     plt.legend(labelspacing=0.8)
+"""
