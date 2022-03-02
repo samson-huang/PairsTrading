@@ -26,8 +26,14 @@ returns=returns.dropna()
 returns.index=returns.index.tz_localize('UTC')
 
 pf.create_returns_tear_sheet(returns['adj_nav'])
-
-
+pf.create_returns_tear_sheet(returns['adj_nav'],live_start_date='2022-1-1')
+pf.create_full_tear_sheet(returns['adj_nav'],live_start_date='2020-1-1')
+pf.create_full_tear_sheet(returns,
+                          positions=positions,
+                          transactions=transactions,
+                          live_start_date=oos_date,
+                          slippage=0.1,
+                          sector_mappings=sector_map)
 import pyfolio as pf
 import pandas as pd
 #%matplotlib inline
@@ -62,6 +68,11 @@ trace = pf.bayesian.run_model('normal', test)
 
 
 pf.create_bayesian_tear_sheet(test, live_start_date=out_of_sample)
+
+
+
+oos_date = '2009-10-21'
+pf.create_bayesian_tear_sheet(returns, live_start_date=oos_date)
 
 
 
