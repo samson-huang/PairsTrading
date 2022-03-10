@@ -25,8 +25,8 @@ returns = fund_160706SZ_end.pct_change()
 returns=returns.dropna()
 returns.index=returns.index.tz_localize('UTC')
 
-pf.create_returns_tear_sheet(returns['adj_nav'])
-pf.create_returns_tear_sheet(returns['adj_nav'],live_start_date='2022-1-1')
+#pf.create_returns_tear_sheet(returns['adj_nav'])
+pf.create_returns_tear_sheet(returns['adj_nav'],live_start_date='2020-1-1')
 pf.create_full_tear_sheet(returns['adj_nav'],live_start_date='2020-1-1')
 pf.create_full_tear_sheet(returns,
                           positions=positions,
