@@ -626,7 +626,7 @@ plt.show()
 '''
 # 网格寻参
 symbol = '000016.XSHG'
-start_date, end_date = '2005-06-01', '2019-12-31'
+start_date, end_date = '20050601', '20220310'
 
 ret_dict = {}  # 储存各指标的收益数据
 annual_ret_dict = {}
@@ -659,7 +659,7 @@ for a, b in pbo_dict.items():
 
 plot_dist_bar(df)
 
-
+###########################################################################
 # 初始化
 bullbear = BullBearSingal(symbol,start_date,end_date,30,140)
 
@@ -731,7 +731,69 @@ bt.plot_algorithm_cum()
 # 风险指标
 bt.GetRisk
 
+#########################################
+##################################################
+# 交易明细
+class tradeAnalyze(object):
 
+    def __init__(self, pos: pd.Series, returns: pd.Series) -> None:
+        self.pos = pos
+        self.returns = returns
+
+        self.order_position = get_order_position(self.pos)  # 开平仓信息
+        self._hold_ratio = CalcHoldRatio(self.order_position, returns)
+
+    def show_all(self) -> None:
+        '''展示详细信息'''
+        print_table(self.hold_ratio,
+                    formatters={'Hold_returns': self.myFormat},
+                    name='交易明细',
+                    header_rows={'交易次数': len(self.order_position),
+                                 '持仓总天数': totaldays(self.pos),
+                                 '胜率': self.myFormat(self.win_ratio),
+                                 '日胜率': self.myFormat(self.daily_ratio)})
+
+    @property
+    def daily_ratio(self) -> float:
+        '''日胜率'''
+        algorithm_ret = self.pos * self.returns
+        return CalcWinRatio(algorithm_ret)
+
+    @property
+    def win_ratio(self) -> float:
+        '''胜率'''
+        return CalcWinRatio(self._hold_ratio)
+
+    @property
+    def hold_ratio(self) -> pd.Series:
+        holddays = GetHoldDay(self.order_position, self.pos)
+        df = pd.concat((self.order_position, holddays, self._hold_ratio), axis=1)
+
+        return df
+
+    @staticmethod
+    def myFormat(x: float) -> str:
+        return '{:.2%}'.format(x)
+
+# 净值画图
+# 信号双均线
+import empyrical as ep
+
+flag = bullbear.Singal
+
+next_ret = bullbear.Data['close'].pct_change().shift(-1)
+algorithm_ret = flag * next_ret
+cumRet = 1 + ep.cum_returns(algorithm_ret)
+
+
+trade_info = tradeAnalyze(flag,next_ret) # 初始化交易信息
+# 画图
+cumRet.plot(figsize=(18,5),label='净值',title='回测')
+
+(bullbear.Data['close'] / bullbear.Data['close'][0]).plot(color='darkgray',label='HS300')
+plot_trade_pos(trade_info,bullbear.Data['close'] / bullbear.Data['close'][0])
+
+plt.legend()
 '''
 牛熊指标在行业轮动中的应用
 “月度牛熊指标”，即将每个月的数据单 独计算出一个牛熊指标，每个月有且仅有一个牛熊指标,将各个行业指数的短期牛熊指标都进行变化率处理， 即计算本期的牛熊指标相对于上一期的变化率，并做多那些变化率相对较大行业。
