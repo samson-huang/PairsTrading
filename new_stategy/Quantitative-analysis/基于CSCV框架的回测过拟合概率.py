@@ -680,7 +680,7 @@ bt.GetRisk
 '''
 # 网格寻参
 symbol = '000300.XSHG'
-start_date, end_date = '2005-06-01', '2019-12-31'
+start_date, end_date = '20050601', '20200310'
 
 ret_dict = {}  # 储存各指标的收益数据
 annual_ret_dict = {}
