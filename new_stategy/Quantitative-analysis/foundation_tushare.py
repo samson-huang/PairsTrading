@@ -117,7 +117,42 @@ def distributed_query(query_func_name,
             fields=fields)
     return df
 
+###################################################################
+def distributed_other_query(query_func_name,
+                      start_date,
+                      end_date,
+                      limit=300):
+                      	
+    dates = GetEveryDay(start_date,end)
+    n_days = len(dates)
 
+    if  n_days > limit:
+        n = limit 
+
+        df_list = []
+        i = 0
+        pos1, pos2 = n * i, n * (i + 1) - 1
+
+        while pos2 < n_days:
+            df = query_func_name(
+                start_date=dates[pos1],
+                end_date=dates[pos2])
+            df_list.append(df)
+            i += 1
+            pos1, pos2 = n * i, n * (i + 1) - 1
+        if pos1 < n_days:
+            df = query_func_name(
+                start_date=dates[pos1],
+                end_date=dates[-1])
+            df_list.append(df)
+        df = pd.concat(df_list, axis=0)
+    else:
+        df = query_func_name(
+            start_date=start_date,
+            end_date=end_date)
+    return df
+    
+    
 # ts的日历需要处理一下才会返回成交日列表
 ## 减少ts调用 改用jq的数据....
 #df = my_pro.trade_cal(exchange='SSE', start_date=start_date, end_date=end_date)
@@ -126,4 +161,18 @@ def query_trade_dates(df:list,start_date: str, end_date: str) -> list:
     dates = df.query('is_open==1')['cal_date'].values.tolist()
     return  dates
     #return get_trade_days(start_date, end_date).tolist()
+    
+####################################################################
+def GetEveryDay(begin_date,end_date):
+#获得两日期间的日期列表
+    global date_list
+    date_list = []
+    begin_date = datetime.strptime(begin_date,"%Y%m%d")
+    end_date = datetime.strptime(end_date,"%Y%m%d")
+    while begin_date <= end_date:
+          date_str = begin_date.strftime("%Y%m%d")
+          date_list.append(date_str)
+          begin_date += datetime.timedelta(days=1)
+    #print('日期列表已形成')
+    return date_list
 
