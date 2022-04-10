@@ -67,7 +67,7 @@ outdata.to_csv ("C:\demo_test\outdata.csv" , encoding = "utf-8")
 """
 
 # read base bata
-outdata=pd.read_csv("C:\demo_test\outdata.csv",index_col=0)
+outdata=pd.read_csv("G:\demo_test\outdata.csv",index_col=0)
 outdata.index=[datetime.strptime(x,'%Y-%m-%d') for x in outdata.index]
 ##################
 
