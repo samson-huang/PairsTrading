@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdate
 import seaborn as sns
 # 设置字体 用来正常显示中文标签
-mpl.rcParams['font.sans-serif'] = ['SimHei']
+plt.rcParams['font.sans-serif'] = ['SimHei']
 
 # 用来正常显示负号
 plt.rcParams['axes.unicode_minus'] = False
@@ -51,18 +51,19 @@ my_ts  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 # 图表2 上证综指不同参数下的历史波动率对比（日波动率，未年化）
 
 start = '20000101'
-end = '20191031'
+end = '20220411'
 # 获取上证收盘数据
 #close_df = get_price('000001.XSHG', start, end, fields=['close', 'pre_close'])
 index_df = my_ts.query('index_daily', ts_code='000001.SH', 
-start_date=start, end_date=end,fields='trade_date,close,pre_close,pct_chg') 
+start_date=start, end_date=end,fields='trade_date,close,pre_close') 
 close_df=index_df
+close_df['pct'] = close_df['close']/close_df['pre_close']-1
 close_df.index=close_df['trade_date']
-close_df=pd.DataFrame(close_df[['close', 'pre_close','pct_chg']] )
+close_df=pd.DataFrame(close_df[['close', 'pre_close','pct']] )
 close_df=close_df.sort_index() 
 close_df.columns = ['close', 'pre_close','pct'] 
 # 计算收益率
-#close_df['pct'] = close_df['close']/close_df['pre_close']-1
+#
 from datetime import datetime
 close_df.index=[datetime.strptime(x,'%Y%m%d') for x in close_df.index]
 close_df=close_df.sort_index()
@@ -1223,17 +1224,21 @@ singal_df = VT_Factor('000001.sh', '20070101', '20191031', 250).get_singal
 BackTesting(singal_df, ['kernel_250', 'close'], method='MA').plot_net_value
 BackTesting(singal_df, ['kernel_250', 'close'], method='MA').summary
 
+#查看具体指标日期
+test=BackTesting(singal_df, ['kernel_250', 'close'], method='MA').back_testing
 '''
 上证 50 双均线策略比较
 '''
 
-singal_df = VT_Factor('000016.sh', '20070101', '20191031', 250).get_singal
+singal_df = VT_Factor('000016.sh', '20050101', '20220411', 250).get_singal
 BackTesting(singal_df, ['kernel_250', 'close'], method='MA').plot_net_value
 BackTesting(singal_df, ['kernel_250', 'close'], method='MA').summary
+
+test=BackTesting(singal_df, ['kernel_250', 'close'], method='MA').back_testing
 '''
 沪深 300 双均线策略比较
 '''
-singal_df = VT_Factor('000300.sh', '20070101', '20191031', 250).get_singal
+singal_df = VT_Factor('000300.sh', '20050101', '20220411', 250).get_singal
 BackTesting(singal_df, ['kernel_250', 'close'], method='MA').plot_net_value
 BackTesting(singal_df, ['kernel_250', 'close'], method='MA').summary
 
@@ -1276,6 +1281,19 @@ BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').plot_net_value
 BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').summary
 
 '''
+创业板指
+set123=my_ts.index_basic(market='SZSE')
+#set123[set123.name.str.contains('创业板')]
+399006.SZ
+'''
+singal_df = VT_Factor('399006.SZ', '20070101', '20220411', 250).get_singal
+BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').plot_net_value
+BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').summary
+
+test=BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').back_testing
+
+
+'''
 中证 500 布林带策略比较
 
 '''
@@ -1288,7 +1306,7 @@ BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').summary
 分析上证综指信号分布
 '''
 # 初始化
-vt = VT_Factor('000001.sh', '20070101', '20191031', 250)
+vt = VT_Factor('000001.sh', '20070101', '20220411', 250)
 
 # 获取数据df
 singal_df = vt.get_singal
@@ -1319,12 +1337,13 @@ vt.QuantReg_plot(forward_ret_name='未来15日收益率', singal_periods=250)
 #敏感性分析
 periods = [150, 200, 250,300]
 singal_name = ['kernel_'+str(x) for x in periods]
-singal_df = VT_Factor('000001.sh', '20040101', '20191031', periods).get_singal
+singal_name.append('close')
+singal_df = VT_Factor('399006.SZ', '20040101', '20220411', periods).get_singal
 
 # 参数不同前序所需数据不同将所有参数调整至同一起跑线
 filter_nan = singal_df['kernel_'+str(max(periods))].isna().sum()
 slice_df = singal_df.iloc[filter_nan:]
-
-BackTesting(slice_df, singal_name, method='BBANDS').plot_net_value
-BackTesting(slice_df, singal_name, method='BBANDS').summary
+test_one=BackTesting(slice_df, singal_name, method='BBANDS')
+test_one.plot_net_value
+test_one.summary
 
