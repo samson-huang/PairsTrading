@@ -51,7 +51,7 @@ my_ts  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 # 图表2 上证综指不同参数下的历史波动率对比（日波动率，未年化）
 
 start = '20000101'
-end = '20220411'
+end = '20220412'
 # 获取上证收盘数据
 #close_df = get_price('000001.XSHG', start, end, fields=['close', 'pre_close'])
 index_df = my_ts.query('index_daily', ts_code='000001.SH', 

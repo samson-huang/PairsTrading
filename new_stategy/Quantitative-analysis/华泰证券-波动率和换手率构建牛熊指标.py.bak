@@ -1335,7 +1335,7 @@ vt.QuantReg_plot(forward_ret_name='未来15日收益率', singal_periods=250)
 
 
 #敏感性分析
-periods = [5, 10, 20,50]
+periods = [150, 200, 250,300]
 singal_name = ['kernel_'+str(x) for x in periods]
 singal_name.append('close')
 singal_df = VT_Factor('399006.SZ', '20040101', '20220411', periods).get_singal
