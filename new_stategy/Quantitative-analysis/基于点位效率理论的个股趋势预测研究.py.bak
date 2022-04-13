@@ -1,3 +1,4 @@
+ï»¿# coding: utf-8
 #import tushare as ts
 import sys 
 sys.path.append("C://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//Quantitative-analysis//") 
@@ -29,10 +30,10 @@ import seaborn as sns
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-plt.rcParams['font.sans-serif'] = ['SimHei']  #ÓÃÀ´Õı³£ÏÔÊ¾ÖĞÎÄ±êÇ©
-plt.rcParams['axes.unicode_minus'] = False  #ÓÃÀ´Õı³£ÏÔÊ¾¸ººÅ
+plt.rcParams['font.sans-serif'] = ['SimHei']  #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºä¸­æ–‡æ ‡ç­¾
+plt.rcParams['axes.unicode_minus'] = False  #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºè´Ÿå·
 
-# »­Í¼
+# ç”»å›¾
 
 def plot_pivots(peak_valley_df: pd.DataFrame,
                 show_dir: Union[str,List,Tuple]='dir',
@@ -92,7 +93,7 @@ def get_clf_wave(price: pd.DataFrame,
     
     if except_dir:
         
-        # ĞŞÕı
+        # ä¿®æ­£
         perpare_data = Pipeline([('approximation', Approximation(rate, method)),
                 ('mask_dir_peak_valley',Mask_status_peak_valley('dir')),
                 ('except', Except_dir('dir')),
@@ -100,7 +101,7 @@ def get_clf_wave(price: pd.DataFrame,
                 ])
     else:
         
-       # ÆÕÍ¨
+       # æ™®é€š
         perpare_data = Pipeline([('approximation', Approximation(rate, method)),
                 ('mask_dir_peak_valley',Mask_dir_peak_valley('dir')),
                 ('mask_status_peak_valley', Mask_status_peak_valley('dir'))])
@@ -110,10 +111,10 @@ def get_clf_wave(price: pd.DataFrame,
     return perpare_data.fit_transform(price) 
     
     
-# Ê¹ÓÃts
+# ä½¿ç”¨ts
 
 
-# Çë¸ù¾İ×Ô¼ºµÄÇé¿öÌîĞ´tsµÄtoken
+# è¯·æ ¹æ®è‡ªå·±çš„æƒ…å†µå¡«å†™tsçš„token
 setting = json.load(open('C:\config\config.json'))
 my_ts  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
@@ -125,149 +126,145 @@ start_date=start, end_date=end,fields='trade_date,close,high,low,open')
 hs300=index_df
 hs300.index = pd.to_datetime(hs300.trade_date)
 del hs300['trade_date']
-hs300.sort_index(inplace=True)  # ÅÅĞò
+hs300.sort_index(inplace=True)  # æ’åº
 
 #hs300.to_csv('hs300.csv')
 
-#Õë¶ÔMACD¼Û¸ñ»®·Ö·½Ê½µÄ¸Ä½ø     
+#é’ˆå¯¹MACDä»·æ ¼åˆ’åˆ†æ–¹å¼çš„æ”¹è¿›     
 
-# ·½Ê½1:»®·ÖÉÏÏÂĞĞ
+# æ–¹å¼1:åˆ’åˆ†ä¸Šä¸‹è¡Œ
 
 flag_frame1: pd.DataFrame = get_clf_wave(hs300,None,'a',False)
 
 begin, end = '2020-02-01','2020-07-20'
 flag_df1 = flag_frame1.loc[begin:end,['close','dir']]
 
-flag_df1 = flag_df1.rename(columns={'dir':'·½Ê½1»®·ÖÉÏÏÂĞĞ'})
+flag_df1 = flag_df1.rename(columns={'dir':'æ–¹å¼1åˆ’åˆ†ä¸Šä¸‹è¡Œ'})
 	
 	
 line = flag_frame1.loc['2021-01-01':'2021-07-30'].plot(figsize=(18, 6), y='close', color='red',
-                    title='»¦Éî300ÊÕÅÌ¼Û¡¢DIFÏßÓëDEAÏß(2021-01-04ÖÁ2021-07-30)')
+                    title='æ²ªæ·±300æ”¶ç›˜ä»·ã€DIFçº¿ä¸DEAçº¿(2021-01-04è‡³2021-07-30)')
 
 flag_frame1.loc['2021-01-01':'2021-07-30'].plot(ax=line, y=['dif', 'dea'],
              secondary_y=True, color=['#3D89BE', 'darkgray']);
 
 
-#»®·Ö·½Ê½1
+#åˆ’åˆ†æ–¹å¼1
 
-# »­Í¼
-line = flag_df1.plot(y='·½Ê½1»®·ÖÉÏÏÂĞĞ', secondary_y=True, figsize=(
-    18, 5), ls='--', color='darkgray', title='»¦Éî300ÓëÉÏÏÂĞĞ»®·Ö(·½Ê½1)')
+# ç”»å›¾
+line = flag_df1.plot(y='æ–¹å¼1åˆ’åˆ†ä¸Šä¸‹è¡Œ', secondary_y=True, figsize=(
+    18, 5), ls='--', color='darkgray', title='æ²ªæ·±300ä¸ä¸Šä¸‹è¡Œåˆ’åˆ†(æ–¹å¼1)')
 
 flag_df1.plot(y='close', ax=line, color='r');
 
-#»®·Ö·½Ê½¶ş
-# ·½Ê½2:»®·ÖÉÏÏÂĞĞ
+#åˆ’åˆ†æ–¹å¼äºŒ
+# æ–¹å¼2:åˆ’åˆ†ä¸Šä¸‹è¡Œ
 flag_frame2: pd.DataFrame = get_clf_wave(hs300,0.5,'b',False)
 
 flag_df2 = flag_frame2.loc[begin:end,['close','dir']]
-flag_df2 = flag_df2.rename(columns={'dir':'·½Ê½2»®·ÖÉÏÏÂĞĞ'})
+flag_df2 = flag_df2.rename(columns={'dir':'æ–¹å¼2åˆ’åˆ†ä¸Šä¸‹è¡Œ'})
 
 
-# »­Í¼
-line = flag_df2.plot(y='·½Ê½2»®·ÖÉÏÏÂĞĞ', secondary_y=True, figsize=(
-    18, 5), ls='--', color='darkgray', title='»¦Éî300ÓëÉÏÏÂĞĞ»®·Ö(·½Ê½2,Rate=0.5)')
+# ç”»å›¾
+line = flag_df2.plot(y='æ–¹å¼2åˆ’åˆ†ä¸Šä¸‹è¡Œ', secondary_y=True, figsize=(
+    18, 5), ls='--', color='darkgray', title='æ²ªæ·±300ä¸ä¸Šä¸‹è¡Œåˆ’åˆ†(æ–¹å¼2,Rate=0.5)')
 
 flag_df2.plot(y='close', ax=line, color='r');
 
 
-#»®·Ö·½Ê½Èı
-# ·½Ê½3:»®·ÖÉÏÏÂĞĞ
+#åˆ’åˆ†æ–¹å¼ä¸‰
+# æ–¹å¼3:åˆ’åˆ†ä¸Šä¸‹è¡Œ
 
 flag_frame3: pd.DataFrame = get_clf_wave(hs300,2,'c',False)
 
 flag_df3 = flag_frame3.loc[begin:end,['close','dir']]
-flag_df3 = flag_df3.rename(columns={'dir':'·½Ê½3»®·ÖÉÏÏÂĞĞ'})
+flag_df3 = flag_df3.rename(columns={'dir':'æ–¹å¼3åˆ’åˆ†ä¸Šä¸‹è¡Œ'})
 	
-# »­Í¼
-line = flag_df3.plot(y='·½Ê½3»®·ÖÉÏÏÂĞĞ', secondary_y=True, figsize=(
-    18, 5), ls='--', color='darkgray', title='»¦Éî300ÓëÉÏÏÂĞĞ»®·Ö(·½Ê½3,Rate=2)')
+# ç”»å›¾
+line = flag_df3.plot(y='æ–¹å¼3åˆ’åˆ†ä¸Šä¸‹è¡Œ', secondary_y=True, figsize=(
+    18, 5), ls='--', color='darkgray', title='æ²ªæ·±300ä¸ä¸Šä¸‹è¡Œåˆ’åˆ†(æ–¹å¼3,Rate=2)')
 
 flag_df3.plot(y='close', ax=line, color='r');    
 
 
-#¸ßµÍµãÊ¶±ğÓëÒì³£¶Ëµã
-# ·½Ê½3:»®·ÖÉÏÏÂĞĞ-ĞŞÕıÓëÆÕÍ¨µÄ»®·Ö·½Ê½¶Ô±È
+#é«˜ä½ç‚¹è¯†åˆ«ä¸å¼‚å¸¸ç«¯ç‚¹
+# æ–¹å¼3:åˆ’åˆ†ä¸Šä¸‹è¡Œ-ä¿®æ­£ä¸æ™®é€šçš„åˆ’åˆ†æ–¹å¼å¯¹æ¯”
 
 status_frame: pd.DataFrame = get_clf_wave(hs300, 2, 'c', True)
 dir_frame: pd.DataFrame = get_clf_wave(hs300, 2, 'c', False)
 	
 fig, axes = plt.subplots(2,figsize=(18,12))
-# »­Í¼
+# ç”»å›¾
 plot_pivots(dir_frame.iloc[330:450],
             show_dir=['dir'],
             show_hl=True,
-            title='»¦Éî300Ö¸Êı²¨¶Î»®·Ö½á¹ûÕ¹Ê¾(·½·¨3,Rate=2)',ax=axes[0])
+            title='æ²ªæ·±300æŒ‡æ•°æ³¢æ®µåˆ’åˆ†ç»“æœå±•ç¤º(æ–¹æ³•3,Rate=2)',ax=axes[0])
 
 plot_pivots(status_frame.iloc[330:450],
             show_dir=['status'],
             show_hl=True,
-            title='»¦Éî300Ö¸Êı²¨¶Î»®·Ö½á¹ûÕ¹Ê¾(·½·¨3-ĞŞÕı,Rate=2)',ax=axes[1]);	
+            title='æ²ªæ·±300æŒ‡æ•°æ³¢æ®µåˆ’åˆ†ç»“æœå±•ç¤º(æ–¹æ³•3-ä¿®æ­£,Rate=2)',ax=axes[1]);	
             
 
 fig, axes = plt.subplots(2,figsize=(18,12))
-# »­Í¼
+# ç”»å›¾
 plot_pivots(dir_frame.iloc[:50],
             show_dir=['dir'],
             show_hl=True,
-            title='»¦Éî300Ö¸Êı²¨¶Î»®·Ö½á¹ûÕ¹Ê¾(·½·¨3,Rate=2)',ax=axes[0])
+            title='æ²ªæ·±300æŒ‡æ•°æ³¢æ®µåˆ’åˆ†ç»“æœå±•ç¤º(æ–¹æ³•3,Rate=2)',ax=axes[0])
 
 plot_pivots(status_frame.iloc[:50],
             show_dir=['status'],
             show_hl=True,
-            title='»¦Éî300Ö¸Êı²¨¶Î»®·Ö½á¹ûÕ¹Ê¾(·½·¨3-ĞŞÕı,Rate=2)',ax=axes[1]);
+            title='æ²ªæ·±300æŒ‡æ•°æ³¢æ®µåˆ’åˆ†ç»“æœå±•ç¤º(æ–¹æ³•3-ä¿®æ­£,Rate=2)',ax=axes[1]);
 
 
 fig, axes = plt.subplots(2,figsize=(18,12))
-# »­Í¼
+# ç”»å›¾
 plot_pivots(dir_frame.loc['2019-01-01':'2021-07-30'],
             show_dir=['dir'],
             show_hl=True,
-            title='»¦Éî300Ö¸Êı²¨¶Î»®·Ö½á¹ûÕ¹Ê¾£¨2019-01-03 ÖÁ 2021-07-30£©(·½·¨3,Rate=2)',ax=axes[0])
+            title='æ²ªæ·±300æŒ‡æ•°æ³¢æ®µåˆ’åˆ†ç»“æœå±•ç¤ºï¼ˆ2019-01-03 è‡³ 2021-07-30ï¼‰(æ–¹æ³•3,Rate=2)',ax=axes[0])
 
 plot_pivots(status_frame.loc['2019-01-01':'2021-07-30'],
             show_dir=['status'],
             show_hl=True,
-            title='»¦Éî300Ö¸Êı²¨¶Î»®·Ö½á¹ûÕ¹Ê¾£¨2019-01-03 ÖÁ 2021-07-30£©(·½·¨3-ĞŞÕı,Rate=2)',ax=axes[1]);                     
+            title='æ²ªæ·±300æŒ‡æ•°æ³¢æ®µåˆ’åˆ†ç»“æœå±•ç¤ºï¼ˆ2019-01-03 è‡³ 2021-07-30ï¼‰(æ–¹æ³•3-ä¿®æ­£,Rate=2)',ax=axes[1]);                     
             
 fig, axes = plt.subplots(2,figsize=(18,12))
-# »­Í¼
+# ç”»å›¾
 plot_pivots(dir_frame.loc['2021-05-01':'2021-09-15'],
             show_dir=['dir'],
             show_hl=True,
-            title='µ±Ç°µãÎ»ÓëËüµÄÇ°Á½¸ö¶Ëµã(·½·¨3,Rate=2)',ax=axes[0])
+            title='å½“å‰ç‚¹ä½ä¸å®ƒçš„å‰ä¸¤ä¸ªç«¯ç‚¹(æ–¹æ³•3,Rate=2)',ax=axes[0])
 
 plot_pivots(status_frame.loc['2021-05-01':'2021-09-15'],
             show_dir=['status'],
             show_hl=True,
-            title='µ±Ç°µãÎ»ÓëËüµÄÇ°Á½¸ö¶Ëµã(·½·¨3-ĞŞÕı,Rate=2)',ax=axes[1]); 
+            title='å½“å‰ç‚¹ä½ä¸å®ƒçš„å‰ä¸¤ä¸ªç«¯ç‚¹(æ–¹æ³•3-ä¿®æ­£,Rate=2)',ax=axes[1]); 
                        
-#ÉÏÏÂĞĞ»®·Ö·ÖÎö
+#ä¸Šä¸‹è¡Œåˆ’åˆ†åˆ†æ
 fig, axes = plt.subplots(2,figsize=(18,12))
 
 plot_pivots(status_frame,
             show_dir=False,
             show_hl=False,
-            title='»¦Éî300Ö¸Êı²¨¶Î»®·Ö½á¹ûÕ¹Ê¾(·½·¨3-ĞŞÕı,Rate=2)',ax=axes[0])
+            title='æ²ªæ·±300æŒ‡æ•°æ³¢æ®µåˆ’åˆ†ç»“æœå±•ç¤º(æ–¹æ³•3-ä¿®æ­£,Rate=2)',ax=axes[0])
 
 plot_pivots(dir_frame,
             show_dir=False,
             show_hl=False,
-            title='»¦Éî300Ö¸Êı²¨¶Î»®·Ö½á¹ûÕ¹Ê¾(·½·¨3,Rate=2)',ax=axes[1])
+            title='æ²ªæ·±300æŒ‡æ•°æ³¢æ®µåˆ’åˆ†ç»“æœå±•ç¤º(æ–¹æ³•3,Rate=2)',ax=axes[1])
 '''
-»ùÓÚÈÕ¶È»¦Éî300Ö¸ÊıµÄ²¨¶Î»®·Ö½áÉÏÍ¼ ¡£×İ¹ÛÕû¸öÊ±¼äÇø¼ä£¬ÎŞÂÛÊÇ´óÇ÷ÊÆ»¹ÊÇ³¤ÆÚÕğµ´£¬²¨¶ÎµÄ»®·Ö¼¸ºõÓë¼Û¸ñ×ßÊÆÖØºÏ£¬ÕâÒ²ÊÇÎÒÃÇËùÆÚÍûµÄ½á¹û¡£ÔÚ¿¼²ì·¶Î§ÄÚµÄ3890¸ö(2005-09-02ÖÁ2021-08-31)½»Ò×ÈÕÖĞ£º
-
-ĞŞÕı·½°¸ÏÂ
-
-¹²ÓĞ216¸ö²¨¶Î£¬ÆäÖĞ108¸öÉÏÕÇ²¨¶Î£¬108¸öÏÂ½µ²¨¶Î
-
-ÆÕÍ¨·½°¸ÏÂ
-
-¹²ÓĞ113¸ö²¨¶Î,ÆäÖĞ57¸öÉÏÕÇ²¨¶Î£¬56¸öÏÂ½µ²¨¶Î
+åŸºäºæ—¥åº¦æ²ªæ·±300æŒ‡æ•°çš„æ³¢æ®µåˆ’åˆ†ç»“ä¸Šå›¾ ã€‚çºµè§‚æ•´ä¸ªæ—¶é—´åŒºé—´ï¼Œæ— è®ºæ˜¯å¤§è¶‹åŠ¿è¿˜æ˜¯é•¿æœŸéœ‡è¡ï¼Œæ³¢æ®µçš„åˆ’åˆ†å‡ ä¹ä¸ä»·æ ¼èµ°åŠ¿é‡åˆï¼Œè¿™ä¹Ÿæ˜¯æˆ‘ä»¬æ‰€æœŸæœ›çš„ç»“æœã€‚åœ¨è€ƒå¯ŸèŒƒå›´å†…çš„3890ä¸ª(2005-09-02è‡³2021-08-31)äº¤æ˜“æ—¥ä¸­ï¼š
+ä¿®æ­£æ–¹æ¡ˆä¸‹
+å…±æœ‰216ä¸ªæ³¢æ®µï¼Œå…¶ä¸­108ä¸ªä¸Šæ¶¨æ³¢æ®µï¼Œ108ä¸ªä¸‹é™æ³¢æ®µ
+æ™®é€šæ–¹æ¡ˆä¸‹
+å…±æœ‰113ä¸ªæ³¢æ®µ,å…¶ä¸­57ä¸ªä¸Šæ¶¨æ³¢æ®µï¼Œ56ä¸ªä¸‹é™æ³¢æ®µ
 '''
 class Segment_stats():
     '''
-    ·ÖÎöÉÏÏÂĞĞ»®·ÖµÄÍ³¼ÆÊı¾İ
+    åˆ†æä¸Šä¸‹è¡Œåˆ’åˆ†çš„ç»Ÿè®¡æ•°æ®
     '''
     def __init__(self,
                  frame: pd.DataFrame,
@@ -277,11 +274,11 @@ class Segment_stats():
         self.data = frame
         self.flag_col = flag_col
         self.drop = drop
-        self._COL_NAME_MAP = {-1: 'ÏÂµø²¨¶Î', 1: 'ÉÏÕÇ²¨¶Î'}
+        self._COL_NAME_MAP = {-1: 'ä¸‹è·Œæ³¢æ®µ', 1: 'ä¸Šæ¶¨æ³¢æ®µ'}
         self._prepare()
 
     def winsorize_std(self) -> pd.DataFrame:
-        '''±ê×¼²îÈ¥¼«Öµ'''
+        '''æ ‡å‡†å·®å»æå€¼'''
 
         ret = self.stats_frame.groupby('g')['log_ret'].sum()
         up = ret.mean() + ret.std() * 2
@@ -291,7 +288,7 @@ class Segment_stats():
         return self.stats_frame.query('g == @group_id')
 
     def _prepare(self) -> None:
-        '''Ô¤´¦Àí'''
+        '''é¢„å¤„ç†'''
         stats_df = self.data[['close', self.flag_col]].copy()
 
         stats_df['log_ret'] = np.log(stats_df['close'] /
@@ -306,7 +303,7 @@ class Segment_stats():
         self.stats_frame = stats_df
 
     def stats_summary(self, winsorize: bool = False) -> pd.DataFrame:
-        '''¼òÒ×Í³¼Æ±¨¸æ'''
+        '''ç®€æ˜“ç»Ÿè®¡æŠ¥å‘Š'''
 
         if winsorize:
 
@@ -317,9 +314,9 @@ class Segment_stats():
             stats_frame = self.stats_frame
 
         SUMMARY_STATS = [
-            ('¾ùÖµ', lambda x: x.mean()), ('±ê×¼²î', lambda x: x.std()),
-            ('×î´óÖµ', lambda x: x.max()), ('×îĞ¡Öµ', lambda x: x.min()),
-            ('Ñù±¾ÊıÁ¿', lambda x: len(x))
+            ('å‡å€¼', lambda x: x.mean()), ('æ ‡å‡†å·®', lambda x: x.std()),
+            ('æœ€å¤§å€¼', lambda x: x.max()), ('æœ€å°å€¼', lambda x: x.min()),
+            ('æ ·æœ¬æ•°é‡', lambda x: len(x))
         ]
 
         group_stats = stats_frame.groupby([self.flag_col,
@@ -330,10 +327,10 @@ class Segment_stats():
         stats.index = stats.index.map(self._COL_NAME_MAP)
 
         return display(
-            stats.style.format('{:.2%}', subset=['¾ùÖµ', '±ê×¼²î', '×î´óÖµ', '×îĞ¡Öµ']))
+            stats.style.format('{:.2%}', subset=['å‡å€¼', 'æ ‡å‡†å·®', 'æœ€å¤§å€¼', 'æœ€å°å€¼']))
 
     def ttest_segment(self, winsorize: bool = False) -> pd.DataFrame:
-        '''²¨¶ÎµÄT¼ìÑé'''
+        '''æ³¢æ®µçš„Tæ£€éªŒ'''
 
         if winsorize:
 
@@ -394,47 +391,47 @@ class Segment_stats():
 
         return df.plot.bar(**kw)            
 
-#ĞŞÕıºó²¨¶Î»®·ÖÇé¿ö
+#ä¿®æ­£åæ³¢æ®µåˆ’åˆ†æƒ…å†µ
 
 stats_summary = Segment_stats(status_frame,'status')
 
-print('Î´È¥¼«Öµ²¨¶Î»®·ÖÇé¿ö')
+print('æœªå»æå€¼æ³¢æ®µåˆ’åˆ†æƒ…å†µ')
 stats_summary.stats_summary()
 stats_summary.ttest_segment()
 
 
-print('È¥¼«Öµ²¨¶Î»®·ÖÇé¿ö')
+print('å»æå€¼æ³¢æ®µåˆ’åˆ†æƒ…å†µ')
 stats_summary.stats_summary(True)
 
 stats_summary.ttest_segment(True)
 
 fig,axes = plt.subplots(1,2,figsize=(18,6))
 
-stats_summary.plot_segment_ret_hist(title='Î´È¥¼«Öµ',ax=axes[0])
-stats_summary.plot_segment_ret_hist(winsorize=True,title='È¥¼«Öµ',ax=axes[1]);
+stats_summary.plot_segment_ret_hist(title='æœªå»æå€¼',ax=axes[0])
+stats_summary.plot_segment_ret_hist(winsorize=True,title='å»æå€¼',ax=axes[1]);
 
 
-#Î´ĞŞÕıµÄ²¨¶Î»®·ÖÇé¿ö
+#æœªä¿®æ­£çš„æ³¢æ®µåˆ’åˆ†æƒ…å†µ
 stats_summary = Segment_stats(dir_frame,'dir')
 
-print('Î´È¥¼«Öµ²¨¶Î»®·ÖÇé¿ö')
+print('æœªå»æå€¼æ³¢æ®µåˆ’åˆ†æƒ…å†µ')
 stats_summary.stats_summary()
 stats_summary.ttest_segment()
 
 
-print('È¥¼«Öµ²¨¶Î»®·ÖÇé¿ö')
+print('å»æå€¼æ³¢æ®µåˆ’åˆ†æƒ…å†µ')
 stats_summary.stats_summary(True)
 
 stats_summary.ttest_segment(True)
 
 fig,axes = plt.subplots(1,2,figsize=(18,6))
 
-stats_summary.plot_segment_ret_hist(title='Î´È¥¼«Öµ',ax=axes[0])
-stats_summary.plot_segment_ret_hist(winsorize=True,title='È¥¼«Öµ',ax=axes[1]);
+stats_summary.plot_segment_ret_hist(title='æœªå»æå€¼',ax=axes[0])
+stats_summary.plot_segment_ret_hist(winsorize=True,title='å»æå€¼',ax=axes[1]);
 
 
 
-#µãÎ»Ğ§ÂÊµÄÀíÂÛ½éÉÜÓë¼ÆËã
+#ç‚¹ä½æ•ˆç‡çš„ç†è®ºä»‹ç»ä¸è®¡ç®—
 
 rv = Relative_values('dir')
 rv_df:pd.DataFrame = rv.fit_transform(dir_frame)
@@ -454,7 +451,7 @@ drop_tmp[['close', 'relative_price', 'relative_time']].plot(figsize=(18, 12),
 
 
 
-#Ó¦ÓÃ²¿·Ö
+#åº”ç”¨éƒ¨åˆ†
 from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.metrics.pairwise import pairwise_distances_argmin
@@ -467,9 +464,9 @@ n_clusters = 3
 k_means = KMeans(init='k-means++', n_clusters=n_clusters, n_init=10)
 k_means.fit(X)
 
-k_means_cluster_centers = k_means.cluster_centers_  # »ñÈ¡¾ÛÀàºËĞÄµã
+k_means_cluster_centers = k_means.cluster_centers_  # è·å–èšç±»æ ¸å¿ƒç‚¹
 
-k_means_labels = pairwise_distances_argmin(X, k_means_cluster_centers)  # ¼ÆËãÒ»¸öµãºÍÒ»×éµãÖ®¼äµÄ×îĞ¡¾àÀë,Ä¬ÈÏÅ·Ê½¾àÀë
+k_means_labels = pairwise_distances_argmin(X, k_means_cluster_centers)  # è®¡ç®—ä¸€ä¸ªç‚¹å’Œä¸€ç»„ç‚¹ä¹‹é—´çš„æœ€å°è·ç¦»,é»˜è®¤æ¬§å¼è·ç¦»
 
 
 k_mean_cluster_frame:pd.DataFrame = drop_tmp.copy()
@@ -645,7 +642,7 @@ def plot_bivariate_density(
             **contour_kws,
         )
         
-        ax.clabel(cset,inline=True) # ¾Í¼ÓÁËÒ»¸öÕâ¸ö
+        ax.clabel(cset,inline=True) # å°±åŠ äº†ä¸€ä¸ªè¿™ä¸ª
         if "hue" not in self.variables:
             cset.collections[0].set_label(label)
 
@@ -687,9 +684,9 @@ def plot_bivariate_density(
 _DistributionPlotter.plot_bivariate_density = plot_bivariate_density
 
 def plot_simple_cluster(k_mean_cluster_frame:pd.DataFrame,k_means_cluster_centers:np.array,x:str,y:str,hue:str):
-    '''»­¾ÛÀàÍ¼
+    '''ç”»èšç±»å›¾
     
-    k_means_cluster_centers:ÎªÖÊĞÄ
+    k_means_cluster_centers:ä¸ºè´¨å¿ƒ
     '''
     fig, ax = plt.subplots(figsize=(10, 8))
 
@@ -724,14 +721,14 @@ fig,ax = plt.subplots(figsize=(14,9))
 sns.kdeplot(data=slice_df, x='day',y='value',cbar=True,cmap="coolwarm");
 
 
-#ÆÓËØ±´Ò¶Ë¹ÓëÂß¼­»Ø¹é
+#æœ´ç´ è´å¶æ–¯ä¸é€»è¾‘å›å½’
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
-import joblib # ÓÃÓÚÄ£ĞÍµ¼³ö
+import joblib # ç”¨äºæ¨¡å‹å¯¼å‡º
 
 train_df = test_rv_df.loc[:'2018-01-01'].dropna()
 
@@ -761,31 +758,26 @@ df['LogisticRegression'] = next_ret.loc[test_df.index] * lr.predict(x_test)
 ep.cum_returns(df).plot(figsize=(18,6))
 
 ep.cum_returns(next_ret.loc[x_test.index]).plot(color='darkgray',label='HS300')
-plt.legend();    
+plt.legend();  
 
 
+###########å¤ç”¨è¯„æµ‹#################
 
-###########¸´ÓÃÆÀ¹Àº¯Êı#################
-test123=next_ret
-test123.columns = ['pct_chg'] 
-test4=pd.merge(test123,df,how='inner', left_index=True, right_index=True)
-test4.columns =['pct_chg','GaussianNB_MARK','LogisticRegression_MARK']
-summary(test4)
 ##########################################
     def summary(back_testing):
 
         back_df = back_testing
 
-        index_name = 'Äê»¯ÊÕÒæÂÊ,ÀÛ¼ÆÊÕÒæÂÊ,ÏÄÆÕ±ÈÂÊ,×î´ó»Ø³·,³Ö²Ö×ÜÌìÊı,½»Ò×´ÎÊı,Æ½¾ù³Ö²ÖÌìÊı,»ñÀûÌìÊı, \
-        ¿÷ËğÌìÊı,Ê¤ÂÊ(°´Ìì),Æ½¾ùÓ¯ÀûÂÊ(°´Ìì),Æ½¾ù¿÷ËğÂÊ(°´Ìì),Æ½¾ùÓ¯¿÷±È(°´Ìì),Ó¯Àû´ÎÊı,¿÷Ëğ´ÎÊı, \
-        µ¥´Î×î´óÓ¯Àû,µ¥´Î×î´ó¿÷Ëğ,Ê¤ÂÊ(°´´Ë),Æ½¾ùÓ¯ÀûÂÊ(°´´Î),Æ½¾ù¿÷ËğÂÊ(°´´Î),Æ½¾ùÓ¯¿÷±È(°´´Î)'.split(
+        index_name = 'å¹´åŒ–æ”¶ç›Šç‡,ç´¯è®¡æ”¶ç›Šç‡,å¤æ™®æ¯”ç‡,æœ€å¤§å›æ’¤,æŒä»“æ€»å¤©æ•°,äº¤æ˜“æ¬¡æ•°,å¹³å‡æŒä»“å¤©æ•°,è·åˆ©å¤©æ•°, \
+        äºæŸå¤©æ•°,èƒœç‡(æŒ‰å¤©),å¹³å‡ç›ˆåˆ©ç‡(æŒ‰å¤©),å¹³å‡äºæŸç‡(æŒ‰å¤©),å¹³å‡ç›ˆäºæ¯”(æŒ‰å¤©),ç›ˆåˆ©æ¬¡æ•°,äºæŸæ¬¡æ•°, \
+        å•æ¬¡æœ€å¤§ç›ˆåˆ©,å•æ¬¡æœ€å¤§äºæŸ,èƒœç‡(æŒ‰æ­¤),å¹³å‡ç›ˆåˆ©ç‡(æŒ‰æ¬¡),å¹³å‡äºæŸç‡(æŒ‰æ¬¡),å¹³å‡ç›ˆäºæ¯”(æŒ‰æ¬¡)'.split(
             ',')
 
-        # Ñ°ÕÒ±êÁĞ
+        # å¯»æ‰¾æ ‡åˆ—
         mark_list = [x for x in back_df.columns if x.split('_')[-1] == 'MARK']
 
         temp = []
-        mark_size = len(mark_list)  # ÁĞÊı
+        mark_size = len(mark_list)  # åˆ—æ•°
 
         if mark_size > 1:
 
@@ -801,22 +793,22 @@ summary(test4)
 
             return pd.DataFrame(risk_indicator(back_df, m), index=index_name)
 
-    # ¼ÆËã·çÏÕÖ¸±ê
+    # è®¡ç®—é£é™©æŒ‡æ ‡
 
-    def risk_indicator(self, x_df, mark_col):
+    def risk_indicator(x_df, mark_col):
         '''
-        ´«Èë¾­back_testing
+        ä¼ å…¥ç»back_testing
 
         '''
         df = x_df.copy()
 
         summary_dic = {}
 
-        # ¸ñÊ½»¯Êı¾İ
+        # æ ¼å¼åŒ–æ•°æ®
         def format_x(x):
             return '{:.2%}'.format(x)
 
-        # »ñÈ¡»Ø²âÊı¾İ
+        # è·å–å›æµ‹æ•°æ®
         df['pct_chg'] = df['pct_chg']/100
         df['NEXT_RET'] = df['pct_chg'].shift(-1)
 
@@ -825,71 +817,71 @@ summary(test4)
 
         CUM_RET = (1+RET).cumprod()  # series
 
-        # ¼ÆËãÄê»¯ÊÕÒæÂÊ
+        # è®¡ç®—å¹´åŒ–æ”¶ç›Šç‡
         annual_ret = CUM_RET.dropna()[-1]**(250/len(NOT_NAN_RET)) - 1
 
-        # ¼ÆËãÀÛ¼ÆÊÕÒæÂÊ
+        # è®¡ç®—ç´¯è®¡æ”¶ç›Šç‡
         cum_ret_rate = CUM_RET.dropna()[-1] - 1
 
-        # ×î´ó»Ø³·
+        # æœ€å¤§å›æ’¤
         max_nv = np.maximum.accumulate(np.nan_to_num(CUM_RET))
         mdd = -np.min(CUM_RET / max_nv - 1)
 
-        # ÏÄÆÕ
+        # å¤æ™®
         sharpe_ratio = np.mean(NOT_NAN_RET) / \
             np.nanstd(NOT_NAN_RET, ddof=1)*np.sqrt(250)
 
-        # Ó¯Àû´ÎÊı
+        # ç›ˆåˆ©æ¬¡æ•°
         temp_df = df.copy()
 
         diff = temp_df[mark_col] != temp_df[mark_col].shift(1)
         temp_df[mark_col+'_diff'] = diff.cumsum()
         cond = temp_df[mark_col] == 1
-        # Ã¿´Î¿ª²ÖµÄÊÕÒæÂÊÇé¿ö
+        # æ¯æ¬¡å¼€ä»“çš„æ”¶ç›Šç‡æƒ…å†µ
         temp_df = temp_df[cond].groupby(mark_col+'_diff')['NEXT_RET'].sum()
 
-        # ±ê¼ÇÂòÈëÂô³öÊ±µã
+        # æ ‡è®°ä¹°å…¥å–å‡ºæ—¶ç‚¹
         mark = df[mark_col]
         pre_mark = np.nan_to_num(df[mark_col].shift(-1))
-        # ÂòÈëÊ±µã
+        # ä¹°å…¥æ—¶ç‚¹
         trade = (mark == 1) & (pre_mark < mark)
 
-        # ½»Ò×´ÎÊı
+        # äº¤æ˜“æ¬¡æ•°
         trade_count = len(temp_df)
 
-        # ³Ö²Ö×ÜÌìÊı
+        # æŒä»“æ€»å¤©æ•°
         total = np.sum(mark)
 
-        # Æ½¾ù³Ö²ÖÌìÊı
+        # å¹³å‡æŒä»“å¤©æ•°
         mean_hold = total/trade_count
-        # »ñÀûÌìÊı
+        # è·åˆ©å¤©æ•°
         win = np.sum(np.where(RET > 0, 1, 0))
-        # ¿÷ËğÌìÊı
+        # äºæŸå¤©æ•°
         lose = np.sum(np.where(RET < 0, 1, 0))
-        # Ê¤ÂÊ
+        # èƒœç‡
         win_ratio = win/total
-        # Æ½¾ùÓ¯ÀûÂÊ£¨Ìì£©
+        # å¹³å‡ç›ˆåˆ©ç‡ï¼ˆå¤©ï¼‰
         mean_win_ratio = np.sum(np.where(RET > 0, RET, 0))/win
-        # Æ½¾ù¿÷ËğÂÊ£¨Ìì£©
+        # å¹³å‡äºæŸç‡ï¼ˆå¤©ï¼‰
         mean_lose_ratio = np.sum(np.where(RET < 0, RET, 0))/lose
-        # Ó¯¿÷±È(Ìì)
+        # ç›ˆäºæ¯”(å¤©)
         win_lose = win/lose
 
-        # Ó¯Àû´ÎÊı
+        # ç›ˆåˆ©æ¬¡æ•°
         win_count = np.sum(np.where(temp_df > 0, 1, 0))
-        # ¿÷Ëğ´ÎÊı
+        # äºæŸæ¬¡æ•°
         lose_count = np.sum(np.where(temp_df < 0, 1, 0))
-        # µ¥´Î×î´óÓ¯Àû
+        # å•æ¬¡æœ€å¤§ç›ˆåˆ©
         max_win = np.max(temp_df)
-        # µ¥´Î×î´ó¿÷Ëğ
+        # å•æ¬¡æœ€å¤§äºæŸ
         max_lose = np.min(temp_df)
-        # Ê¤ÂÊ
+        # èƒœç‡
         win_rat = win_count/len(temp_df)
-        # Æ½¾ùÓ¯ÀûÂÊ£¨´Î£©
+        # å¹³å‡ç›ˆåˆ©ç‡ï¼ˆæ¬¡ï¼‰
         mean_win = np.sum(np.where(temp_df > 0, temp_df, 0))/len(temp_df)
-        # Æ½¾ù¿÷ËğÂÊ£¨Ìì£©
+        # å¹³å‡äºæŸç‡ï¼ˆå¤©ï¼‰
         mean_lose = np.sum(np.where(temp_df < 0, temp_df, 0))/len(temp_df)
-        # Ó¯¿÷±È(´Î)
+        # ç›ˆäºæ¯”(æ¬¡)
         mean_wine_lose = win_count/lose_count
 
         summary_dic[mark_col] = [format_x(annual_ret), format_x(cum_ret_rate), sharpe_ratio, format_x(
@@ -900,8 +892,19 @@ summary(test4)
 
         return summary_dic
 
+##############################
 
+df1 = pd.DataFrame()
+test1=test_rv_df['close']*0+1
+df1['GaussianNB'] = test1.loc[test_df.index] * nb.predict(x_test)
+df1['LogisticRegression'] = test1.loc[test_df.index] * lr.predict(x_test)
+df1.columns=['GaussianNB_MARK','LogisticRegression_MARK']
 
+test123=next_ret
+test123.columns = ['pct_chg'] 
+test4=pd.merge(test123,df1,how='inner', left_index=True, right_index=True)
+test4.columns =['pct_chg','GaussianNB_MARK','LogisticRegression_MARK']
+summary(test4)
 
 
                                                             

@@ -1,3 +1,4 @@
+# coding: utf-8
 # 引入常用库
 import pandas as pd
 import numpy as np
