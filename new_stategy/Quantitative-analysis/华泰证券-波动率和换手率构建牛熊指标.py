@@ -52,7 +52,7 @@ my_ts  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 # 图表2 上证综指不同参数下的历史波动率对比（日波动率，未年化）
 
 start = '20000101'
-end = '20220412'
+end = '20220414'
 # 获取上证收盘数据
 #close_df = get_price('000001.XSHG', start, end, fields=['close', 'pre_close'])
 index_df = my_ts.query('index_daily', ts_code='000001.SH', 
@@ -1239,7 +1239,7 @@ test=BackTesting(singal_df, ['kernel_250', 'close'], method='MA').back_testing
 '''
 沪深 300 双均线策略比较
 '''
-singal_df = VT_Factor('000300.sh', '20050101', '20220411', 250).get_singal
+singal_df = VT_Factor('000300.sh', '20050101', '20220414', 250).get_singal
 BackTesting(singal_df, ['kernel_250', 'close'], method='MA').plot_net_value
 BackTesting(singal_df, ['kernel_250', 'close'], method='MA').summary
 
@@ -1277,7 +1277,7 @@ BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').summary
 主要原因是 2007 年的牛市对牛熊指标择时的策略没有能够把握住。2007 年之后，
 实际上还是对牛熊指标择时的策略表现更为稳健(强行找理由)。
 '''
-singal_df = VT_Factor('000300.sh', '20070101', '20191031', 250).get_singal
+singal_df = VT_Factor('000300.sh', '20070101', '20220414', 250).get_singal
 BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').plot_net_value
 BackTesting(singal_df, ['kernel_250', 'close'], method='BBANDS').summary
 

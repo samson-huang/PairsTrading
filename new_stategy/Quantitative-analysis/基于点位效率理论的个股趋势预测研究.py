@@ -119,8 +119,8 @@ setting = json.load(open('C:\config\config.json'))
 my_ts  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
 
-start = '20050408'
-end = '20211022'
+start = '20050101'
+end = '20220415'
 index_df = my_ts.query('index_daily', ts_code='000300.SH', 
 start_date=start, end_date=end,fields='trade_date,close,high,low,open')    
 hs300=index_df
@@ -730,9 +730,9 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 import joblib # 用于模型导出
 
-train_df = test_rv_df.loc[:'2018-01-01'].dropna()
+train_df = test_rv_df.loc[:'2022-01-01'].dropna()
 
-test_df = test_rv_df.loc['2018-01-01':]
+test_df = test_rv_df.loc['2022-01-01':]
 
 x_test = test_df[['relative_time','relative_price']]
 
@@ -752,12 +752,12 @@ for i,(train_index, test_index) in enumerate(tscv.split(train_df)):
 
 df = pd.DataFrame()
 next_ret = test_rv_df['close'].pct_change().shift(-1)
-
+next_ret1 = test_rv_df['close'].pct_change()
 df['GaussianNB'] = next_ret.loc[test_df.index] * nb.predict(x_test)
 df['LogisticRegression'] = next_ret.loc[test_df.index] * lr.predict(x_test)
 ep.cum_returns(df).plot(figsize=(18,6))
 
-ep.cum_returns(next_ret.loc[x_test.index]).plot(color='darkgray',label='HS300')
+ep.cum_returns(next_ret1.loc[x_test.index]).plot(color='darkgray',label='HS300')
 plt.legend();  
 
 
@@ -900,10 +900,12 @@ df1['GaussianNB'] = test1.loc[test_df.index] * nb.predict(x_test)
 df1['LogisticRegression'] = test1.loc[test_df.index] * lr.predict(x_test)
 df1.columns=['GaussianNB_MARK','LogisticRegression_MARK']
 
-test123=next_ret*100
+test123=next_ret1*100
 test123.columns = ['pct_chg'] 
 test4=pd.merge(test123,df1,how='inner', left_index=True, right_index=True)
 test4.columns =['pct_chg','GaussianNB_MARK','LogisticRegression_MARK']
+
+test4=pd.merge(test4,df,how='inner', left_index=True, right_index=True)
 summary(test4)
 
 
