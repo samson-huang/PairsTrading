@@ -761,9 +761,8 @@ ep.cum_returns(next_ret1.loc[x_test.index]).plot(color='darkgray',label='HS300')
 plt.legend();  
 
 
-###########复用评测#################
-
-##########################################
+##########复用评测#################
+#########################################
     def summary(back_testing):
 
         back_df = back_testing
@@ -900,10 +899,12 @@ df1['GaussianNB'] = test1.loc[test_df.index] * nb.predict(x_test)
 df1['LogisticRegression'] = test1.loc[test_df.index] * lr.predict(x_test)
 df1.columns=['GaussianNB_MARK','LogisticRegression_MARK']
 
-test123=next_ret*100
+test123=next_ret1*100
 test123.columns = ['pct_chg'] 
 test4=pd.merge(test123,df1,how='inner', left_index=True, right_index=True)
 test4.columns =['pct_chg','GaussianNB_MARK','LogisticRegression_MARK']
+
+test4=pd.merge(test4,df,how='inner', left_index=True, right_index=True)
 summary(test4)
 
 

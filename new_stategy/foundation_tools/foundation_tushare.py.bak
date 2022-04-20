@@ -6,9 +6,11 @@ Created on Wed Jul  4 16:56:01 2022
 """
 
 # 使用ts
+import pandas as pd
 import tushare as ts
 import json
 from dateutil.parser import parse
+from sklearn.pipeline import Pipeline
 
 # 请根据自己的情况填写ts的token
 #setting = json.load(open('C:\config\config.json'))

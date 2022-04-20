@@ -329,29 +329,29 @@ def display_ef_with_selected_old(table, mean_returns, cov_matrix, risk_free_rate
 
 
 #############
-    date_index_iter=243
-    date = index[date_index_iter]
-    #index_returns=original_returns[date_index_iter-1:date_index_iter+1]
-    index_returns=original_returns[1:date_index_iter+1]
-    index_returns.insert(4,'InterestRate',np.zeros(date_index_iter))
-    #table = outdata[date_index_iter-1:date_index_iter+1]
-    table = outdata[1:date_index_iter+1]
-    table.insert(4,'InterestRate',np.ones(date_index_iter))	
-    returns = index_returns
+date_index_iter=243
+date = index[date_index_iter]
+#index_returns=original_returns[date_index_iter-1:date_index_iter+1]
+index_returns=original_returns[1:date_index_iter+1]
+index_returns.insert(4,'InterestRate',np.zeros(date_index_iter))
+#table = outdata[date_index_iter-1:date_index_iter+1]
+table = outdata[1:date_index_iter+1]
+table.insert(4,'InterestRate',np.ones(date_index_iter))	
+returns = index_returns
  #  ##############################
       ##################-20200324
-    end_price   = np.array(table.tail(1))
-    start_price = np.array(table.head(1))
-    an_rt=(end_price-start_price)/table.head(1)
-    an_rt=pd.DataFrame(an_rt)
-    an_rt.columns=table.columns
-    an_rt=an_rt.ix[0,]
+end_price   = np.array(table.tail(1))
+start_price = np.array(table.head(1))
+an_rt=(end_price-start_price)/table.head(1)
+an_rt=pd.DataFrame(an_rt)
+an_rt.columns=table.columns
+an_rt=an_rt.ix[0,]
       ######################   
  #  ################################ 
-    mean_returns = an_rt
-    cov_matrix = index_returns.cov()
-    display_ef_with_selected_old(table,mean_returns, cov_matrix, risk_free_rate,date_index_iter)
-    display_calculated_ef_with_random_old(table,mean_returns, cov_matrix, num_portfolios, risk_free_rate,date_index_iter)
+mean_returns = an_rt
+cov_matrix = index_returns.cov()
+display_ef_with_selected_old(table,mean_returns, cov_matrix, risk_free_rate,date_index_iter)
+display_calculated_ef_with_random_old(table,mean_returns, cov_matrix, num_portfolios, risk_free_rate,date_index_iter)
 ##################
 def random_portfolios_new(num_portfolios, mean_returns, cov_matrix, risk_free_rate,sum_day):
     results = np.zeros((3,num_portfolios))
