@@ -761,9 +761,8 @@ ep.cum_returns(next_ret1.loc[x_test.index]).plot(color='darkgray',label='HS300')
 plt.legend();  
 
 
-###########复用评测#################
+##########复用评测#################
 
-##########################################
     def summary(back_testing):
 
         back_df = back_testing

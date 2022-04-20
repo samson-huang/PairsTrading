@@ -22,7 +22,7 @@ from markowitz import MarkowitzOpt
 #以后多策略并行估计需要大批量数据读取是个大问题
 ###############################################
 #tushare升级需要用api进行调用
-ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
+ts.set_token('**********************')
 pro = ts.pro_api()
 
 

@@ -16,7 +16,7 @@ from markowitz import MarkowitzOpt
 #from cvxopt import blas, solvers
 
 #tushare升级需要用api进行调用
-ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
+ts.set_token('**************************')
 pro = ts.pro_api()
 
 

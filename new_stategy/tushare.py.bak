@@ -246,7 +246,7 @@ returns = pd.Series(index=index)
 total_value = 1.0
 returns[index[date_index_iter]] = total_value
 
-while date_index_iter + shift < 6:
+while date_index_iter + shift < end_index:
 	date = index[date_index_iter]
 	index_returns=cvxopt_returns[date_index_iter-1:date_index_iter+1]
 	index_returns.insert(4,'InterestRate',[0,0])
