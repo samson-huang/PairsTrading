@@ -31,7 +31,7 @@ plt.rcParams['axes.unicode_minus'] = False
 plt.style.use('seaborn')
 
 import sys 
-sys.path.append("G://GitHub//PairsTrading//new_stategy//foundation_tools//") 
+sys.path.append("C://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//") 
 import foundation_tushare 
 from Creat_RSRS import (RSRS,rolling_apply)  # 自定义信号生成
 import json
@@ -97,7 +97,7 @@ def creat_algorithm_returns(signal_df: pd.DataFrame, benchmark_ser: pd.Series, S
     flag_df = signal_df.apply(lambda x: add_flag(x, S))
 
     log_ret = np.log(benchmark_ser / benchmark_ser.shift(1))  # 获取对数收益率
-
+    
     next_ret = log_ret.shift(-1)  # 获取next_ret
 
     # 策略收益
@@ -148,8 +148,8 @@ def view_signal(close_ser: pd.Series, signal_ser: pd.Series):
 
  
 index_name='000300.SH'
-start='20090101'
-end='20200813'
+start='20050101'
+end='20220420'
 index_df = pro.query('index_daily', ts_code=index_name, 
 start_date=start, end_date=end,fields='trade_date,close,pre_close,high,low,amount')    
 close_df=index_df
@@ -330,5 +330,18 @@ pf.plotting.plot_drawdown_periods(algorithm_ret['RSRS_passivation'], top=5)
 ax.set_title('改造前 十大回撤区间')   
 
 
+#附LR指标与HS300的关系图
+view_signal(price_df['close'],LR) 
 
-view_signal(price_df['close'],LR)                           	                          
+
+
+#######################################
+flag_df = signal_df.apply(lambda x: add_flag(x, 0.7))
+#评测模型
+
+test123=close_df['close'].pct_change()*100
+test123.columns = ['pct_chg'] 
+
+test4=pd.merge(test123,flag_df,how='inner', left_index=True, right_index=True)
+test4.columns=['pct_chg','RSRS_MARK','RSRS_z_MARK','RSRS_revise_MARK','RSRS_negative_r_MARK','RSRS_passivation_MARK']                          	                          
+
