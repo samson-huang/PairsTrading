@@ -221,6 +221,9 @@ view_nav(compare_df, benchmark)
 pf.plotting.show_perf_stats(algorithm_ret_ver1['RSRS_passivation'],
                             benchmark)
 
+#获取最后一天收盘买卖信号 
+flag_df=signal_df.apply(lambda x: add_flag(x, 0.7))
+flag_df.tail()
 '''
 使用LR指标当作震荡过滤器
 LR指标概述
@@ -271,8 +274,8 @@ class RSRS_improve2(RSRS):
 
 
 # 获取计算lr所需数据
-price_df = query_index_data('000300.SH', '20080101', '20200813', 'close')
-
+#price_df = query_index_data('000300.SH', '20080101', '20200813', 'close')
+price_df=close_df[['close']]
 # 指标计算
 LR = cala_LR(price_df['close']) 
 
@@ -282,7 +285,9 @@ signal_df = rsrs.get_RSRS(close_df, (1 - LR), 16, 600, 'ols')  # 获取各RSRS信号
 
 signal_df.head()
 
-
+#获取最后一天收盘买卖信号 
+signal_df.apply(lambda x: add_flag(x, 0.7))
+flag_df.tail()
 '''
 更改过滤器后的RSRS_passivation信号2011-07-15至2020-08-13年化波动率由15.6%降为15.2%,
 夏普从0.81提升至0.91,最大回撤由-21%降至-17.5% 
@@ -346,3 +351,17 @@ test4=pd.merge(test123,flag_df,how='inner', left_index=True, right_index=True)
 test4.columns=['pct_chg','RSRS_MARK','RSRS_z_MARK','RSRS_revise_MARK','RSRS_negative_r_MARK','RSRS_passivation_MARK']                          	                          
 
 summary(test4)
+
+
+
+
+df = pd.DataFrame()
+next_ret = close_df['close'].pct_change().shift(-1)
+next_ret1 = close_df['close'].pct_change()
+df['RSRS_passivation'] = next_ret * flag_df['RSRS_passivation']
+df['LogisticRegression'] = next_ret.loc[test_df.index] * lr.predict(x_test)
+import empyrical as ep
+ep.cum_returns(df).plot(figsize=(18,6))
+
+ep.cum_returns(next_ret1).plot(color='darkgray',label='创业板')
+plt.legend();  

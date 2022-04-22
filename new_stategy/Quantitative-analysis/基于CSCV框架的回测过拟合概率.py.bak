@@ -147,8 +147,8 @@ def distributed_query(query_func_name,
 # ts的日历需要处理一下才会返回成交日列表
 ## 减少ts调用 改用jq的数据....
 def query_trade_dates(start_date: str, end_date: str) -> list:
-    start_date = parse(start_date).strftime('%Y%m%d')
-    end_date = parse(end_date).strftime('%Y%m%d')
+    start_date = parse(start_date).strftime('%Y-%m-%d')
+    end_date = parse(end_date).strftime('%Y-%m-%d')
     ############################
     df = my_pro.trade_cal(exchange='SSE', start_date=start_date, end_date=end_date)
     dates = df.query('is_open==1')['cal_date'].values.tolist()

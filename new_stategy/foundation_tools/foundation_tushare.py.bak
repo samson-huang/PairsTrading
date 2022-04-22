@@ -11,7 +11,9 @@ import tushare as ts
 import json
 from dateutil.parser import parse
 from sklearn.pipeline import Pipeline
-
+from Hugos_tools.Approximation import (Approximation, Mask_dir_peak_valley,
+                                          Except_dir, Mask_status_peak_valley,
+                                          Relative_values)
 # 请根据自己的情况填写ts的token
 #setting = json.load(open('C:\config\config.json'))
 ######################################### tuhsare自动延迟下载 ####################################################

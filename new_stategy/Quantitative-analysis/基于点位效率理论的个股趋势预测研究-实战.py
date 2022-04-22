@@ -1,7 +1,7 @@
 # coding: utf-8
 #import tushare as ts
 import sys 
-sys.path.append("G://GitHub//PairsTrading//new_stategy//foundation_tools//") 
+sys.path.append("C://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//") 
 import foundation_tushare 
 import json
 from Hugos_tools.Approximation import (Approximation, Mask_dir_peak_valley,
@@ -37,7 +37,7 @@ my_ts  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
 
 start = '20050101'
-end = '20220419'
+end = '20220421'
 '''
 ¥¥“µ∞Â÷∏
 set123=my_ts.index_basic(market='SZSE')

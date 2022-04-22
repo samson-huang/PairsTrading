@@ -7,6 +7,7 @@ Created on Wed Jul  4 16:56:01 2022
 
 # 使用ts
 import pandas as pd
+import numpy as np
 import tushare as ts
 import json
 from dateutil.parser import parse
