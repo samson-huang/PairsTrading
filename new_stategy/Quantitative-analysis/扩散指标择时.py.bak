@@ -21,7 +21,7 @@ plt.rcParams['axes.unicode_minus'] = False
 plt.style.use('seaborn')
 
 import sys 
-sys.path.append("C://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//") 
+sys.path.append("G://GitHub//PairsTrading//new_stategy//foundation_tools//") 
 import foundation_tushare 
 from Creat_RSRS import (RSRS,rolling_apply)  # 自定义信号生成
 import json
@@ -384,11 +384,22 @@ def TdaysOffset(end_date: str, count: int) -> int:
     -----------
     return datetime.date
     '''
-    df = my_pro.trade_cal(exchange='SSE',is_open=1)
-    test_2=df[df['cal_date']=='20220421'].index[0]
-    count_temp=test_2+count
-    return df[df.index==count_temp]['cal_date'].values[0]
- '''   
+    df = my_pro.trade_cal(exchange='SSE')
+    test_2=df[df['cal_date']==end_date].index[0]
+    if count > 0:
+        df1=df[test_2:]
+        df1=df1[df1['is_open']==1]
+        df1=df1.reset_index(drop=True)
+        return df1[df1.index==count]['cal_date'].values[0]
+    elif count < 0:
+        df1=df[:test_2]
+        df1=df1[df1['is_open']==1]
+        df1=df1.reset_index(drop=True)	
+        return df1[df1.index==test_2-count]['cal_date'].values[0]
+    else:
+
+        raise ValueError('别闹！')            
+    '''   
     trade_date = get_trade_days(end_date=end_date, count=1)[0]
 
     if count > 0:
@@ -403,12 +414,25 @@ def TdaysOffset(end_date: str, count: int) -> int:
     elif count < 0:
 
         return get_trade_days(end_date=trade_date, count=abs(count))[0]
- '''
+    
     else:
 
         raise ValueError('别闹！')
-
-
+    '''    
+'''
+import datetime
+from dateutil.parser import parse
+# ts的日历需要处理一下才会返回成交日列表
+## 减少ts调用 改用jq的数据....
+def query_trade_dates(start_date: str, end_date: str) -> list:
+    start_date = parse(start_date).strftime('%Y%m%d')
+    end_date = parse(end_date).strftime('%Y%m%d')
+    ############################
+    df = my_pro.trade_cal(exchange='SSE', start_date=start_date, end_date=end_date)
+    dates = df.query('is_open==1')['cal_date'].values.tolist()
+    return  dates
+test123=query_trade_dates(start_date, end_date)
+'''
 ###################################################################################
 
 # 获取MA扩散指标信号
@@ -431,13 +455,16 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
     #security_list =my_pro.index_weight(index_code='000016.SH', start_date='20220331',end_date='20220331')
     ## 前复权数据
     security_list_temp=security_list['con_code'].to_list()
-     st = ','.join([str(s) for s in security_list_temp])
-    close_df = my_pro.pro.daily(ts_code=st, start_date=begin_date,
-     end_date=end_date)
+    st = ','.join([str(s) for s in security_list_temp])
+    #close_df = my_pro.daily(ts_code=st, start_date=begin_date,
+    # end_date=end_date)
+    close_df = foundation_tushare.distributed_query(my_pro.daily,st,
+                                   start_date,
+                                   end_date,'trade_date,ts_code,close',4500) 
     #close_df = get_price(
     #    security_list, begin_date, end_date, fields='close', panel=False)
     close_df = pd.pivot_table(
-        close_df, index='trade_date	', columns='code', values='close')
+        close_df, index='trade_date', columns='ts_code', values='close')
 
     # 计算均线
     ma_df = close_df.rolling(N).mean()
@@ -745,6 +772,8 @@ def GetGridRiskReport(N: int, singal_ser: pd.Series,N1S:int=20,N2S:int=10):
 # 目标指数
 index_symbol = '000300.SH'
 
+# 复现时间设定
+#start_date, end_date = '20022401', '20220425'
 # 复现时间设定
 start_date, end_date = '20070101', '20200430'
 # 计算等权信号

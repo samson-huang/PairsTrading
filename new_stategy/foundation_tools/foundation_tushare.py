@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import tushare as ts
 import json
+import datetime
 from dateutil.parser import parse
 from sklearn.pipeline import Pipeline
 from Hugos_tools.Approximation import (Approximation, Mask_dir_peak_valley,
@@ -87,7 +88,8 @@ def distributed_query(query_func_name,
                       fields,
                       limit=3000):
     n_symbols = len(symbol.split(','))
-    dates = query_trade_dates(start_date, end_date)
+    #dates = query_trade_dates(start_date, end_date)
+    dates = GetEveryDay(start_date,end_date)
     n_days = len(dates)
 
     if n_symbols * n_days > limit:
@@ -172,8 +174,8 @@ def GetEveryDay(begin_date,end_date):
 #获得两日期间的日期列表
     global date_list
     date_list = []
-    begin_date = datetime.strptime(begin_date,"%Y%m%d")
-    end_date = datetime.strptime(end_date,"%Y%m%d")
+    begin_date = datetime.datetime.strptime(begin_date,"%Y%m%d")
+    end_date = datetime.datetime.strptime(end_date,"%Y%m%d")
     while begin_date <= end_date:
           date_str = begin_date.strftime("%Y%m%d")
           date_list.append(date_str)
