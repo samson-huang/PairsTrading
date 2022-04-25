@@ -149,7 +149,7 @@ def view_signal(close_ser: pd.Series, signal_ser: pd.Series):
  
 index_name='000300.SH'
 start='20050101'
-end='20220420'
+end='20220422'
 index_df = pro.query('index_daily', ts_code=index_name, 
 start_date=start, end_date=end,fields='trade_date,close,pre_close,high,low,amount')    
 close_df=index_df
@@ -286,7 +286,8 @@ signal_df = rsrs.get_RSRS(close_df, (1 - LR), 16, 600, 'ols')  # 获取各RSRS信号
 signal_df.head()
 
 #获取最后一天收盘买卖信号 
-signal_df.apply(lambda x: add_flag(x, 0.7))
+
+flag_df=signal_df.apply(lambda x: add_flag(x, 0.7))
 flag_df.tail()
 '''
 更改过滤器后的RSRS_passivation信号2011-07-15至2020-08-13年化波动率由15.6%降为15.2%,
