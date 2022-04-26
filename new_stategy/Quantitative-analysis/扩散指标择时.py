@@ -812,3 +812,558 @@ ma_avg_long.name = '等权多头'
 IndicatorPlot(index_price,fast_ma,slow_ma,flag)
 CumPlot(index_price,ma_avg_long,'等权多头收益')
 
+# 查看回测情况
+pd.DataFrame(ma.GetRisk(),index=['160_150_25'])
+
+#多空情况
+def Singal(method):
+    return CreatMaSingal(index_symbol, start_date, end_date, 160, 150, 'avg', method)
+
+
+risk_list = []
+cum_list = []
+flag_list = []
+
+for label, method in zip(['等权多头', '等权空头', '等权多空'], ['long', 'short', 'ls']):
+    print(label)
+    # 加权多头
+    ma = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=Singal,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=150,
+        N2=25,
+        method=method)
+
+    ma.backtest()  # 回测
+
+    cum = getattr(ma, 'algorithm_cum')
+    cum.name = label
+
+    rept = pd.Series(ma.GetRisk())
+    rept.name = label
+
+    flag_list.append(getattr(ma, 'flag'))
+    risk_list.append(rept)
+    cum_list.append(cum)
+
+
+pd.DataFrame(risk_list)
+
+CumPlot(getattr(ma,'index_price'), cum_list, '等权MA扩散指标纯多、多空、纯空净值曲线')
+
+#流通市值加权处理
+# 网格寻参
+report_df = GetGridRiskReport(160,ma_mktcap_long)
+# 查看夏普胜率最高的前5组
+report_df.sort_values(['夏普','胜率'],ascending=False).head()
+
+# 加权多头
+ma1 = DiffusionIndicatorBackTest(
+    symbol=index_symbol,
+    singal_ser=ma_mktcap_long,
+    start_date=start_date,
+    end_date=end_date,
+    cal_func=talib.MA,
+    N1=80,
+    N2=30,
+    method='long')
+
+ma1.backtest()  # 回测
+
+index_price = getattr(ma1,'index_price')
+fast_ma = getattr(ma1,'fast_ma')
+slow_ma = getattr(ma1,'slow_ma')
+flag = getattr(ma1,'flag')
+ma_mktcap_long = getattr(ma1,'algorithm_cum')
+ma_mktcap_long.name = '加权多头'
+
+IndicatorPlot(index_price,fast_ma,slow_ma,flag)
+CumPlot(index_price,ma_mktcap_long,'加权多头收益')
+
+# 查看回测情况
+pd.DataFrame(ma1.GetRisk(),index=['160_80_30'])
+
+#多空情况
+def Singal(method):
+    return CreatMaSingal(index_symbol, start_date, end_date, 160, 150, 'mktcap', method)
+
+
+risk_list = []
+cum_list = []
+flag_list = []
+
+for label, method in zip(['流通市值加权多头', '流通市值加权空头', '流通市值加权多空'], ['long', 'short', 'ls']):
+    print(label)
+    # 加权多头
+    ma = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=Singal,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=80,
+        N2=30,
+        method=method)
+
+    ma.backtest()  # 回测
+
+    cum = getattr(ma, 'algorithm_cum')
+    cum.name = label
+
+    rept = pd.Series(ma.GetRisk())
+    rept.name = label
+
+    flag_list.append(getattr(ma, 'flag'))
+    risk_list.append(rept)
+    cum_list.append(cum)
+
+
+pd.DataFrame(risk_list)
+
+CumPlot(getattr(ma,'index_price'), cum_list, '流通市值加权MA扩散指标纯多、多空、纯空净值曲线')
+
+
+##################################################################################
+#ROC指标
+'''
+ROC(Price Rate of Change)又称变动率指标，是以今天的收盘价比较其 N 天前的收盘 价的差除以 N 天前的收盘（本质其实是 N 日 K 线的涨幅）
+进行计算的。是另一种 常用的构建扩散指标的技术指标。 判断个股多空头状态方法：对成分股价格计算其 N 日 ROC，当 ROC 值大于 0 时认 
+为个股处于多头状态，当 ROC 值小于 0 时认为个股处于空头状态。 这里我们使用沪深300指数计算扩散指标，并且使用移动平均的方法进行两次平滑。 
+一共有三个参数，N，N1，N2，计算 N 日 ROC，第一次平滑计算 N1 日移动平均线， 第二次平滑计算 N2 日移动平均线。参数的范围：
+N [60，250），单位为天，每隔 10 天取值；N1 [20，N），每取一个 N 值，N1 取值 20到 N 之间的数，每隔 10 天取值；N2 [10，N1），
+每隔5 天取值。其他的处理方式和使用MA指标时的方式一样。
+'''
+#数据获取
+# 目标指数
+index_symbol = '000300.XSHG'
+
+# 复现时间设定
+start_date, end_date = '2007-01-01', '2020-04-30'
+# 计算等权信号
+roc_avg_long = CreatROCSingal(index_symbol,start_date,end_date,100,90,'avg','long')
+
+# 计算加权信号
+roc_mktcap_long = CreatMaSingal(index_symbol,start_date,end_date,100,90,'mktcap','long')
+
+#等权处理
+# 网格寻参
+report_df = GetGridRiskReport(100,roc_avg_long)
+# 查看夏普胜率最高的前5组
+report_df.sort_values(['夏普','胜率'],ascending=False).head()
+
+#根据上面夏普及胜率优化结果N1=90,N2=30
+# 等权多头
+roc = DiffusionIndicatorBackTest(
+    symbol=index_symbol,
+    singal_ser=roc_avg_long,
+    start_date=start_date,
+    end_date=end_date,
+    cal_func=talib.MA,
+    N1=90,
+    N2=30,
+    method='long')
+
+roc.backtest()  # 回测
+
+index_price = getattr(roc,'index_price')
+fast_ma = getattr(roc,'fast_ma')
+slow_ma = getattr(roc,'slow_ma')
+flag = getattr(roc,'flag')
+roc_avg_long = getattr(roc,'algorithm_cum')
+roc_avg_long.name = '等权多头'
+
+IndicatorPlot(index_price,fast_ma,slow_ma,flag)
+CumPlot(index_price,roc_avg_long,'等权多头收益')
+
+# 查看回测情况
+pd.DataFrame(ma.GetRisk(),index=['100_90_30'])
+
+#多空情况
+def Singal(method):
+    return CreatROCSingal(index_symbol, start_date, end_date, 100, 90, 'avg', method)
+
+
+risk_list = []
+cum_list = []
+flag_list = []
+
+for label, method in zip(['等权多头', '等权空头', '等权多空'], ['long', 'short', 'ls']):
+    print(label)
+    # 加权多头
+    roc = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=Singal,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=90,
+        N2=30,
+        method=method)
+
+    roc.backtest()  # 回测
+
+    cum = getattr(roc, 'algorithm_cum')
+    cum.name = label
+
+    rept = pd.Series(roc.GetRisk())
+    rept.name = label
+
+    flag_list.append(getattr(roc, 'flag'))
+    risk_list.append(rept)
+    cum_list.append(cum)
+
+
+pd.DataFrame(risk_list)
+
+CumPlot(getattr(roc,'index_price'), cum_list, '等权权ROC扩散指标纯多、多空、纯空净值曲线')
+
+#流通市值加权处理
+# 网格寻参
+report_df = GetGridRiskReport(100,roc_mktcap_long)
+# 查看夏普胜率最高的前5组
+report_df.sort_values(['夏普','胜率'],ascending=False).head()
+
+
+# 等权多头
+roc = DiffusionIndicatorBackTest(
+    symbol=index_symbol,
+    singal_ser=roc_mktcap_long,
+    start_date=start_date,
+    end_date=end_date,
+    cal_func=talib.MA,
+    N1=90,
+    N2=80,
+    method='long')
+
+roc.backtest()  # 回测
+
+index_price = getattr(roc,'index_price')
+fast_ma = getattr(roc,'fast_ma')
+slow_ma = getattr(roc,'slow_ma')
+flag = getattr(roc,'flag')
+roc_avg_long = getattr(roc,'algorithm_cum')
+roc_avg_long.name = '等权多头'
+
+IndicatorPlot(index_price,fast_ma,slow_ma,flag)
+CumPlot(index_price,roc_avg_long,'等权多头收益')
+
+# 查看回测情况
+pd.DataFrame(roc.GetRisk(),index=['100_90_80'])
+
+#多空情况
+def Singal(method):
+    return CreatROCSingal(index_symbol, start_date, end_date, 100, 90, 'mktcap', method)
+
+
+risk_list = []
+cum_list = []
+flag_list = []
+
+for label, method in zip(['流通市值加权多头', '流通市值加权空头', '流通市值加权多空'], ['long', 'short', 'ls']):
+    print(label)
+    # 加权多头
+    roc = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=Singal,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=90,
+        N2=80,
+        method=method)
+
+    roc.backtest()  # 回测
+
+    cum = getattr(roc, 'algorithm_cum')
+    cum.name = label
+
+    rept = pd.Series(roc.GetRisk())
+    rept.name = label
+
+    flag_list.append(getattr(roc, 'flag'))
+    risk_list.append(rept)
+    cum_list.append(cum)
+
+
+pd.DataFrame(risk_list)
+
+CumPlot(getattr(roc,'index_price'), cum_list, '流通市值加权ROC扩散指标纯多、多空、纯空净值曲线')
+
+
+##################################################################################################
+#KDJ扩散指标
+
+#数据获取
+
+# 目标指数
+index_symbol = '000300.XSHG'
+
+# 复现时间设定
+start_date, end_date = '2007-01-01', '2020-04-30'
+# 计算等权信号
+kdj_avg_long = CreatKDJSingal(index_symbol,start_date,end_date,270,240,'avg','long')
+
+# 计算加权信号
+kdj_mktcap_long = CreatKDJSingal(index_symbol,start_date,end_date,270,240,'mktcap','long')
+
+# 网格寻参
+report_df = GetGridRiskReport(270,kdj_mktcap_long,80,40)
+# 查看夏普胜率最高的前5组
+report_df.sort_values(['夏普','胜率'],ascending=False).head()
+
+kdj = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=kdj_mktcap_long,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=240,
+        N2=195,
+        method='long')
+
+kdj.backtest()  # 回测
+
+
+index_price = getattr(kdj,'index_price')
+fast_ma = getattr(kdj,'fast_ma')
+slow_ma = getattr(kdj,'slow_ma')
+flag = getattr(kdj,'flag')
+kdj_avg_long = getattr(kdj,'algorithm_cum')
+
+IndicatorPlot(index_price,fast_ma,slow_ma,flag)
+CumPlot(index_price,kdj_avg_long,'流通市值加权多头收益')
+
+
+# 查看回测情况
+pd.DataFrame(kdj.GetRisk(),index=['270_240_195'])
+
+#多空情况
+def Singal(method):
+    return CreatKDJSingal(index_symbol, start_date, end_date, 270, 240, 'mktcap', method)
+
+
+risk_list = []
+cum_list = []
+flag_list = []
+
+for label, method in zip(['流通市值加权多头', '流通市值加权空头', '流通市值加权多空'], ['long', 'short', 'ls']):
+    print(label)
+    # 加权多头
+    roc = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=Singal,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=240,
+        N2=195,
+        method=method)
+
+    roc.backtest()  # 回测
+
+    cum = getattr(roc, 'algorithm_cum')
+    cum.name = label
+
+    rept = pd.Series(roc.GetRisk())
+    rept.name = label
+
+    flag_list.append(getattr(roc, 'flag'))
+    risk_list.append(rept)
+    cum_list.append(cum)
+
+
+pd.DataFrame(risk_list)
+
+CumPlot(getattr(roc,'index_price'), cum_list, '流通市值加权KDJ扩散指标纯多、多空、纯空净值曲线')
+
+
+#######################################################################################
+#RSI扩散指标
+# 目标指数
+index_symbol = '000300.XSHG'
+
+# 复现时间设定
+start_date, end_date = '2007-01-01', '2020-04-30'
+# 计算加权信号
+rsi_mktcap_long = CreatRSISingal(index_symbol,start_date,end_date,130,100,'mktcap','long')
+
+# 网格寻参
+report_df = GetGridRiskReport(130,rsi_mktcap_long,20,10)
+# 查看夏普胜率最高的前5组
+report_df.sort_values(['夏普','胜率'],ascending=False).head()
+
+
+rsi = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=rsi_mktcap_long,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=110,
+        N2=60,
+        method='long')
+
+rsi.backtest()  # 回测
+
+index_price = getattr(rsi,'index_price')
+fast_ma = getattr(rsi,'fast_ma')
+slow_ma = getattr(rsi,'slow_ma')
+flag = getattr(rsi,'flag')
+rsi_avg_long = getattr(rsi,'algorithm_cum')
+
+IndicatorPlot(index_price,fast_ma,slow_ma,flag)
+CumPlot(index_price,rsi_avg_long,'流通市值加权多头收益')
+
+
+# 查看回测情况
+pd.DataFrame(kdj.GetRisk(),index=['130_110_65'])
+
+
+def Singal(method):
+    return CreatKDJSingal(index_symbol, start_date, end_date, 130, 110, 'mktcap', method)
+
+
+risk_list = []
+cum_list = []
+flag_list = []
+
+for label, method in zip(['流通市值加权多头', '流通市值加权空头', '流通市值加权多空'], ['long', 'short', 'ls']):
+    print(label)
+    # 加权多头
+    rsi = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=Singal,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=110,
+        N2=65,
+        method=method)
+
+    rsi.backtest()  # 回测
+
+    cum = getattr(rsi, 'algorithm_cum')
+    cum.name = label
+
+    rept = pd.Series(roc.GetRisk())
+    rept.name = label
+
+    flag_list.append(getattr(rsi, 'flag'))
+    risk_list.append(rept)
+    cum_list.append(cum)
+
+
+pd.DataFrame(risk_list)
+
+
+CumPlot(getattr(rsi,'index_price'), cum_list, '流通市值加权RSI扩散指标纯多、多空、纯空净值曲线')
+
+####################################################
+####N日突破前期最高价
+
+#数据获取
+# 目标指数
+index_symbol = '000300.XSHG'
+
+# 复现时间设定
+start_date, end_date = '2007-01-01', '2020-04-30'
+
+df_list = []
+
+for i in range(40, 251, 10):
+    high_mktcap_long = CreatStageHighSingal(index_symbol, start_date, end_date, i, 90, 'mktcap', 'long')
+
+    # 网格寻参
+    df_list.append(GetGridRiskReport(i, high_mktcap_long, 20, 10))
+
+report_df = pd.concat(df_list)
+
+# 查看夏普胜率最高的前5组
+report_df.sort_values(['夏普', '胜率'], ascending=False).head()
+
+# 计算加权信号
+high_mktcap_long = CreatStageHighSingal(index_symbol,start_date,end_date,230,220,'mktcap','long')
+
+stage_high = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=high_mktcap_long,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=220,
+        N2=15,
+        method='long')
+
+stage_high.backtest()  # 回测
+
+index_price = getattr(stage_high,'index_price')
+fast_ma = getattr(stage_high,'fast_ma')
+slow_ma = getattr(stage_high,'slow_ma')
+flag = getattr(stage_high,'flag')
+rsi_avg_long = getattr(stage_high,'algorithm_cum')
+
+IndicatorPlot(index_price,fast_ma,slow_ma,flag)
+CumPlot(index_price,rsi_avg_long,'流通市值加权多头收益')
+
+# 查看回测情况
+pd.DataFrame(stage_high.GetRisk(),index=['130_110_65'])
+
+#多空
+def Singal(method):
+    return CreatStageHighSingal(index_symbol, start_date, end_date, 220, 15, 'mktcap', method)
+
+
+risk_list = []
+cum_list = []
+flag_list = []
+
+for label, method in zip(['流通市值加权多头', '流通市值加权空头', '流通市值加权多空'], ['long', 'short', 'ls']):
+    print(label)
+    # 加权多头
+    bt = DiffusionIndicatorBackTest(
+        symbol=index_symbol,
+        singal_ser=Singal,
+        start_date=start_date,
+        end_date=end_date,
+        cal_func=talib.MA,
+        N1=220,
+        N2=15,
+        method=method)
+
+    bt.backtest()  # 回测
+
+    cum = getattr(bt, 'algorithm_cum')
+    cum.name = label
+
+    rept = pd.Series(bt.GetRisk())
+    rept.name = label
+
+    flag_list.append(getattr(bt, 'flag'))
+    risk_list.append(rept)
+    cum_list.append(cum)
+
+
+####
+
+pd.DataFrame(risk_list)
+
+CumPlot(getattr(stage_high,'index_price'), cum_list, '流通市值加权RSI扩散指标纯多、多空、纯空净值曲线')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
