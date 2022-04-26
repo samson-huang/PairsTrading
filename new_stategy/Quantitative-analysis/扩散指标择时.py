@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 import itertools
-import operator # ÔËËã·û´úÌæ¿â
+import operator # è¿ç®—ç¬¦ä»£æ›¿åº“
 #from jqdata import *
 
 import seaborn as sns
@@ -15,7 +15,7 @@ import datetime as datetime
 
 plt.rcParams['font.family'] = 'serif'
 
-# ÓÃÀ´Õı³£ÏÔÊ¾¸ººÅ
+# ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºè´Ÿå·
 plt.rcParams['axes.unicode_minus'] = False
 
 plt.style.use('seaborn')
@@ -23,36 +23,36 @@ plt.style.use('seaborn')
 import sys 
 sys.path.append("G://GitHub//PairsTrading//new_stategy//foundation_tools//") 
 import foundation_tushare 
-from Creat_RSRS import (RSRS,rolling_apply)  # ×Ô¶¨ÒåĞÅºÅÉú³É
+from Creat_RSRS import (RSRS,rolling_apply)  # è‡ªå®šä¹‰ä¿¡å·ç”Ÿæˆ
 import json
 
-# Ê¹ÓÃts
+# ä½¿ç”¨ts
 #test123 = my_pro.index_basic(market='SSE')
-#test123[test123.name.str.contains('ÉÏÖ¤50')]
-#000016.SH ÉÏÖ¤50	  
+#test123[test123.name.str.contains('ä¸Šè¯50')]
+#000016.SH ä¸Šè¯50	  
 #
-# Çë¸ù¾İ×Ô¼ºµÄÇé¿öÌîĞ´tsµÄtoken
+# è¯·æ ¹æ®è‡ªå·±çš„æƒ…å†µå¡«å†™tsçš„token
 setting = json.load(open('C:\config\config.json'))
 my_pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
 ###################################################################################
-# »Ø²â¿ò¼Ü
-# »ñÈ¡ĞÅºÅ½øĞĞ»Ø²â
+# å›æµ‹æ¡†æ¶
+# è·å–ä¿¡å·è¿›è¡Œå›æµ‹
 class DiffusionIndicatorBackTest(object):
     '''
     close_df:index-date,columns-codes
     mkt_cap_df:index-date,columns-codes
-    singal_ser:pd.Series»òÕßfunc ÔÚmethod²ÎÊıÎªlsÊ± singal_serĞèÒªÎªfunc
-    cal_func:Æ½»¬N1,N2µÄ¼ÆËã·½Ê½
-    N,N1,N2:ÈçÑĞ±¨ÃèÊö
-    method:long¶àÍ·,short¿ÕÍ·,ls¶à¿Õ
+    singal_ser:pd.Seriesæˆ–è€…func åœ¨methodå‚æ•°ä¸ºlsæ—¶ singal_seréœ€è¦ä¸ºfunc
+    cal_func:å¹³æ»‘N1,N2çš„è®¡ç®—æ–¹å¼
+    N,N1,N2:å¦‚ç ”æŠ¥æè¿°
+    method:longå¤šå¤´,shortç©ºå¤´,lså¤šç©º
     ==================
     return dict
         fast_ma:pd.Series
         slow_ma:pd.Series
-        flag:np.array 1Îª¶àÍ· 0ÎªÎŞ³Ö²Ö -1Îª¿ÕÍ·
-        algorithm_returns:²ßÂÔÊÕÒæÂÊ
-        algorithm_cum:²ßÂÔ¾»Öµ
+        flag:np.array 1ä¸ºå¤šå¤´ 0ä¸ºæ— æŒä»“ -1ä¸ºç©ºå¤´
+        algorithm_returns:ç­–ç•¥æ”¶ç›Šç‡
+        algorithm_cum:ç­–ç•¥å‡€å€¼
     '''
 
     def __init__(self, symbol: str, singal_ser: pd.Series, start_date: str,
@@ -69,19 +69,19 @@ class DiffusionIndicatorBackTest(object):
         
         self.singal = pd.Series()
         self.index_price = pd.Series()
-        self.algorithm_returns = pd.Series()  # ²ßÂÔÊÕÒæ
-        self.algorithm_cum = pd.Series()  # ²ßÂÔ¾»Öµ
+        self.algorithm_returns = pd.Series()  # ç­–ç•¥æ”¶ç›Š
+        self.algorithm_cum = pd.Series()  # ç­–ç•¥å‡€å€¼
 
-        self.flag = np.array([])  # ³Ö²Ö±ê¼Ç
+        self.flag = np.array([])  # æŒä»“æ ‡è®°
         self.fast_ma = pd.Series()
         self.slow_ma = pd.Series()
 
     def backtest(self):
 
-        # »ñÈ¡Ö¸ÊıÏÂÆÚÊÕÒæÂÊÓÃÓÚ»Ø²â
+        # è·å–æŒ‡æ•°ä¸‹æœŸæ”¶ç›Šç‡ç”¨äºå›æµ‹
         offset_end = TdaysOffset(self.end_date, 1)
 
-        # Êı¾İ»ñÈ¡
+        # æ•°æ®è·å–
         close_df = get_price(
             self.symbol,
             self.start_date,
@@ -89,28 +89,28 @@ class DiffusionIndicatorBackTest(object):
             fields=['close', 'pre_close'],
             panel=False)
 
-        # ¼ÆËãÊÕÒæÂÊ
+        # è®¡ç®—æ”¶ç›Šç‡
         pct_chg = close_df['close'] / close_df['pre_close'] - 1
         next_ret = pct_chg.shift(-1)
         next_ret = next_ret.loc[self.start_date:self.end_date]
 
-        # ¼ÆËãÖ¸Êı¾»Öµ
+        # è®¡ç®—æŒ‡æ•°å‡€å€¼
         self.index_price = close_df['close']
         
-        # ¶à¿Õ
+        # å¤šç©º
         if self.method == 'ls':
             
-            self._CalLs(next_ret) # ¶à¿ÕµÄ¼ÆËã´¦Àí
+            self._CalLs(next_ret) # å¤šç©ºçš„è®¡ç®—å¤„ç†
             
 
         else:
             self._checksingalfunc()
-            self._GetFlag()  # »ñÈ¡³Ö²Ö±ê¼Ç
+            self._GetFlag()  # è·å–æŒä»“æ ‡è®°
 
-            self.CalAlgorithmCum(next_ret)  # »ñÈ¡²ßÂÔ¾»Öµ
+            self.CalAlgorithmCum(next_ret)  # è·å–ç­–ç•¥å‡€å€¼
     
     
-    # ¼ÆËã¶à¿Õ
+    # è®¡ç®—å¤šç©º
     def _CalLs(self,next_ret):
         
         n = len(next_ret)
@@ -120,20 +120,20 @@ class DiffusionIndicatorBackTest(object):
         for i,md in enumerate(['long','short']):
             
             self.method = md
-            self._checksingalfunc()     # »ñÈ¡ĞÅºÅ
-            self._GetFlag() # »ñÈ¡³Ö²Ö±ê¼Ç
+            self._checksingalfunc()     # è·å–ä¿¡å·
+            self._GetFlag() # è·å–æŒä»“æ ‡è®°
             self.CalAlgorithmCum(next_ret)
         
-            ret += self.algorithm_returns # ¶à¿ÕÊÕÒæ
+            ret += self.algorithm_returns # å¤šç©ºæ”¶ç›Š
             flag[i] = self.flag
             
         self.flag = flag
         self.algorithm_returns = ret
-        self.algorithm_cum = (1 + self.algorithm_returns).cumprod() # ¼ÆËãÀÛ¼ÆÊÕÒæÂÊ
+        self.algorithm_cum = (1 + self.algorithm_returns).cumprod() # è®¡ç®—ç´¯è®¡æ”¶ç›Šç‡
         
-        self.method = 'ls' # ½«Æä¸Ã»áÔ­Ê¼×´Ì¬
+        self.method = 'ls' # å°†å…¶è¯¥ä¼šåŸå§‹çŠ¶æ€
         
-    # ¼ì²ésingal_ser¸ñÊ½
+    # æ£€æŸ¥singal_seræ ¼å¼
     def _checksingalfunc(self):
         
         if hasattr(self.singal_func, '__call__') :
@@ -146,10 +146,10 @@ class DiffusionIndicatorBackTest(object):
             
         else:
             
-            raise ValueError('¶à¿Õ·½·¨ÏÂsingal_serĞèÒª´«Èë¼ÆËã·½·¨¶ø·Çpd.Series')
+            raise ValueError('å¤šç©ºæ–¹æ³•ä¸‹singal_seréœ€è¦ä¼ å…¥è®¡ç®—æ–¹æ³•è€Œépd.Series')
             
 
-    # ±ê¼Ç³Ö²Ö
+    # æ ‡è®°æŒä»“
     def _GetFlag(self) -> np.array:
 
         #fast_ma = self.singal_ser.rolling(self.N1).mean()
@@ -171,9 +171,9 @@ class DiffusionIndicatorBackTest(object):
 
         else:
 
-            raise ValueError('¶à¿Õ²ÎÊı½öÄÜÎª:long,short')
+            raise ValueError('å¤šç©ºå‚æ•°ä»…èƒ½ä¸º:long,short')
 
-    # ¼ÆËãÊÕÒæÂÊµÈ·çÏÕÖ¸±ê
+    # è®¡ç®—æ”¶ç›Šç‡ç­‰é£é™©æŒ‡æ ‡
     def CalAlgorithmCum(self, next_ret: pd.Series):
     
         algorithm_returns = self.flag * next_ret
@@ -183,54 +183,54 @@ class DiffusionIndicatorBackTest(object):
         self.algorithm_cum = algorithm_cum
 
         
-    # »ñÈ¡ÊÕÒæÖ¸±ê
+    # è·å–æ”¶ç›ŠæŒ‡æ ‡
     def GetRisk(self) -> dict:
 
-        # Äê»¯ÊÕÒæÂÊ
+        # å¹´åŒ–æ”¶ç›Šç‡
         annual_algo_return = pow(self.algorithm_cum[-1] / self.algorithm_cum[0],
                                  250 / len(self.algorithm_cum)) - 1
 
-        # ²ßÂÔ²¨¶¯ÂÊ
+        # ç­–ç•¥æ³¢åŠ¨ç‡
         algorithm_volatility = self.algorithm_returns.std() * np.sqrt(250)
 
-        # ÏÄÆÕ
+        # å¤æ™®
         sharpe = (annual_algo_return - 0.04) / algorithm_volatility
 
-        # ×î´ó»Ø³·µã£¬×î´ó»Ø³·
+        # æœ€å¤§å›æ’¤ç‚¹ï¼Œæœ€å¤§å›æ’¤
         md_p, md_r = self._GetMaxDrawdown()
         md_date_range = '{}-{}'.format(
             self.algorithm_cum.index[md_p[1]].strftime('%Y%m%d'),
             self.algorithm_cum.index[md_p[0]].strftime('%Y%m%d'))
                 
-        # ½»Ò×´ÎÊı£¬Ê¤ÂÊ
+        # äº¤æ˜“æ¬¡æ•°ï¼Œèƒœç‡
         trade, winratio = self.TradeCount()
 
         return {
-            '½»Ò×´ÎÊı': trade,
-            'Ê¤ÂÊ': winratio,
-            'ÀÛ¼Æ¾»Öµ': round(self.algorithm_cum[-1], 4),
-            'Äê»¯ÊÕÒæÂÊ': round(annual_algo_return, 4),
-            'Äê»¯²¨¶¯ÂÊ': round(algorithm_volatility, 4),
-            'ÏÄÆÕ': round(sharpe, 4),
-            '×î´ó»Ø³·': round(md_r, 4),
-            '»Ø³·Ê±¼ä': md_date_range,
-            'ÊÕÒæ»Ø³·±È': round(annual_algo_return / md_r, 4)
+            'äº¤æ˜“æ¬¡æ•°': trade,
+            'èƒœç‡': winratio,
+            'ç´¯è®¡å‡€å€¼': round(self.algorithm_cum[-1], 4),
+            'å¹´åŒ–æ”¶ç›Šç‡': round(annual_algo_return, 4),
+            'å¹´åŒ–æ³¢åŠ¨ç‡': round(algorithm_volatility, 4),
+            'å¤æ™®': round(sharpe, 4),
+            'æœ€å¤§å›æ’¤': round(md_r, 4),
+            'å›æ’¤æ—¶é—´': md_date_range,
+            'æ”¶ç›Šå›æ’¤æ¯”': round(annual_algo_return / md_r, 4)
         }
 
-    # »ñÈ¡×î´ó»Ø³·
+    # è·å–æœ€å¤§å›æ’¤
     def _GetMaxDrawdown(self) -> tuple:
         '''
         algorithm_cum
         ===========
-        return ×î´ó»Ø³·Î»ÖÃ,×î´ó»Ø³·
+        return æœ€å¤§å›æ’¤ä½ç½®,æœ€å¤§å›æ’¤
         '''
         arr = self.algorithm_cum.values
         i = np.argmax((np.maximum.accumulate(arr) - arr) /
                       np.maximum.accumulate(arr))  # end of the period
         j = np.argmax(arr[:i])  # start of period
-        return ([i, j], (1 - arr[i] / arr[j]))  # »Ø³·µã£¬»Ø³·±ÈÂÊ
+        return ([i, j], (1 - arr[i] / arr[j]))  # å›æ’¤ç‚¹ï¼Œå›æ’¤æ¯”ç‡
     
-    # »ñÈ¡½»Ò×´ÎÊı¡¢Ê¤ÂÊ
+    # è·å–äº¤æ˜“æ¬¡æ•°ã€èƒœç‡
     def TradeCount(self):
         
         if self.method == 'ls':
@@ -244,7 +244,7 @@ class DiffusionIndicatorBackTest(object):
                 num += open_num
                 w_num += win
                 
-            return num, w_num / num # ½»Ò×´ÎÊı£¬Ê¤ÂÊ
+            return num, w_num / num # äº¤æ˜“æ¬¡æ•°ï¼Œèƒœç‡
         
         else:
             
@@ -252,20 +252,20 @@ class DiffusionIndicatorBackTest(object):
             
             return open_num,wincount
         
-    # TradeCoundµÄµ×²ã¼ÆËã
+    # TradeCoundçš„åº•å±‚è®¡ç®—
     def _GetWinCount(self,flag):
         '''
-        Í³¼Æ
+        ç»Ÿè®¡
         '''  
             
         flag = np.abs(flag)
-        # ½»Ò×´ÎÊı 1Îª¿ª²Ö -1ÎªÆ½²Ö
+        # äº¤æ˜“æ¬¡æ•° 1ä¸ºå¼€ä»“ -1ä¸ºå¹³ä»“
         trade_num = flag - np.insert(flag[:-1], 0, 0)
 
-        # ½»Ò×´ÎÊı
+        # äº¤æ˜“æ¬¡æ•°
         open_num = sum(trade_num[trade_num == 1])
 
-        # Í³¼Æ¿ª²ÖÊÕÒæ
+        # ç»Ÿè®¡å¼€ä»“æ”¶ç›Š
         temp_df = pd.DataFrame({
             'flag': flag,
             'algorithm_returns': self.algorithm_returns
@@ -274,59 +274,59 @@ class DiffusionIndicatorBackTest(object):
         temp_df['mark'] = (temp_df['flag'] != temp_df['flag'].shift(1))
         temp_df['mark'] = temp_df['mark'].cumsum()
 
-        # ¿ª²ÖÖÁÆ½²ÖµÄ³ÖÓĞÊÕÒæ
+        # å¼€ä»“è‡³å¹³ä»“çš„æŒæœ‰æ”¶ç›Š
         tradecumsumratio = temp_df.query('flag==1').groupby(
             'mark')['algorithm_returns'].sum()
         win = len(tradecumsumratio[tradecumsumratio > 0])
 
         wincount = round(win / open_num, 4)
 
-        return open_num,win, wincount  # ½»Ò×´ÎÊı£¬Ó¯Àû´ÎÊı,Ê¤ÂÊ
+        return open_num,win, wincount  # äº¤æ˜“æ¬¡æ•°ï¼Œç›ˆåˆ©æ¬¡æ•°,èƒœç‡
 
 
 ###################################################################################
 
-# »­ĞÅºÅÍ¼
+# ç”»ä¿¡å·å›¾
 def IndicatorPlot(index_price: pd.Series, fast_ma: pd.Series,
                   slow_ma: pd.Series, flag: np.array):
     '''
-    index_price:indexÎªdate valueÎªÖ¸Êı¼Û¸ñ
-    fast_ma:indexÎªdate valueÎª¿ìÖ¸±ê
-    slow_ma:indexÎªdate valueÎªÂıÖ¸±ê
+    index_price:indexä¸ºdate valueä¸ºæŒ‡æ•°ä»·æ ¼
+    fast_ma:indexä¸ºdate valueä¸ºå¿«æŒ‡æ ‡
+    slow_ma:indexä¸ºdate valueä¸ºæ…¢æŒ‡æ ‡
     ==========
-    return Í¼±í
+    return å›¾è¡¨
     '''
     plt.rcParams['font.family'] = 'serif'
 
-    # ±ê¼Çµã
+    # æ ‡è®°ç‚¹
     idx = list(range(len(flag)))
     marks = np.where(flag == 1, idx, 0)
     marks = marks[marks != 0].tolist()
 
-    # »­Í¼
+    # ç”»å›¾
     fig = plt.figure(figsize=(18, 8))
     ax1 = fig.add_subplot(211)
-    ax1.set_title('³Ö²Ö±ê¼Ç')
+    ax1.set_title('æŒä»“æ ‡è®°')
 
     index_price.plot(markevery=marks, marker='o', mfc='r', ms=2)
     plt.legend()
 
     ax2 = fig.add_subplot(212)
-    ax2.set_title('ĞÅºÅ')
+    ax2.set_title('ä¿¡å·')
     fast_ma.plot()
     slow_ma.plot()
     plt.legend(['fast_ma', 'slow_ma'])
     plt.show()
 
 
-# »­¾»Öµ
+# ç”»å‡€å€¼
 def CumPlot(index_price: pd.Series, algorithm_cum: pd.Series, title: str):
     '''
-    index_price:indexÎªdate valueÎªÖ¸Êı¼Û¸ñ
-    algorithm_cum:indexÎªdate valueÎª¾»Öµ
-    title:Í¼±í±êÌâ
+    index_price:indexä¸ºdate valueä¸ºæŒ‡æ•°ä»·æ ¼
+    algorithm_cum:indexä¸ºdate valueä¸ºå‡€å€¼
+    title:å›¾è¡¨æ ‡é¢˜
     ==========
-    return Í¼±í
+    return å›¾è¡¨
     '''
     plt.rcParams['font.family'] = 'serif'
     plt.figure(figsize=(18, 8))
@@ -368,19 +368,19 @@ def GetMaxDrawdown(algorithm_cum) -> list:
     '''
         algorithm_cum
         ===========
-        return ×î´ó»Ø³·Î»ÖÃ
+        return æœ€å¤§å›æ’¤ä½ç½®
         '''
     arr = algorithm_cum.values
     i = np.argmax((np.maximum.accumulate(arr) - arr) /
                   np.maximum.accumulate(arr))  # end of the period
     j = np.argmax(arr[:i])  # start of period
-    return [i, j]  # »Ø³·µã
+    return [i, j]  # å›æ’¤ç‚¹
 
 
 def TdaysOffset(end_date: str, count: int) -> int:
     '''
-    end_date:Îª»ù×¼ÈÕÆÚ
-    count:ÎªÕıÔòºóÍÆ£¬¸ºÎªÇ°ÍÆ
+    end_date:ä¸ºåŸºå‡†æ—¥æœŸ
+    count:ä¸ºæ­£åˆ™åæ¨ï¼Œè´Ÿä¸ºå‰æ¨
     -----------
     return datetime.date
     '''
@@ -392,18 +392,19 @@ def TdaysOffset(end_date: str, count: int) -> int:
         df1=df1.reset_index(drop=True)
         return df1[df1.index==count]['cal_date'].values[0]
     elif count < 0:
-        df1=df[:test_2]
+        df1=df[:test_2+1]
         df1=df1[df1['is_open']==1]
-        df1=df1.reset_index(drop=True)	
-        return df1[df1.index==len(df1)-count]['cal_date'].values[0]
+        df1=df1.reset_index(drop=True)
+        count_df1=len(df1)+count
+        return df1[df1.index==count_df1]['cal_date'].values[0]
     else:
 
-        raise ValueError('±ğÄÖ£¡')            
+        raise ValueError('åˆ«é—¹ï¼')            
     '''   
     trade_date = get_trade_days(end_date=end_date, count=1)[0]
 
     if count > 0:
-        # ½«end_date×ªÎª½»Ò×ÈÕ
+        # å°†end_dateè½¬ä¸ºäº¤æ˜“æ—¥
 
         trade_cal = get_all_trade_days().tolist()
 
@@ -417,13 +418,13 @@ def TdaysOffset(end_date: str, count: int) -> int:
     
     else:
 
-        raise ValueError('±ğÄÖ£¡')
+        raise ValueError('åˆ«é—¹ï¼')
     '''    
 '''
 import datetime
 from dateutil.parser import parse
-# tsµÄÈÕÀúĞèÒª´¦ÀíÒ»ÏÂ²Å»á·µ»Ø³É½»ÈÕÁĞ±í
-## ¼õÉÙtsµ÷ÓÃ ¸ÄÓÃjqµÄÊı¾İ....
+# tsçš„æ—¥å†éœ€è¦å¤„ç†ä¸€ä¸‹æ‰ä¼šè¿”å›æˆäº¤æ—¥åˆ—è¡¨
+## å‡å°‘tsè°ƒç”¨ æ”¹ç”¨jqçš„æ•°æ®....
 def query_trade_dates(start_date: str, end_date: str) -> list:
     start_date = parse(start_date).strftime('%Y%m%d')
     end_date = parse(end_date).strftime('%Y%m%d')
@@ -435,25 +436,25 @@ test123=query_trade_dates(start_date, end_date)
 '''
 ###################################################################################
 
-# »ñÈ¡MAÀ©É¢Ö¸±êĞÅºÅ
+# è·å–MAæ‰©æ•£æŒ‡æ ‡ä¿¡å·
 def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
                   weight_method: str, method: str) -> pd.Series:
     '''
-    N,N1µÄ×÷ÓÃÖ»ÊÇÈ¥Ç°Ğò¼ÆËãÆÚ
-    method:short¿ÕÍ·,long¶àÍ·
-    weight_method:avgµÈÈ¨,mktcapÊĞÖµ¼ÓÈ¨
+    N,N1çš„ä½œç”¨åªæ˜¯å»å‰åºè®¡ç®—æœŸ
+    method:shortç©ºå¤´,longå¤šå¤´
+    weight_method:avgç­‰æƒ,mktcapå¸‚å€¼åŠ æƒ
     '''
-    # Êı¾İ¼ÆËãÇ°ĞòÆÚ
+    # æ•°æ®è®¡ç®—å‰åºæœŸ
     begin_date = TdaysOffset(
         start_date,
         -(N + N1),
     )
 
-    # ³É·Ö¹ÉÊ¹ÓÃend_dateÊ±µã³É·Ö¹É
+    # æˆåˆ†è‚¡ä½¿ç”¨end_dateæ—¶ç‚¹æˆåˆ†è‚¡
     #security_list = get_index_stocks(index_symbol, date=end_date)000016.SH
     security_list =my_pro.index_weight(index_code=index_symbol, trade_date=end_date)
     #security_list =my_pro.index_weight(index_code='000016.SH', start_date='20220331',end_date='20220331')
-    ## Ç°¸´È¨Êı¾İ
+    ## å‰å¤æƒæ•°æ®
     security_list_temp=security_list['con_code'].to_list()
     st = ','.join([str(s) for s in security_list_temp])
     #close_df = my_pro.daily(ts_code=st, start_date=begin_date,
@@ -463,10 +464,11 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
                                    end_date,'trade_date,ts_code,close',4500) 
     #close_df = get_price(
     #    security_list, begin_date, end_date, fields='close', panel=False)
+    close_df.to_csv('C://temp//close_df.csv')
     close_df = pd.pivot_table(
         close_df, index='trade_date', columns='ts_code', values='close')
 
-    # ¼ÆËã¾ùÏß
+    # è®¡ç®—å‡çº¿
     ma_df = close_df.rolling(N).mean()
     action = {'long': operator.gt, 'short': operator.lt}
 
@@ -476,7 +478,7 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
 
     elif weight_method == 'mktcap':
 
-        ## »ñÈ¡Á÷Í¨ÊĞÖµ
+        ## è·å–æµé€šå¸‚å€¼
         mak_cap_df = GetValuation(
             security_list, start_date=begin_date, end_date=end_date)
         mak_cap_df = pd.pivot_table(
@@ -488,30 +490,30 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
         weights = mak_cap_df.apply(lambda x: x / x.sum(), axis=1).fillna(0)
         return (action[method](close_df, ma_df) * weights).sum(axis=1)
 
-# »ñÈ¡ROCÀ©É¢Ö¸±êĞÅºÅ
+# è·å–ROCæ‰©æ•£æŒ‡æ ‡ä¿¡å·
 def CreatROCSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
                   weight_method: str, method: str) -> pd.Series:
     '''
-    N,N1µÄ×÷ÓÃÖ»ÊÇÈ¥Ç°Ğò¼ÆËãÆÚ
-    method:short¿ÕÍ·,long¶àÍ·
-    weight_method:avgµÈÈ¨,mktcapÊĞÖµ¼ÓÈ¨
+    N,N1çš„ä½œç”¨åªæ˜¯å»å‰åºè®¡ç®—æœŸ
+    method:shortç©ºå¤´,longå¤šå¤´
+    weight_method:avgç­‰æƒ,mktcapå¸‚å€¼åŠ æƒ
     '''
-    # Êı¾İ¼ÆËãÇ°ĞòÆÚ
+    # æ•°æ®è®¡ç®—å‰åºæœŸ
     begin_date = TdaysOffset(
         start_date,
         -(N + N1),
     )
 
-    # ³É·Ö¹ÉÊ¹ÓÃend_dateÊ±µã³É·Ö¹É
+    # æˆåˆ†è‚¡ä½¿ç”¨end_dateæ—¶ç‚¹æˆåˆ†è‚¡
     security_list = get_index_stocks(index_symbol, date=end_date)
 
-    ## Ç°¸´È¨Êı¾İ
+    ## å‰å¤æƒæ•°æ®
     close_df = get_price(
         security_list, begin_date, end_date, fields='close', panel=False)
     close_df = pd.pivot_table(
         close_df, index='time', columns='code', values='close')
 
-    # ¼ÆËãroc
+    # è®¡ç®—roc
     pct_chg = close_df.pct_change(N)
     action = {'long': operator.gt, 'short': operator.lt}
 
@@ -521,7 +523,7 @@ def CreatROCSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
 
     elif weight_method == 'mktcap':
 
-        ## »ñÈ¡Á÷Í¨ÊĞÖµ
+        ## è·å–æµé€šå¸‚å€¼
         mak_cap_df = GetValuation(
             security_list, start_date=begin_date, end_date=end_date)
         mak_cap_df = pd.pivot_table(
@@ -533,32 +535,32 @@ def CreatROCSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
         weights = mak_cap_df.apply(lambda x: x / x.sum(), axis=1).fillna(0)
         return (action[method](pct_chg, 0) * weights).sum(axis=1)
 
-# »ñÈ¡KDJÀ©É¢Ö¸±êĞÅºÅ
+# è·å–KDJæ‰©æ•£æŒ‡æ ‡ä¿¡å·
 def CreatKDJSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
                   weight_method: str, method: str) -> pd.Series:
     '''
-    N,N1µÄ×÷ÓÃÖ»ÊÇÈ¥Ç°Ğò¼ÆËãÆÚ
-    method:short¿ÕÍ·,long¶àÍ·
-    weight_method:avgµÈÈ¨,mktcapÊĞÖµ¼ÓÈ¨
+    N,N1çš„ä½œç”¨åªæ˜¯å»å‰åºè®¡ç®—æœŸ
+    method:shortç©ºå¤´,longå¤šå¤´
+    weight_method:avgç­‰æƒ,mktcapå¸‚å€¼åŠ æƒ
     '''
-    # Êı¾İ¼ÆËãÇ°ĞòÆÚ
+    # æ•°æ®è®¡ç®—å‰åºæœŸ
     begin_date = TdaysOffset(
         start_date,
         -(N + N1),
     )
 
-    # ³É·Ö¹ÉÊ¹ÓÃend_dateÊ±µã³É·Ö¹É
+    # æˆåˆ†è‚¡ä½¿ç”¨end_dateæ—¶ç‚¹æˆåˆ†è‚¡
     security_list = get_index_stocks(index_symbol, date=end_date)
 
-    ## Ç°¸´È¨Êı¾İ
+    ## å‰å¤æƒæ•°æ®
     close_df = get_price(
         security_list, begin_date, end_date, fields=['close','high','low'], panel=False)
     
-    # ¼ÆËã»ñÈ¡kdÖµ
+    # è®¡ç®—è·å–kdå€¼
     kd = close_df.groupby('code',group_keys=False).apply(cal_kd,fastk_period=N)
     df = pd.concat([close_df[['time','code']],kd],axis=1)
 
-    # »ñÈ¡k,d
+    # è·å–k,d
     slowk = pd.pivot_table(df,index='time',columns='code',values='k')
     slowd = pd.pivot_table(df,index='time',columns='code',values='d')
     
@@ -570,7 +572,7 @@ def CreatKDJSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
 
     elif weight_method == 'mktcap':
 
-        ## »ñÈ¡Á÷Í¨ÊĞÖµ
+        ## è·å–æµé€šå¸‚å€¼
         mak_cap_df = GetValuation(
             security_list, start_date=begin_date, end_date=end_date)
         
@@ -583,7 +585,7 @@ def CreatKDJSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
         weights = mak_cap_df.apply(lambda x: x / x.sum(), axis=1).fillna(0)
         return (action[method](slowk, slowd) * weights).sum(axis=1)
     
-# ¼ÆËãKD
+# è®¡ç®—KD
 def cal_kd(df,fastk_period:int):
     
     k,d = talib.STOCH(df['high'],
@@ -597,28 +599,28 @@ def cal_kd(df,fastk_period:int):
     df.columns = ['k','d']
     return df
 
-# »ñÈ¡RSIÀ©É¢Ö¸±êĞÅºÅ
+# è·å–RSIæ‰©æ•£æŒ‡æ ‡ä¿¡å·
 def CreatRSISingal(index_symbol: str, start_date: str, end_date: str, N, N1,
                   weight_method: str, method: str) -> pd.Series:
     '''
-    N,N1µÄ×÷ÓÃÖ»ÊÇÈ¥Ç°Ğò¼ÆËãÆÚ
-    method:short¿ÕÍ·,long¶àÍ·
-    weight_method:avgµÈÈ¨,mktcapÊĞÖµ¼ÓÈ¨
+    N,N1çš„ä½œç”¨åªæ˜¯å»å‰åºè®¡ç®—æœŸ
+    method:shortç©ºå¤´,longå¤šå¤´
+    weight_method:avgç­‰æƒ,mktcapå¸‚å€¼åŠ æƒ
     '''
-    # Êı¾İ¼ÆËãÇ°ĞòÆÚ
+    # æ•°æ®è®¡ç®—å‰åºæœŸ
     begin_date = TdaysOffset(
         start_date,
         -(N + N1),
     )
 
-    # ³É·Ö¹ÉÊ¹ÓÃend_dateÊ±µã³É·Ö¹É
+    # æˆåˆ†è‚¡ä½¿ç”¨end_dateæ—¶ç‚¹æˆåˆ†è‚¡
     security_list = get_index_stocks(index_symbol, date=end_date)
 
-    ## Ç°¸´È¨Êı¾İ
+    ## å‰å¤æƒæ•°æ®
     close_df = get_price(
         security_list, begin_date, end_date, fields='close', panel=False)
     
-    # ¼ÆËã»ñÈ¡RSI
+    # è®¡ç®—è·å–RSI
     close_df['rsi'] = close_df.groupby('code')['close'].transform(talib.RSI,timeperiod=N)
     rsi = pd.pivot_table(close_df,index='time',columns='code',values='rsi')
     
@@ -631,7 +633,7 @@ def CreatRSISingal(index_symbol: str, start_date: str, end_date: str, N, N1,
 
     elif weight_method == 'mktcap':
 
-        ## »ñÈ¡Á÷Í¨ÊĞÖµ
+        ## è·å–æµé€šå¸‚å€¼
         mak_cap_df = GetValuation(
             security_list, start_date=begin_date, end_date=end_date)
         
@@ -645,24 +647,24 @@ def CreatRSISingal(index_symbol: str, start_date: str, end_date: str, N, N1,
         
         return (action[method](rsi, limit[method]) * weights).sum(axis=1)
     
-# Í»ÆÆNÈÕ¸ßµã
+# çªç ´Næ—¥é«˜ç‚¹
 def CreatStageHighSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
                   weight_method: str, method: str) -> pd.Series:
     '''
-    N,N1µÄ×÷ÓÃÖ»ÊÇÈ¥Ç°Ğò¼ÆËãÆÚ
-    method:short¿ÕÍ·,long¶àÍ·
-    weight_method:avgµÈÈ¨,mktcapÊĞÖµ¼ÓÈ¨
+    N,N1çš„ä½œç”¨åªæ˜¯å»å‰åºè®¡ç®—æœŸ
+    method:shortç©ºå¤´,longå¤šå¤´
+    weight_method:avgç­‰æƒ,mktcapå¸‚å€¼åŠ æƒ
     '''
-    # Êı¾İ¼ÆËãÇ°ĞòÆÚ
+    # æ•°æ®è®¡ç®—å‰åºæœŸ
     begin_date = TdaysOffset(
         start_date,
         -(N + N1),
     )
 
-    # ³É·Ö¹ÉÊ¹ÓÃend_dateÊ±µã³É·Ö¹É
+    # æˆåˆ†è‚¡ä½¿ç”¨end_dateæ—¶ç‚¹æˆåˆ†è‚¡
     security_list = get_index_stocks(index_symbol, date=end_date)
 
-    ## Ç°¸´È¨Êı¾İ
+    ## å‰å¤æƒæ•°æ®
     data = get_price(
         security_list, begin_date, end_date, fields=['close','pre_close'], panel=False)
     
@@ -674,7 +676,7 @@ def CreatStageHighSingal(index_symbol: str, start_date: str, end_date: str, N, N
     
     roll_max = pre_close.rolling(N).max()
     
-    # ¼ÆËã¾ùÏß
+    # è®¡ç®—å‡çº¿
     action = {'long': operator.gt, 'short': operator.lt}
 
     if weight_method == 'avg':
@@ -683,7 +685,7 @@ def CreatStageHighSingal(index_symbol: str, start_date: str, end_date: str, N, N
 
     elif weight_method == 'mktcap':
 
-        ## »ñÈ¡Á÷Í¨ÊĞÖµ
+        ## è·å–æµé€šå¸‚å€¼
         mak_cap_df = GetValuation(
             security_list, start_date=begin_date, end_date=end_date)
         mak_cap_df = pd.pivot_table(
@@ -695,7 +697,7 @@ def CreatStageHighSingal(index_symbol: str, start_date: str, end_date: str, N, N
         weights = mak_cap_df.apply(lambda x: x / x.sum(), axis=1).fillna(0)
         return (action[method](close_df, roll_max) * weights).sum(axis=1)
     
-# ÊĞÖµÊı¾İ»ñÈ¡
+# å¸‚å€¼æ•°æ®è·å–
 def GetValuation(symbol: list, start_date: str, end_date: str) -> pd.DataFrame:
 
     dates = get_trade_days(start_date, end_date)
@@ -740,7 +742,7 @@ def GetValuation(symbol: list, start_date: str, end_date: str) -> pd.DataFrame:
 
 ###################################################################################
 
-# Íø¸ñÑ°²Î´ó·¨
+# ç½‘æ ¼å¯»å‚å¤§æ³•
 def GetGridRiskReport(N: int, singal_ser: pd.Series,N1S:int=20,N2S:int=10):
 
     risk_list = []
@@ -769,15 +771,44 @@ def GetGridRiskReport(N: int, singal_ser: pd.Series,N1S:int=20,N2S:int=10):
     return report_df
 
 
-# Ä¿±êÖ¸Êı
+# ç›®æ ‡æŒ‡æ•°
 index_symbol = '000300.SH'
 
-# ¸´ÏÖÊ±¼äÉè¶¨
+# å¤ç°æ—¶é—´è®¾å®š
 #start_date, end_date = '20022401', '20220425'
-# ¸´ÏÖÊ±¼äÉè¶¨
+# å¤ç°æ—¶é—´è®¾å®š
 start_date, end_date = '20070101', '20200430'
-# ¼ÆËãµÈÈ¨ĞÅºÅ
+# è®¡ç®—ç­‰æƒä¿¡å·
 ma_avg_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'avg','long')
 
-# ¼ÆËã¼ÓÈ¨ĞÅºÅ
+# è®¡ç®—åŠ æƒä¿¡å·
 ma_mktcap_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'mktcap','long')
+
+# ç½‘æ ¼å¯»å‚
+report_df = GetGridRiskReport(160,ma_avg_long)
+# æŸ¥çœ‹å¤æ™®èƒœç‡æœ€é«˜çš„å‰5ç»„
+report_df.sort_values(['å¤æ™®','èƒœç‡'],ascending=False).head()
+
+# ç­‰æƒå¤šå¤´
+ma = DiffusionIndicatorBackTest(
+    symbol=index_symbol,
+    singal_ser=ma_avg_long,
+    start_date=start_date,
+    end_date=end_date,
+    cal_func=talib.MA,
+    N1=150,
+    N2=25,
+    method='long')
+
+ma.backtest()  # å›æµ‹
+
+index_price = getattr(ma,'index_price')
+fast_ma = getattr(ma,'fast_ma')
+slow_ma = getattr(ma,'slow_ma')
+flag = getattr(ma,'flag')
+ma_avg_long = getattr(ma,'algorithm_cum')
+ma_avg_long.name = 'ç­‰æƒå¤šå¤´'
+
+IndicatorPlot(index_price,fast_ma,slow_ma,flag)
+CumPlot(index_price,ma_avg_long,'ç­‰æƒå¤šå¤´æ”¶ç›Š')
+

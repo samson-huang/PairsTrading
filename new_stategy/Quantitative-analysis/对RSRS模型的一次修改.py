@@ -149,7 +149,7 @@ def view_signal(close_ser: pd.Series, signal_ser: pd.Series):
  
 index_name='000300.SH'
 start='20050101'
-end='20220422'
+end='20220426'
 index_df = pro.query('index_daily', ts_code=index_name, 
 start_date=start, end_date=end,fields='trade_date,close,pre_close,high,low,amount')    
 close_df=index_df
