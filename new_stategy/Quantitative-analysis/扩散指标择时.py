@@ -464,7 +464,7 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
                                    end_date,'trade_date,ts_code,close',4500) 
     #close_df = get_price(
     #    security_list, begin_date, end_date, fields='close', panel=False)
-    close_df.to_csv('C://temp//close_df.csv')
+    close_df.to_csv('C:\\temp\\close_df.csv')
     close_df = pd.pivot_table(
         close_df, index='trade_date', columns='ts_code', values='close')
 
