@@ -35,6 +35,10 @@ import json
 setting = json.load(open('C:\config\config.json'))
 my_pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
+
+
+
+
 ###################################################################################
 # 回测框架
 # 获取信号进行回测
@@ -444,7 +448,7 @@ test123=query_trade_dates(start_date, end_date)
 
 # 获取MA扩散指标信号
 def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
-                  weight_method: str, method: str) -> pd.Series:
+                  weight_method: str, method: str,close_df1) -> pd.Series:
     '''
     N,N1的作用只是去前序计算期
     method:short空头,long多头
@@ -458,19 +462,23 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
 
     # 成分股使用end_date时点成分股
     #security_list = get_index_stocks(index_symbol, date=end_date)000016.SH
-    security_list =my_pro.index_weight(index_code=index_symbol, trade_date=end_date)
+    #security_list =my_pro.index_weight(index_code=index_symbol, trade_date=end_date)
     #security_list =my_pro.index_weight(index_code='000016.SH', start_date='20220331',end_date='20220331')
     ## 前复权数据
-    security_list_temp=security_list['con_code'].to_list()
-    st = ','.join([str(s) for s in security_list_temp])
+    #security_list_temp=security_list['con_code'].to_list()
+    #st = ','.join([str(s) for s in security_list_temp])
     #close_df = my_pro.daily(ts_code=st, start_date=begin_date,
     # end_date=end_date)
+    '''
     close_df = foundation_tushare.distributed_query(my_pro.daily,st,
                                    start_date,
                                    end_date,'trade_date,ts_code,close',4500) 
     #close_df = get_price(
     #    security_list, begin_date, end_date, fields='close', panel=False)
     close_df.to_csv('C:\\temp\\close_df.csv')
+    '''
+
+    close_df = close_df1
     close_df = pd.pivot_table(
         close_df, index='trade_date', columns='ts_code', values='close')
 
@@ -486,7 +494,7 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
 
         ## 获取流通市值
         mak_cap_df = GetValuation(
-            security_list, start_date=begin_date, end_date=end_date)
+            st, start_date=begin_date, end_date=end_date)
         '''   
         mak_cap_df = pd.pivot_table(
             mak_cap_df,
@@ -499,7 +507,7 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
             mak_cap_df,
             index='trade_date',
             columns='ts_code',
-            values='circulating_market_cap')        
+            values='circ_mv')
         
         weights = mak_cap_df.apply(lambda x: x / x.sum(), axis=1).fillna(0)
         return (action[method](close_df, ma_df) * weights).sum(axis=1)
@@ -529,9 +537,12 @@ def CreatROCSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
     close_df = pd.pivot_table(
         close_df, index='time', columns='code', values='close')
     '''
+    '''
     close_df = foundation_tushare.distributed_query(my_pro.daily,st,
                                    start_date,
                                    end_date,'trade_date,ts_code,close',4500)
+    '''
+    mak_cap_df.to_csv('C:\\temp\\mak_cap_df.csv')
     close_df = pd.pivot_table(
         close_df, index='trade_date', columns='ts_code', values='close') 
     #######                                           
@@ -718,7 +729,7 @@ def CreatStageHighSingal(index_symbol: str, start_date: str, end_date: str, N, N
 
         weights = mak_cap_df.apply(lambda x: x / x.sum(), axis=1).fillna(0)
         return (action[method](close_df, roll_max) * weights).sum(axis=1)
-    
+  
 # 市值数据获取
 def GetValuation(symbol: list, start_date: str, end_date: str) -> pd.DataFrame:
 
@@ -768,7 +779,7 @@ def GetValuation(symbol: list, start_date: str, end_date: str) -> pd.DataFrame:
          my_pro.daily_basic,symbol,
          start_date=start_date,
          end_date=end_date,
-         fields='trade_date,ts_code,circulating_market_cap')
+         fields='trade_date,ts_code,circ_mv')
     return df
 
 ####################################################################
@@ -794,7 +805,8 @@ def GetGridRiskReport(N: int, singal_ser: pd.Series,N1S:int=20,N2S:int=10):
         for i in range(10, j, 5):
 
             bt = DiffusionIndicatorBackTest(
-                symbol=index_symbol,
+                #symbol=index_symbol,
+                symbol=st,
                 singal_ser=singal_ser,
                 start_date=start_date,
                 end_date=end_date,
@@ -822,11 +834,19 @@ index_symbol = '000300.SH'
 #start_date, end_date = '20022401', '20220425'
 # 复现时间设定
 start_date, end_date = '20070101', '20200430'
+
+security_list =my_pro.index_weight(index_code=index_symbol, trade_date=end_date)
+security_list_temp=security_list['con_code'].to_list()
+st = ','.join([str(s) for s in security_list_temp])
+close_df1 = foundation_tushare.distributed_query(my_pro.daily,st,
+                                                start_date, end_date,
+                                                'trade_date,ts_code,close,pre_close', 4500)
+
 # 计算等权信号
-ma_avg_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'avg','long')
+ma_avg_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'avg','long',close_df1)
 
 # 计算加权信号
-ma_mktcap_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'mktcap','long')
+ma_mktcap_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'mktcap','long',close_df1)
 
 # 网格寻参
 report_df = GetGridRiskReport(160,ma_avg_long)
@@ -835,7 +855,8 @@ report_df.sort_values(['夏普','胜率'],ascending=False).head()
 
 # 等权多头
 ma = DiffusionIndicatorBackTest(
-    symbol=index_symbol,
+    #symbol=index_symbol,
+    symbol=st,
     singal_ser=ma_avg_long,
     start_date=start_date,
     end_date=end_date,
@@ -987,7 +1008,7 @@ index_symbol = '000300.XSHG'
 # 复现时间设定
 start_date, end_date = '2007-01-01', '2020-04-30'
 # 计算等权信号
-roc_avg_long = CreatROCSingal(index_symbol,start_date,end_date,100,90,'avg','long')
+#roc_avg_long = CreatROCSingal(index_symbol,start_date,end_date,100,90,'avg','long')
 
 # 计算加权信号
 roc_mktcap_long = CreatMaSingal(index_symbol,start_date,end_date,100,90,'mktcap','long')
