@@ -448,7 +448,7 @@ test123=query_trade_dates(start_date, end_date)
 
 # 获取MA扩散指标信号
 def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
-                  weight_method: str, method: str,close_df1) -> pd.Series:
+                  weight_method: str, method: str,close_df1,security_list) -> pd.Series:
     '''
     N,N1的作用只是去前序计算期
     method:short空头,long多头
@@ -494,7 +494,7 @@ def CreatMaSingal(index_symbol: str, start_date: str, end_date: str, N, N1,
 
         ## 获取流通市值
         mak_cap_df = GetValuation(
-            st, start_date=begin_date, end_date=end_date)
+            security_list, start_date=begin_date, end_date=end_date)
         '''   
         mak_cap_df = pd.pivot_table(
             mak_cap_df,
@@ -847,15 +847,15 @@ close_df1 = foundation_tushare.distributed_query(my_pro.daily,st,
                                                 'trade_date,ts_code,close,pre_close', 4500)
 '''
 # 计算等权信号
-ma_avg_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'avg','long',close_df1)
-
+ma_avg_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'avg','long',close_df1,st)
+ma_avg_long.to_csv('C:\\temp\\ma_avg_long.csv')
 # 计算加权信号
-ma_mktcap_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'mktcap','long',close_df1)
-
+ma_mktcap_long = CreatMaSingal(index_symbol,start_date,end_date,160,150,'mktcap','long',close_df1,st)
+ma_mktcap_long.to_csv('C:\\temp\\ma_mktcap_long.csv')
 # 网格寻参
-report_df = GetGridRiskReport(160,ma_avg_long)
+#report_df = GetGridRiskReport(160,ma_avg_long)
 # 查看夏普胜率最高的前5组
-report_df.sort_values(['夏普','胜率'],ascending=False).head()
+#report_df.sort_values(['夏普','胜率'],ascending=False).head()
 
 # 等权多头
 ma = DiffusionIndicatorBackTest(
