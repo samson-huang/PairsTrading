@@ -666,13 +666,7 @@ class DenoisingThreshold(object):
 
 
 
-# 数据获取
-HS300=distributed_query(my_pro.daily,
-                                   '000300.XSHG',
-                                   '20140101',
-                                   '20200531',
-                                   fields='close')
-                                   
+# 数据获取                              
 HS300 = my_pro.query('index_daily', ts_code='000300.SH', 
 start_date='20140101', end_date='20200531',fields='trade_date,close') 
 HS300.index=HS300['trade_date']

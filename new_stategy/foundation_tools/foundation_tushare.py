@@ -70,7 +70,7 @@ class TuShare:
                     self.logger.exception(
                         'TuShare exec %s failed, args:%s, kwargs:%s, try again.',
                         name, args, kwargs)
-                    time.sleep(1)
+                    time.sleep(5)
                 i += 1
 
         return wrapper
