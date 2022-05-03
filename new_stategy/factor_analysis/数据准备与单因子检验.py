@@ -1,23 +1,20 @@
-import tushare as ts
-import numpy as np
-import pandas as pd
-from multiprocessing import Manager, Pool
 import datetime
+import json
 import os
 import pickle
-import warnings
 import sys
-import json
+import warnings
+from multiprocessing import Manager, Pool
+
+import numpy as np
+import pandas as pd
+import tushare as ts
+
 warnings.filterwarnings('ignore')
 sys.path.append("G://GitHub//PairsTrading//new_stategy//foundation_tools//")
-import foundation_tushare
-
-
-
-
 
 # 请根据自己的情况填写ts的token
-setting = json.load(open('C:\config\config.json'))
+setting = json.load(open('C://config//config.json'))
 # pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 ts.set_token(setting['token'])
 pro = ts.pro_api(timeout=5)
@@ -63,9 +60,9 @@ class DataDownloader:
         return sorted(list(stk_set))
 
     def get_IdxWeight(self, idx_code):
-        '''
+        """
         指数成分股
-        '''
+        """
         start_date = pd.to_datetime(self.trade_dates[0]) - datetime.timedelta(days=32)
         start_date = start_date.strftime('%Y%m%d')
         trade_dates = self.get_trade_dates(start_date)
@@ -84,9 +81,9 @@ class DataDownloader:
         return res_df.sort_index()
 
     def get_ST_valid(self):
-        '''
+        """
         ST股
-        '''
+        """
         res_df = pd.DataFrame(index=self.trade_dates, columns=self.stk_codes).fillna(1)
         df = pro.namechange(fields='ts_code,name,start_date,end_date')
         df = df[df.name.str.contains('ST')]
@@ -312,8 +309,8 @@ class DataReader:
 
 
 if __name__ == '__main__':
-    # DataWriter.update_ST_valid(cover=True)
-    # DataWriter.update_suspend_valid(cover=True)
+    DataWriter.update_ST_valid(cover=True)
+    DataWriter.update_suspend_valid(cover=True)
     DataWriter.update_IdxWeight('399300.SZ', cover=True)
     DataWriter.update_dailyMkt(cover=True)
     DataWriter.update_limit_valid(cover=True)
