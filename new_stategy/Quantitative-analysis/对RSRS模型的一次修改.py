@@ -146,10 +146,10 @@ def view_signal(close_ser: pd.Series, signal_ser: pd.Series):
 
 #数据结构
 
- 
+#创业板指  399006.SZ
 index_name='000300.SH'
 start='20050101'
-end='20220428'
+end='20220429'
 
 index_df = pro.query('index_daily', ts_code=index_name, 
 start_date=start, end_date=end,fields='trade_date,close,pre_close,high,low,amount')    
@@ -162,7 +162,7 @@ fields = ['close', 'pre_close', 'high', 'low', 'money']
 #close_df = query_index_data('000300.SH', '20090101',
 #                            '20200813', 'close,pre_close,high,low,amount')
 close_df.rename(columns={'amount': 'money'}, inplace=True)
-close_df.head()
+close_df.tail()
 
 
 #获取原始RSRS_passivation指标
@@ -281,7 +281,7 @@ LR = cala_LR(price_df['close'])
 rsrs = RSRS_improve2()  # 调用RSRS计算类
 signal_df = rsrs.get_RSRS(close_df, (1 - LR), 16, 600, 'ols')  # 获取各RSRS信号
 
-signal_df.head()
+signal_df.tail()
 
 #获取最后一天收盘买卖信号 
 
@@ -294,11 +294,9 @@ flag_df.tail()
 algorithm_ret_ver2, benchmark = creat_algorithm_returns(
     signal_df, close_df['close'], 0.7)
 
-compare_df = pd.concat([algorithm_ret_ver2['RSRS_passivation'],
-                        algorithm_ret['RSRS_passivation']], axis=1)
-compare_df.columns = ['改造后', '改造前']
 
-view_nav(compare_df, benchmark)
+
+view_nav(algorithm_ret_ver2['RSRS_passivation'], benchmark)
 
 pf.plotting.show_perf_stats(algorithm_ret_ver2['RSRS_passivation'],
                             benchmark)

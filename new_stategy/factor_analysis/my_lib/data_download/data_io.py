@@ -306,8 +306,8 @@ class DataReader:
 
 
 if __name__ == '__main__':
-    #DataWriter.update_ST_valid(cover=True)
-    #DataWriter.update_suspend_valid(cover=True)
+    DataWriter.update_ST_valid(cover=True)
+    DataWriter.update_suspend_valid(cover=True)
     DataWriter.update_IdxWeight('399300.SZ',cover=True)
     DataWriter.update_dailyMkt(cover=True)
     DataWriter.update_limit_valid(cover=True)

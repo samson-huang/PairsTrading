@@ -1,52 +1,52 @@
-# coding: utf-8
-# ÒıÈë¿â
+ï»¿# coding: utf-8
+# å¼•å…¥åº“
 import tushare as ts
 
-# ±ê¼Ç½»Ò×Ê±µã
+# æ ‡è®°äº¤æ˜“æ—¶ç‚¹
 import talib
 import numpy as np
 import pandas as pd
 
-import statsmodels.api as sm  # ÏßĞÔ»Ø¹é
+import statsmodels.api as sm  # çº¿æ€§å›å½’
 
-import pyfolio as pf  # ×éºÏ·ÖÎö¹¤¾ß
-
-
-import itertools  # µü´úÆ÷¹¤¾ß
+import pyfolio as pf  # ç»„åˆåˆ†æå·¥å…·
 
 
-# »­Í¼
+import itertools  # è¿­ä»£å™¨å·¥å…·
+
+
+# ç”»å›¾
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# ÉèÖÃ×ÖÌå ÓÃÀ´Õı³£ÏÔÊ¾ÖĞÎÄ±êÇ©
+# è®¾ç½®å­—ä½“ ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºä¸­æ–‡æ ‡ç­¾
 plt.rcParams['font.family'] = 'serif'
 #mpl.rcParams['font.sans-serif'] = ['SimHei']
-plt.rcParams['font.sans-serif'] = ['SimHei']  #ÓÃÀ´Õı³£ÏÔÊ¾ÖĞÎÄ±êÇ©
-plt.rcParams['axes.unicode_minus'] = False  #ÓÃÀ´Õı³£ÏÔÊ¾¸ººÅ
-# ÓÃÀ´Õı³£ÏÔÊ¾¸ººÅ
+plt.rcParams['font.sans-serif'] = ['SimHei']  #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºä¸­æ–‡æ ‡ç­¾
+plt.rcParams['axes.unicode_minus'] = False  #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºè´Ÿå·
+# ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºè´Ÿå·
 plt.rcParams['axes.unicode_minus'] = False
-# Í¼±íÖ÷Ìâ
+# å›¾è¡¨ä¸»é¢˜
 plt.style.use('seaborn')
 
 import sys 
 sys.path.append("G://GitHub//PairsTrading//new_stategy//foundation_tools//") 
 import foundation_tushare 
-from Creat_RSRS import (RSRS,rolling_apply)  # ×Ô¶¨ÒåĞÅºÅÉú³É
+from Creat_RSRS import (RSRS,rolling_apply)  # è‡ªå®šä¹‰ä¿¡å·ç”Ÿæˆ
 import json
 
-# Ê¹ÓÃts
-# Çë¸ù¾İ×Ô¼ºµÄÇé¿öÌîĞ´tsµÄtoken
+# ä½¿ç”¨ts
+# è¯·æ ¹æ®è‡ªå·±çš„æƒ…å†µå¡«å†™tsçš„token
 setting = json.load(open('C:\config\config.json'))
 pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 #pro = ts.pro_api('your token')
 
-#Êı¾İ»ñÈ¡¼°»Ø²âÓÃº¯Êı
+#æ•°æ®è·å–åŠå›æµ‹ç”¨å‡½æ•°
 
 def query_index_data(ts_code: str, start: str, end: str, fields: str) -> pd.DataFrame:
     
-    '''»ñÈ¡Ö¸ÊıĞĞÇéÊı¾İ'''
+    '''è·å–æŒ‡æ•°è¡Œæƒ…æ•°æ®'''
 
     df = pro.index_daily(ts_code=ts_code, start_date=start,
                          end_date=end, fields='ts_code,trade_date,'+fields)
@@ -59,13 +59,13 @@ def query_index_data(ts_code: str, start: str, end: str, fields: str) -> pd.Data
     return df
 
 
-# ³Ö²Ö±ê¼Ç
+# æŒä»“æ ‡è®°
 def add_flag(signal_ser: pd.Series, S: float) -> pd.DataFrame:
     '''
-    ¿ªÆ½²Ö±ê¼Ç 
+    å¼€å¹³ä»“æ ‡è®° 
         1-open/hold 0-close
         signal_ser:index-date values-RSRS
-        S:ãĞÖµ
+        S:é˜ˆå€¼
     '''
 
     flag = pd.Series(np.zeros(len(signal_ser)), index=signal_ser.index)
@@ -92,18 +92,18 @@ def add_flag(signal_ser: pd.Series, S: float) -> pd.DataFrame:
 
 
 def creat_algorithm_returns(signal_df: pd.DataFrame, benchmark_ser: pd.Series, S: float) -> tuple:
-    '''Éú³É²ßÂÔÊÕÒæ±í'''
+    '''ç”Ÿæˆç­–ç•¥æ”¶ç›Šè¡¨'''
 
     flag_df = signal_df.apply(lambda x: add_flag(x, S))
 
-    log_ret = np.log(benchmark_ser / benchmark_ser.shift(1))  # »ñÈ¡¶ÔÊıÊÕÒæÂÊ
+    log_ret = np.log(benchmark_ser / benchmark_ser.shift(1))  # è·å–å¯¹æ•°æ”¶ç›Šç‡
     
-    next_ret = log_ret.shift(-1)  # »ñÈ¡next_ret
+    next_ret = log_ret.shift(-1)  # è·å–next_ret
 
-    # ²ßÂÔÊÕÒæ
+    # ç­–ç•¥æ”¶ç›Š
     algorithm_ret = flag_df.apply(lambda x: x * next_ret)
 
-    # Ê¹ÓÃpyfolio·ÖÎö¸ñÊ½»¯index
+    # ä½¿ç”¨pyfolioåˆ†ææ ¼å¼åŒ–index
     algorithm_ret = algorithm_ret.tz_localize('UTC')
     algorithm_ret = algorithm_ret.dropna()
 
@@ -113,61 +113,61 @@ def creat_algorithm_returns(signal_df: pd.DataFrame, benchmark_ser: pd.Series, S
 
 
 def view_nav(algorithm_ret: pd.DataFrame, benchmark_ser: pd.Series):
-    '''»­¾»ÖµÍ¼'''
+    '''ç”»å‡€å€¼å›¾'''
     
     plt.rcParams['font.family'] = 'Microsoft JhengHei'
-    # ²ßÂÔ¾»Öµ
+    # ç­–ç•¥å‡€å€¼
     algorithm_cum = (1 + algorithm_ret).cumprod()
 
     benchmark = (1 + benchmark_ser).cumprod()
 
     benchmark = benchmark.reindex(algorithm_cum.index)
 
-    algorithm_cum.plot(figsize=(18, 8))  # »­Í¼
+    algorithm_cum.plot(figsize=(18, 8))  # ç”»å›¾
     benchmark.plot(label='benchmark', ls='--', color='black')
     plt.legend()
 
 def view_signal(close_ser: pd.Series, signal_ser: pd.Series):
 
-    '''²é¿´ĞÅºÅÓëÖ¸ÊıµÄ¹ØÏµ'''
+    '''æŸ¥çœ‹ä¿¡å·ä¸æŒ‡æ•°çš„å…³ç³»'''
     
     plt.rcParams['font.family'] = 'Microsoft JhengHei'
     close_ser = close_ser.reindex(signal_ser.index)
     plt.figure(figsize=(18, 8))
     close_ser.plot(color='Crimson')
-    plt.ylabel('ÊÕÅÌ¼Û')
+    plt.ylabel('æ”¶ç›˜ä»·')
     plt.legend(['close'], loc='upper left')
 
     plt.twinx()
     signal_ser.plot()
-    plt.ylabel('ĞÅºÅ')
+    plt.ylabel('ä¿¡å·')
     plt.legend([signal_ser.name], loc='upper right')
 
 
-#Êı¾İ½á¹¹
+#æ•°æ®ç»“æ„
 
- 
+#åˆ›ä¸šæ¿æŒ‡  399006.SZ
 index_name='000300.SH'
 start='20050101'
-end='20220428'
+end='20220429'
 
 index_df = pro.query('index_daily', ts_code=index_name, 
 start_date=start, end_date=end,fields='trade_date,close,pre_close,high,low,amount')    
 close_df=index_df
 close_df.index = pd.to_datetime(close_df.trade_date)
 del close_df['trade_date']
-close_df.sort_index(inplace=True)  # ÅÅĞò   
-# ÈÕĞĞÇéÊı¾İ»ñÈ¡
+close_df.sort_index(inplace=True)  # æ’åº   
+# æ—¥è¡Œæƒ…æ•°æ®è·å–
 fields = ['close', 'pre_close', 'high', 'low', 'money']
 #close_df = query_index_data('000300.SH', '20090101',
 #                            '20200813', 'close,pre_close,high,low,amount')
 close_df.rename(columns={'amount': 'money'}, inplace=True)
-close_df.head()
+close_df.tail()
 
 
-#»ñÈ¡Ô­Ê¼RSRS_passivationÖ¸±ê
-rsrs = RSRS()  # µ÷ÓÃRSRS¼ÆËãÀà
-signal_df = rsrs.get_RSRS(close_df, 16, 600, 'ols')  # »ñÈ¡¸÷RSRSĞÅºÅ
+#è·å–åŸå§‹RSRS_passivationæŒ‡æ ‡
+rsrs = RSRS()  # è°ƒç”¨RSRSè®¡ç®—ç±»
+signal_df = rsrs.get_RSRS(close_df, 16, 600, 'ols')  # è·å–å„RSRSä¿¡å·
 
 signal_df.head()
 
@@ -178,16 +178,16 @@ view_nav(algorithm_ret, benchmark)
 pf.plotting.show_perf_stats(algorithm_ret['RSRS_passivation'],
                             benchmark)
 
-#°´ÕÕ²ÂÏë¸ÄÔì¶Û»¯Æ÷
+#æŒ‰ç…§çŒœæƒ³æ”¹é€ é’åŒ–å™¨
 class RSRS_improve1(RSRS):
 
-    # ÖØĞ´RSRS¶Û»¯Ö¸±ê
+    # é‡å†™RSRSé’åŒ–æŒ‡æ ‡
     @staticmethod
     def cala_passivation_RSRS(df: pd.DataFrame, ret_quantile: pd.Series) -> pd.DataFrame:
         '''
-        ¶Û»¯RSRS
+        é’åŒ–RSRS
             df:index-date columns - |RSRS_z|R_2|
-            ret_quantile:ÊÕÒæ²¨¶¯ÂÊ°Ù·ÖÎ»
+            ret_quantile:æ”¶ç›Šæ³¢åŠ¨ç‡ç™¾åˆ†ä½
         '''
 
         df['RSRS_passivation'] = df['RSRS_z'] * \
@@ -195,15 +195,15 @@ class RSRS_improve1(RSRS):
 
         return df    
 
-rsrs = RSRS_improve1() # µ÷ÓÃRSRS¼ÆËãÀà
-signal_df = rsrs.get_RSRS(close_df,16,600,'ols') # »ñÈ¡¸÷RSRSĞÅºÅ
+rsrs = RSRS_improve1() # è°ƒç”¨RSRSè®¡ç®—ç±»
+signal_df = rsrs.get_RSRS(close_df,16,600,'ols') # è·å–å„RSRSä¿¡å·
 
 signal_df.head()
 
 '''
-¸ÄÔìºóµÄRSRS_passivationĞÅºÅ2011-07-15ÖÁ2020-08-13Äê»¯²¨¶¯ÂÊÓÉ15.6%½µÎª15.1%,ÏÄÆÕ´Ó0.81ÌáÉıÖÁ0.87,×î´ó»Ø³·ÓÉ-21%½µµÍÎª-20.7%,ËäÈ»¸÷Ïî·çÏÕÖ¸±êÌáÉı²»¶àµ«Ö¤Ã÷Ë¼Â·Ò²ĞíÊÇ¶ÔµÄ¡£
+æ”¹é€ åçš„RSRS_passivationä¿¡å·2011-07-15è‡³2020-08-13å¹´åŒ–æ³¢åŠ¨ç‡ç”±15.6%é™ä¸º15.1%,å¤æ™®ä»0.81æå‡è‡³0.87,æœ€å¤§å›æ’¤ç”±-21%é™ä½ä¸º-20.7%,è™½ç„¶å„é¡¹é£é™©æŒ‡æ ‡æå‡ä¸å¤šä½†è¯æ˜æ€è·¯ä¹Ÿè®¸æ˜¯å¯¹çš„ã€‚
 
-³õ²½½áÂÛ£ºÍ¨¹ı²¨¶¯ÂÊ°Ù·ÖÎ»Ê¶±ğÕğµ´¿ÉÄÜ¹ıÓÚ¼òµ¥¶øÎÒÃÇ°ÑÄ£ĞÍÖĞµÄ quantile(std(ret),M) ¿´×÷ÊÇÕğµ´¹ıÂËÆ÷µÄ»°,½«ÆäÌæ»»ÎªÊı¾İ·¶Î§ÔÚ0~1µÄÒ»¸öÕğµ´¹ıÂËÖ¸±ê,¿ÉÄÜ»á¶Ô»Ø³·ÓĞÌáÉıĞ§¹û                                
+åˆæ­¥ç»“è®ºï¼šé€šè¿‡æ³¢åŠ¨ç‡ç™¾åˆ†ä½è¯†åˆ«éœ‡è¡å¯èƒ½è¿‡äºç®€å•è€Œæˆ‘ä»¬æŠŠæ¨¡å‹ä¸­çš„ quantile(std(ret),M) çœ‹ä½œæ˜¯éœ‡è¡è¿‡æ»¤å™¨çš„è¯,å°†å…¶æ›¿æ¢ä¸ºæ•°æ®èŒƒå›´åœ¨0~1çš„ä¸€ä¸ªéœ‡è¡è¿‡æ»¤æŒ‡æ ‡,å¯èƒ½ä¼šå¯¹å›æ’¤æœ‰æå‡æ•ˆæœ                                
 
 '''
 
@@ -212,28 +212,28 @@ algorithm_ret_ver1, benchmark = creat_algorithm_returns(
 
 compare_df = pd.concat([algorithm_ret_ver1['RSRS_passivation'],
                         algorithm_ret['RSRS_passivation']], axis=1)
-compare_df.columns = ['¸ÄÔìºó', '¸ÄÔìÇ°']
+compare_df.columns = ['æ”¹é€ å', 'æ”¹é€ å‰']
 
 view_nav(compare_df, benchmark)
 
 pf.plotting.show_perf_stats(algorithm_ret_ver1['RSRS_passivation'],
                             benchmark)
 
-#»ñÈ¡×îºóÒ»ÌìÊÕÅÌÂòÂôĞÅºÅ 
+#è·å–æœ€åä¸€å¤©æ”¶ç›˜ä¹°å–ä¿¡å· 
 flag_df=signal_df.apply(lambda x: add_flag(x, 0.7))
 flag_df.tail()
 '''
-Ê¹ÓÃLRÖ¸±êµ±×÷Õğµ´¹ıÂËÆ÷
-LRÖ¸±ê¸ÅÊö
+ä½¿ç”¨LRæŒ‡æ ‡å½“ä½œéœ‡è¡è¿‡æ»¤å™¨
+LRæŒ‡æ ‡æ¦‚è¿°
 
-µ±LR´¦ÓÚ0.4~0.6·¶Î§Ö®ÄÚÊ±£¬ÎÒÃÇÈÏÎª´ËÊ±¼Û¸ñµÄÇ÷ÊÆ²»Ã÷ÀÊ£¬´¦ÓÚÕğµ´Çø¼ä;
-µ±LR´óÓÚ0.6Ê±£¬ÈÏÎª¼Û¸ñµÄÇ÷ÊÆÊÇÏòÉÏµÄ£¬²¢ÇÒLRÖ¸±êÖµÔ½´ó£¬ÏòÉÏµÄÇ÷ÊÆ¾ÍÔ½Ç¿£»
-µ±LRĞ¡ÓÚ0.4Ê±£¬ÈÏÎª¼Û¸ñµÄÇ÷ÊÆÊÇÏòÏÂµÄ£¬²¢ÇÒLRÖ¸±êÖµÔ½Ğ¡£¬ÏòÏÂµÄÇ÷ÊÆ¾ÍÔ½Ç¿¡£
+å½“LRå¤„äº0.4~0.6èŒƒå›´ä¹‹å†…æ—¶ï¼Œæˆ‘ä»¬è®¤ä¸ºæ­¤æ—¶ä»·æ ¼çš„è¶‹åŠ¿ä¸æ˜æœ—ï¼Œå¤„äºéœ‡è¡åŒºé—´;
+å½“LRå¤§äº0.6æ—¶ï¼Œè®¤ä¸ºä»·æ ¼çš„è¶‹åŠ¿æ˜¯å‘ä¸Šçš„ï¼Œå¹¶ä¸”LRæŒ‡æ ‡å€¼è¶Šå¤§ï¼Œå‘ä¸Šçš„è¶‹åŠ¿å°±è¶Šå¼ºï¼›
+å½“LRå°äº0.4æ—¶ï¼Œè®¤ä¸ºä»·æ ¼çš„è¶‹åŠ¿æ˜¯å‘ä¸‹çš„ï¼Œå¹¶ä¸”LRæŒ‡æ ‡å€¼è¶Šå°ï¼Œå‘ä¸‹çš„è¶‹åŠ¿å°±è¶Šå¼ºã€‚
 '''
-# LRÖ¸±ê
+# LRæŒ‡æ ‡
 def cala_LR(close: pd.Series) -> pd.Series:
     '''
-    close£ºindex-date value-close
+    closeï¼šindex-date value-close
     '''
     periods = list(range(10, 250, 10))
     ma = pd.concat([close.rolling(i).mean() for i in periods], axis=1)
@@ -245,15 +245,15 @@ def cala_LR(close: pd.Series) -> pd.Series:
 
 class RSRS_improve2(RSRS):
 
-    # ÖØĞ´·½·¨ ¼ÓÈëls¹ıÂËÆ÷
+    # é‡å†™æ–¹æ³• åŠ å…¥lsè¿‡æ»¤å™¨
     def get_RSRS(self, df: pd.DataFrame, LR_ser: pd.Series, N: int, M: int, method: str) -> pd.DataFrame:
         '''
-        ¼ÆËã¸÷ÀàRSRS
+        è®¡ç®—å„ç±»RSRS
 
             df:index-date columns-|close|high|low|money|pre_close|
-            N:¼ÆËãRSRS
-            M:ĞŞÕı±ê×¼·ÖËùĞè²ÎÊı
-            method:Ñ¡Ôñ ols »ò wls »Ø¹é
+            N:è®¡ç®—RSRS
+            M:ä¿®æ­£æ ‡å‡†åˆ†æ‰€éœ€å‚æ•°
+            method:é€‰æ‹© ols æˆ– wls å›å½’
         '''
         selects = {'ols': (df, lambda x: self._cala_ols(x, 'low', 'high'), N),
                    'wls': (df, lambda x: self._cala_wls(x, 'low', 'high', 'money'), N)}
@@ -261,7 +261,7 @@ class RSRS_improve2(RSRS):
         ret_quantile = LR_ser.rolling(M).apply(
             lambda x: x.rank(pct=True)[-1], raw=False)
 
-        rsrs_df = rolling_apply(*selects[method])  # ¼ÆËãRSRS
+        rsrs_df = rolling_apply(*selects[method])  # è®¡ç®—RSRS
 
         res_df = (rsrs_df.pipe(self.cala_RSRS_z, M)
                   .pipe(self.cala_revise_RSRS)
@@ -271,32 +271,32 @@ class RSRS_improve2(RSRS):
         return res_df.drop(columns='R_2').iloc[M:]  
 
 
-# »ñÈ¡¼ÆËãlrËùĞèÊı¾İ
+# è·å–è®¡ç®—lræ‰€éœ€æ•°æ®
 #price_df = query_index_data('000300.SH', '20080101', '20200813', 'close')
 price_df=close_df[['close']]
-# Ö¸±ê¼ÆËã
+# æŒ‡æ ‡è®¡ç®—
 LR = cala_LR(price_df['close']) 
 
 
-rsrs = RSRS_improve2()  # µ÷ÓÃRSRS¼ÆËãÀà
-signal_df = rsrs.get_RSRS(close_df, (1 - LR), 16, 600, 'ols')  # »ñÈ¡¸÷RSRSĞÅºÅ
+rsrs = RSRS_improve2()  # è°ƒç”¨RSRSè®¡ç®—ç±»
+signal_df = rsrs.get_RSRS(close_df, (1 - LR), 16, 600, 'ols')  # è·å–å„RSRSä¿¡å·
 
-signal_df.head()
+signal_df.tail()
 
-#»ñÈ¡×îºóÒ»ÌìÊÕÅÌÂòÂôĞÅºÅ 
+#è·å–æœ€åä¸€å¤©æ”¶ç›˜ä¹°å–ä¿¡å· 
 
 flag_df=signal_df.apply(lambda x: add_flag(x, 0.7))
 flag_df.tail()
 '''
-¸ü¸Ä¹ıÂËÆ÷ºóµÄRSRS_passivationĞÅºÅ2011-07-15ÖÁ2020-08-13Äê»¯²¨¶¯ÂÊÓÉ15.6%½µÎª15.2%,
-ÏÄÆÕ´Ó0.81ÌáÉıÖÁ0.91,×î´ó»Ø³·ÓÉ-21%½µÖÁ-17.5% 
+æ›´æ”¹è¿‡æ»¤å™¨åçš„RSRS_passivationä¿¡å·2011-07-15è‡³2020-08-13å¹´åŒ–æ³¢åŠ¨ç‡ç”±15.6%é™ä¸º15.2%,
+å¤æ™®ä»0.81æå‡è‡³0.91,æœ€å¤§å›æ’¤ç”±-21%é™è‡³-17.5% 
 '''
 algorithm_ret_ver2, benchmark = creat_algorithm_returns(
     signal_df, close_df['close'], 0.7)
 
 compare_df = pd.concat([algorithm_ret_ver2['RSRS_passivation'],
                         algorithm_ret['RSRS_passivation']], axis=1)
-compare_df.columns = ['¸ÄÔìºó', '¸ÄÔìÇ°']
+compare_df.columns = ['æ”¹é€ å', 'æ”¹é€ å‰']
 
 view_nav(compare_df, benchmark)
 
@@ -304,22 +304,22 @@ pf.plotting.show_perf_stats(algorithm_ret_ver2['RSRS_passivation'],
                             benchmark)
 
 '''
-¸ÄÔìÇ°ºó»Ø³·Çé¿ö±È½Ï:
+æ”¹é€ å‰åå›æ’¤æƒ…å†µæ¯”è¾ƒ:
 
-2011-09-06ÖÁ2012-01-04²úÉú»Ø³·ÓÉ¸ÄÔìÇ°µÄ20.97%½µÎª¸ÄÔìºóÎª17.46%£¬³ÖĞø»Ø³·ÌìÊıÓÉ364½µÎª344;
-2019-03-05ÖÁ2020-07-03µÄ»Ø³·ÔÚ¸ÄÔìºóÃ»ÓĞ·¢Éú£»
-2014-12-19ÖÁ2015-01-16µÄ»Ø³·³ÖĞøÊ±¼äÓÉ185½µÎª75Ìì
+2011-09-06è‡³2012-01-04äº§ç”Ÿå›æ’¤ç”±æ”¹é€ å‰çš„20.97%é™ä¸ºæ”¹é€ åä¸º17.46%ï¼ŒæŒç»­å›æ’¤å¤©æ•°ç”±364é™ä¸º344;
+2019-03-05è‡³2020-07-03çš„å›æ’¤åœ¨æ”¹é€ åæ²¡æœ‰å‘ç”Ÿï¼›
+2014-12-19è‡³2015-01-16çš„å›æ’¤æŒç»­æ—¶é—´ç”±185é™ä¸º75å¤©
 '''   
 
-print('¸ÄÔìºó»Ø³·Çø¼ä')
+print('æ”¹é€ åå›æ’¤åŒºé—´')
 pf.plotting.show_worst_drawdown_periods(algorithm_ret_ver2['RSRS_passivation'])
 
-print('¸ÄÔìÇ°»Ø³·Çø¼ä')
+print('æ”¹é€ å‰å›æ’¤åŒºé—´')
 pf.plotting.show_worst_drawdown_periods(algorithm_ret['RSRS_passivation']) 
 
 '''
-¸ÄÔìºóÌØ¶¨ĞĞÇéÏÂÒÀ¾É»á³öÏÖ»Ø³·,µ«¸ü¿ì×ß³ö»Ø³·»ò¼õÉÙ»Ø³·,ÔÚ2019ÄêÉÏ°ëÄêµÄĞĞÇéÏÂÄÜ¹ı»ñµÃ²¢ÊØ×¡ÊÕÒæ¡£
-ÏÂÍ¼ÄÜÖ±¹Û¿´µ½¸ÄÔìÇ°ºó2019Äê¾»ÖµµÄÇø±ğ¡£
+æ”¹é€ åç‰¹å®šè¡Œæƒ…ä¸‹ä¾æ—§ä¼šå‡ºç°å›æ’¤,ä½†æ›´å¿«èµ°å‡ºå›æ’¤æˆ–å‡å°‘å›æ’¤,åœ¨2019å¹´ä¸ŠåŠå¹´çš„è¡Œæƒ…ä¸‹èƒ½è¿‡è·å¾—å¹¶å®ˆä½æ”¶ç›Šã€‚
+ä¸‹å›¾èƒ½ç›´è§‚çœ‹åˆ°æ”¹é€ å‰å2019å¹´å‡€å€¼çš„åŒºåˆ«ã€‚
 '''
 
 fig = plt.figure(figsize=(18, 6))
@@ -327,21 +327,21 @@ ax = fig.add_subplot(121)
 
 pf.plotting.plot_drawdown_periods(
     algorithm_ret_ver2['RSRS_passivation'], top=5)
-ax.set_title('¸ÄÔìºó Ê®´ó»Ø³·Çø¼ä')
+ax.set_title('æ”¹é€ å åå¤§å›æ’¤åŒºé—´')
 
 ax = fig.add_subplot(122)
 pf.plotting.plot_drawdown_periods(algorithm_ret['RSRS_passivation'], top=5)
-ax.set_title('¸ÄÔìÇ° Ê®´ó»Ø³·Çø¼ä')   
+ax.set_title('æ”¹é€ å‰ åå¤§å›æ’¤åŒºé—´')   
 
 
-#¸½LRÖ¸±êÓëHS300µÄ¹ØÏµÍ¼
+#é™„LRæŒ‡æ ‡ä¸HS300çš„å…³ç³»å›¾
 view_signal(price_df['close'],LR) 
 
 
 
 #######################################
 flag_df = signal_df.apply(lambda x: add_flag(x, 0.7))
-#ÆÀ²âÄ£ĞÍ
+#è¯„æµ‹æ¨¡å‹
 
 test123=close_df['close'].pct_change()*100
 test123.columns = ['pct_chg'] 
@@ -362,5 +362,5 @@ df['LogisticRegression'] = next_ret.loc[test_df.index] * lr.predict(x_test)
 import empyrical as ep
 ep.cum_returns(df).plot(figsize=(18,6))
 
-ep.cum_returns(next_ret1).plot(color='darkgray',label='´´Òµ°å')
+ep.cum_returns(next_ret1).plot(color='darkgray',label='åˆ›ä¸šæ¿')
 plt.legend();  
