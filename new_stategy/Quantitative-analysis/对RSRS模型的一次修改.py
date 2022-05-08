@@ -1,7 +1,6 @@
 ﻿# coding: utf-8
 # 引入库
 import tushare as ts
-
 # 标记交易时点
 import talib
 import numpy as np
