@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Time : 2022/5/8 21:05
-# @Author : samurai
-# @Email : samurai05@163.com
+# @Author : huangtuo
+# @Email : 375317196@qq.com
 # @File : 复现RSRS.py
 # @Project : RSRS择时改进.py
 # 引入常用库
@@ -49,9 +49,9 @@ pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
 # 以HS300为准
 #创业板指  399006.SZ
-global index_id = '000300.SH'
+index_id='000300.SH'
 # 时间范围设定
-start, end = '20050408', '20190930'
+start, end = '20050408', '20220512'
 # 获取数据
 datas = pro.index_daily(ts_code=index_id, start_date=start,
                         end_date=end, fields='trade_date,close')
@@ -85,7 +85,7 @@ read_dic如果已经调用get_weights则 true,没有则false
 '''
 
 
-def cal_fee(datas,singal_name='singal',fee=0.006, read_dic=True):
+def cal_fee(datas,singal_name='singal',fee=0.006, read_dic=False):
 
     df = datas
     # 标记买入卖出时点
@@ -101,9 +101,8 @@ def cal_fee(datas,singal_name='singal',fee=0.006, read_dic=True):
         trade = x_df.name
         # print(trade.date())
         #weights_df = get_index_weights('000300.XSHG', trade.date())
-        weights_df = pro.index_weight(index_code=index_id, trade_date=trade.date())
-        cost = np.mean(weights_df['weight']*fee) * \
-            x_df['fee'].values[0]  # 权重*费率
+        #weights_df = pro.index_weight(index_code=index_id, trade_date=trade.date())
+        cost = fee * x_df['fee'].values[0]  # 权重*费率
         return cost
 
     cond = df['fee'] == True
@@ -280,15 +279,20 @@ BBANDS_Strategy(datas)
 #RSRS指标择时策略构建
 # 以HS300为准
 #index_id = '000300.XSHG'
+# 以HS300为准
+#创业板指  399006.SZ
+index_id='000300.SH'
+
 # 时间范围设定
 #start, end = '2005-04-08', '2019-9-30'
 # 获取数据
-start, end = '20050408', '20190930'
+start, end = '20050408', '202205112'
 # 获取数据
 datas = pro.index_daily(ts_code=index_id, start_date=start,
-                        end_date=end, fields='trade_date,close,high,low,volume')
+                        end_date=end, fields='trade_date,close,high,low,amount')
 datas['trade_date'] = pd.to_datetime(datas['trade_date'])
 datas.set_index('trade_date', inplace=True)
+datas.rename(columns={'amount': 'volume'}, inplace=True)
 datas.sort_index(inplace=True)
 df = datas.copy()
 
@@ -395,6 +399,18 @@ stat_depict(RSRS_df, 'RSRS')
 plt.figure(figsize=(18,8))
 plt.title('沪深300各时期斜率均值')
 plt.plot(RSRS_df['RSRS'].rolling(250).mean())
+
+
+############################################
+# 计算基础RSRS
+RSRS_df = Cal_RSRS(df, 18)
+stat_depict_plot(RSRS_df, 'RSRS', '05年至22年斜率数据分布')
+# 各期斜率情况
+plt.figure(figsize=(18,8))
+plt.title('沪深300各时期斜率均值')
+plt.plot(RSRS_df['RSRS'].rolling(5).mean())
+##############################################
+
 
 # 构造标准分RSRS
 
