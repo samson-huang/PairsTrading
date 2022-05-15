@@ -835,7 +835,7 @@ class UpdateOriginData(FactorProcess):
 
 if __name__ == '__main__':
     #ts.set_token('*************')
-    ts.set_token('fbe098e754f69ea09a7bd0c144a00754e93aab1911508cb408c5cb21')
+    ts.set_token('*****************************')
     pro = ts.pro_api()
     #updatefreq = input("Choose update frequency between 'D' and 'M': ")
     z = UpdateOriginData('M', update_only=False)

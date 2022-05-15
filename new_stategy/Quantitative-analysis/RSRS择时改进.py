@@ -27,6 +27,17 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdate
 import seaborn as sns
 
+
+import sys
+sys.path.append("C://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//")
+import foundation_tushare
+import json
+
+# 使用ts
+# 请根据自己的情况填写ts的token
+setting = json.load(open('C:\config\config.json'))
+my_pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
+
 # 设置字体 用来正常显示中文标签
 mpl.rcParams['font.family'] = 'serif'
 # mpl.rcParams['font.sans-serif'] = ['SimHei']
@@ -41,6 +52,46 @@ plt.style.use('seaborn')
 _Cal_RSRS处理data _Cal_RSRS生成信号列表
 
 '''
+def TdaysOffset(end_date: str, count: int) -> int:
+    '''
+    end_date:为基准日期
+    count:为正则后推，负为前推
+    -----------
+    return datetime.date
+    '''
+    df = my_pro.trade_cal(exchange='SSE')
+    test_2=df[df['cal_date']==end_date].index[0]
+    if count > 0:
+        df1=df[test_2:]
+        df1=df1[df1['is_open']==1]
+        df1=df1.reset_index(drop=True)
+        return df1[df1.index==count]['cal_date'].values[0]
+    elif count < 0:
+        df1=df[:test_2+1]
+        df1=df1[df1['is_open']==1]
+        df1=df1.reset_index(drop=True)
+        count_df1=len(df1)+count
+        return df1[df1.index==count_df1]['cal_date'].values[0]
+    else:
+
+        raise ValueError('别闹！')
+
+
+# 数据获取及回测用函数
+
+def query_index_data(ts_code: str, start: str, end: str, fields: str) -> pd.DataFrame:
+    '''获取指数行情数据'''
+
+    df = my_pro.index_daily(ts_code=ts_code, start_date=start,
+                         end_date=end, fields=fields)
+
+    df['trade_date'] = pd.to_datetime(df['trade_date'])
+
+    df.set_index('trade_date', inplace=True)
+    df.rename(columns={'amount': 'volume'}, inplace=True)
+    df.sort_index(inplace=True)
+
+    return df
 
 
 class RSRS(object):
@@ -81,7 +132,7 @@ class RSRS(object):
         # 获取前序时间
         self._get_pretreatment_day()
         # 检查前序时间是否足够
-        self._check_pretreatment_date()
+        #self._check_pretreatment_date()
 
         print('Query data....')
         self.query_data
@@ -103,16 +154,23 @@ class RSRS(object):
     def query_data(self):
 
         # 获取前序开始日
-        begin = get_trade_days(
-            end_date=self.start_date, count=(self.N + self.M))[0]
+        #begin = get_trade_days(
+        #end_date = self.start_date, count = (self.N + self.M))[0]
+        begin = TdaysOffset(
+            end_date=self.start_date, count=(self.N + self.M))
 
         # 获取价格数据
-        price_df = get_price(
+        #price_df = get_price(
+        #    self.symbol,
+        #    begin,
+        #    self.end_date,
+        #    fields=['high', 'low', 'close', 'volume', 'pre_close'],
+        #    panel=False)
+        price_df = query_index_data(
             self.symbol,
             begin,
             self.end_date,
-            fields=['high', 'low', 'close', 'volume', 'pre_close'],
-            panel=False)
+            fields=['trade_date','high', 'low', 'close', 'amount', 'pre_close'])
 
         # 计算收益率
         price_df['ret'] = price_df['close'] / price_df['pre_close'] - 1
@@ -175,7 +233,7 @@ class RSRS(object):
         # 计算OLS相关的数据
         params = self._regression()
 
-        # ret_quantile
+
         ret_quantile = self._cal_ret_quantile()
 
         # 获取RSRS
@@ -194,8 +252,7 @@ class RSRS(object):
         singal_df['右偏修正标准分RSRS'] = singal_df['修正标准分RSRS'] * singal_df['RSRS']
 
         # 钝化RSRS
-        singal_df['钝化RSRS'] = singal_df['标准分RSRS'] * params[1] ** (2 *
-                                                                   ret_quantile)
+        singal_df['钝化RSRS'] = singal_df['标准分RSRS'] * params[1] ** (2 * ret_quantile)
 
         # 成交量加权钝化RSRS
         ## 构建df
@@ -209,8 +266,7 @@ class RSRS(object):
         passiv_z = (passiv_df['beta'] - passiv_df['beta'].rolling(M).mean()
                     ) / passiv_df['beta'].rolling(M).std()
         ## 计算成交量加权钝化RSRS
-        singal_df['成交额加权钝化RSRS'] = passiv_z * passiv_df['rsquare'] ** (
-                2 * ret_quantile)
+        singal_df['成交额加权钝化RSRS'] = passiv_z * passiv_df['rsquare'] ** (2 * ret_quantile)
 
         return singal_df.loc[self.start_date:, rsrs_name]
 
@@ -308,7 +364,8 @@ class RSRS(object):
     # 检查前序时间是否足够
     def _check_pretreatment_date(self):
 
-        traget_date = get_trade_days(end_date=parse(self.start_date).date(), count=self.M + self.N)[0]
+        #traget_date = get_trade_days(end_date=parse(self.start_date).date(), count=self.M + self.N)[0]
+        traget_date = TdaysOffset(end_date=self.start_date, count=self.M + self.N)
         INDEX_START_DATE = get_security_info(self.symbol).start_date
 
         all_trade_days = get_all_trade_days()
@@ -332,7 +389,7 @@ class RSRS(object):
 
         strategy_ret = ret * self.position_df
 
-        index_name = get_security_info(self.symbol).name
+        index_name = self.symbol
 
         # 基准收益
         strategy_ret[index_name + '净值'] = self.price_df['ret']
@@ -577,6 +634,24 @@ class RSRS(object):
 
         mpl.rcParams['font.family'] = 'serif'
         plt.figure(figsize=(18, 8))
-        name = get_security_info(self.symbol).display_name
+        name = self.symbol
         plt.title(name + '净值表现')
         sns.lineplot(data=self.strategy_cum)
+
+# 加载
+hs300 = RSRS()
+
+# 载入数据
+hs300.init_from_config(
+    '000300.SH',
+    '20080325',
+    '20191231',
+    freq={
+        '钝化RSRS': (18, 700),
+        '右偏修正标准分RSRS': (18, 600)
+    })
+
+# 回测
+hs300.backtesting({'钝化RSRS': 0.7, '右偏修正标准分RSRS': 0.7})
+# 报告输出
+hs300.summary()
