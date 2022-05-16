@@ -40,6 +40,8 @@ class DataDownloader:
         self.end_date = end_date
         self.trade_dates = self.get_trade_dates()
         #self.stk_codes = self.get_stks()
+        #获取场内基金代码
+        self.fund_codes = self.get_stks_fund()
         # self.template_df = pd.DataFrame(index=self.trade_dates,columns=self.stk_codes)
 
     def get_trade_dates(self, start_date=None, end_date=None):
@@ -56,6 +58,22 @@ class DataDownloader:
             stk_set |= set(pro.stock_basic(list_status=list_status, fileds='ts_code')['ts_code'].to_list())
 
         return sorted(list(stk_set))
+
+#########################################################################################
+    def get_stks_fund(self):
+        #stk_set = DataReader.read_E_fund()
+        #赛选特定几个数据
+        #list_1 = ('510050.SH', '159902.SZ', '510330.SH', '159915.SZ', '510500.SH', '512010.SH', '502003.SH')
+        list_1 = ('510050.SH', '159902.SZ')
+        list_1 = list(list_1)
+        #stk_set = stk_set[stk_set[['ts_code']].apply(lambda x : x.str.contains('|'.join(list_1))).any(1)]
+        ###########
+        #stk_set = stk_set['ts_code'].to_list()
+        stk_set = list_1
+        return sorted(list(stk_set))
+
+
+##########################################################################################
 
     def get_IdxWeight(self, idx_code):
         """
@@ -193,9 +211,43 @@ class DataDownloader:
         '''
         场内基金数据
         '''
-        res_df=pro.fund_basic(market='E',status='L')
+        res_df=pro.fund_basic(market='E', status='L')
         return res_df
 
+    def get_dailyMkt_mulP_fund(self):
+        m_ls = Manager().list()
+        pools = Pool(3)  # 开太多会有访问频率限制
+        for ts_code in self.fund_codes:
+            pools.apply_async(self.get_dailyMkt_oneFund,
+                              args=(ts_code, m_ls))
+        pools.close()
+        pools.join()
+        m_ls = list(m_ls)
+        raw_df = pd.concat(m_ls)
+        ##############################################
+        raw_df.drop_duplicates(subset=['ts_code', 'nav_date', 'update_flag'], keep='last', inplace=True)
+        res_dict = {}
+        for data_name in ['unit_nav', 'accum_nav', 'net_asset', 'total_netasset',
+                          'adj_nav']:
+            res_df = raw_df.pivot(index='nav_date', columns='ts_code', values=data_name)
+            res_dict[data_name] = res_df.sort_index()
+        return res_dict
+
+    def get_dailyMkt_oneFund(self, ts_code, m_ls):
+        '''
+        前复权的行情数据
+
+        因为tushare下载复权行情接口一次只能获取一只股票
+        所以使用多进行并行
+        '''
+
+        try:
+            # 偶尔会因为网络问题请求失败，报错重新请求
+            df = pro.fund_nav(ts_code=ts_code, market='E', start_date=self.start_date, end_date=self.end_date)
+            m_ls.append(df)
+        except:
+            df = pro.fund_nav(ts_code=ts_code, market='E', start_date=self.start_date, end_date=self.end_date)
+            m_ls.append(df)
 class DataWriter:
     @staticmethod
     def commonFunc(data_path, getFunc, cover, *args, **kwds):
@@ -270,6 +322,31 @@ class DataWriter:
         data_path = dataBase + 'all_e_funds.pkl'
         return DataWriter.commonFunc(data_path, 'get_E_fund', cover)
 
+    @staticmethod
+    def update_dailyMkt_fund(cover=False):
+        '''
+            需要保证已存储的ochlv数据的日期一致
+        '''
+        if not os.path.exists(dataBase + 'daily_data/open.pkl') or cover:
+            print(f'--------Mkt,第一次下载该数据，可能耗时较长')
+            res_dict = DataDownloader().get_dailyMkt_mulP_fund()
+            for data_name, df in res_dict.items():
+                data_path = dataBase + f'daily/mkt//{data_name}.pkl'
+                df.to_pickle(data_path)
+        else:
+            savedData_df = pd.read_pickle(dataBase + f'daily/mkt/open.pkl')
+            savedLastDate = savedData_df.index[-1]
+            print(f'---------Mkt,上次更新至{savedLastDate}，正在更新至最新交易日')
+
+            res_dict = DataDownloader(savedLastDate).get_dailyMkt_mulP_fund()
+            new_df = pd.DataFrame()
+            for data_name, last_df in res_dict.items():
+                data_path = dataBase + f'daily/mkt//{data_name}.pkl'
+                new_df = pd.concat([savedData_df, last_df]).sort_index()
+                new_df = new_df[~new_df.index.duplicated(keep='first')]
+                new_df.to_pickle(data_path)
+            print(f'---------已更新至最新日期{new_df.index[-1]}')
+
 class DataReader:
     @staticmethod
     def commonFunc(data_path):
@@ -323,8 +400,8 @@ class DataReader:
         return DataReader.commonFunc(data_path)
 
 if __name__ == '__main__':
-    DataWriter.update_E_fund(cover=False)
-    DataWriter.update_dailyMkt_fund(cover=True)
+    #DataWriter.update_E_fund(cover=False)
+    DataWriter.update_dailyMkt_fund(cover=False)
 
 
 

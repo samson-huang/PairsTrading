@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="63b4688f-1f66-4559-b508-77836a44b5d7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../fund_update/fund_update_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/fund_update_data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Quantitative-analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Quantitative-analysis/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Quantitative-analysis/RSRS择时改进.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Quantitative-analysis/RSRS择时改进.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../fund_update/数据准备.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/数据准备.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -187,7 +185,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/../../fund_update/数据准备.py</url>
-          <line>325</line>
+          <line>392</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
