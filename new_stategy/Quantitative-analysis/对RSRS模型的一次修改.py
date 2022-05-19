@@ -348,7 +348,137 @@ test4.columns=['pct_chg','RSRS_MARK','RSRS_z_MARK','RSRS_revise_MARK','RSRS_nega
 
 summary(test4)
 
+###########复用评测#################
 
+    def summary(back_testing):
+
+        back_df = back_testing
+
+        index_name = '年化收益率,累计收益率,夏普比率,最大回撤,持仓总天数,交易次数,平均持仓天数,获利天数, \
+        亏损天数,胜率(按天),平均盈利率(按天),平均亏损率(按天),平均盈亏比(按天),盈利次数,亏损次数, \
+        单次最大盈利,单次最大亏损,胜率(按此),平均盈利率(按次),平均亏损率(按次),平均盈亏比(按次)'.split(
+            ',')
+
+        # 寻找标列
+        mark_list = [x for x in back_df.columns if x.split('_')[-1] == 'MARK']
+
+        temp = []
+        mark_size = len(mark_list)  # 列数
+
+        if mark_size > 1:
+
+            for m in mark_list:
+
+                df = pd.DataFrame(risk_indicator(
+                    back_df, m), index=index_name)
+                temp.append(df)
+
+            return pd.concat(temp, axis=1)
+
+        else:
+
+            return pd.DataFrame(risk_indicator(back_df, m), index=index_name)
+
+    # 计算风险指标
+
+    def risk_indicator(x_df, mark_col):
+        '''
+        传入经back_testing
+
+        '''
+        df = x_df.copy()
+
+        summary_dic = {}
+
+        # 格式化数据
+        def format_x(x):
+            return '{:.2%}'.format(x)
+
+        # 获取回测数据
+        df['pct_chg'] = df['pct_chg']/100
+        df['NEXT_RET'] = df['pct_chg'].shift(-1)
+
+        NOT_NAN_RET = df['NEXT_RET'].dropna()*df[mark_col]
+        RET = df['NEXT_RET']*df[mark_col]
+
+        CUM_RET = (1+RET).cumprod()  # series
+
+        # 计算年化收益率
+        annual_ret = CUM_RET.dropna()[-1]**(250/len(NOT_NAN_RET)) - 1
+
+        # 计算累计收益率
+        cum_ret_rate = CUM_RET.dropna()[-1] - 1
+
+        # 最大回撤
+        max_nv = np.maximum.accumulate(np.nan_to_num(CUM_RET))
+        mdd = -np.min(CUM_RET / max_nv - 1)
+
+        # 夏普
+        sharpe_ratio = np.mean(NOT_NAN_RET) / \
+            np.nanstd(NOT_NAN_RET, ddof=1)*np.sqrt(250)
+
+        # 盈利次数
+        temp_df = df.copy()
+
+        diff = temp_df[mark_col] != temp_df[mark_col].shift(1)
+        temp_df[mark_col+'_diff'] = diff.cumsum()
+        cond = temp_df[mark_col] == 1
+        # 每次开仓的收益率情况
+        temp_df = temp_df[cond].groupby(mark_col+'_diff')['NEXT_RET'].sum()
+
+        # 标记买入卖出时点
+        mark = df[mark_col]
+        pre_mark = np.nan_to_num(df[mark_col].shift(-1))
+        # 买入时点
+        trade = (mark == 1) & (pre_mark < mark)
+
+        # 交易次数
+        trade_count = len(temp_df)
+
+        # 持仓总天数
+        total = np.sum(mark)
+
+        # 平均持仓天数
+        mean_hold = total/trade_count
+        # 获利天数
+        win = np.sum(np.where(RET > 0, 1, 0))
+        # 亏损天数
+        lose = np.sum(np.where(RET < 0, 1, 0))
+        # 胜率
+        win_ratio = win/total
+        # 平均盈利率（天）
+        mean_win_ratio = np.sum(np.where(RET > 0, RET, 0))/win
+        # 平均亏损率（天）
+        mean_lose_ratio = np.sum(np.where(RET < 0, RET, 0))/lose
+        # 盈亏比(天)
+        win_lose = win/lose
+
+        # 盈利次数
+        win_count = np.sum(np.where(temp_df > 0, 1, 0))
+        # 亏损次数
+        lose_count = np.sum(np.where(temp_df < 0, 1, 0))
+        # 单次最大盈利
+        max_win = np.max(temp_df)
+        # 单次最大亏损
+        max_lose = np.min(temp_df)
+        # 胜率
+        win_rat = win_count/len(temp_df)
+        # 平均盈利率（次）
+        mean_win = np.sum(np.where(temp_df > 0, temp_df, 0))/len(temp_df)
+        # 平均亏损率（天）
+        mean_lose = np.sum(np.where(temp_df < 0, temp_df, 0))/len(temp_df)
+        # 盈亏比(次)
+        mean_wine_lose = win_count/lose_count
+
+        summary_dic[mark_col] = [format_x(annual_ret), format_x(cum_ret_rate), sharpe_ratio, format_x(
+            mdd), total, trade_count, mean_hold, win, lose, format_x(win_ratio), format_x(mean_win_ratio),
+            format_x(mean_lose_ratio), win_lose, win_count, lose_count, format_x(
+                max_win), format_x(max_lose),
+            format_x(win_rat), format_x(mean_win), format_x(mean_lose), mean_wine_lose]
+
+        return summary_dic
+
+##############################
 
 
 df = pd.DataFrame()

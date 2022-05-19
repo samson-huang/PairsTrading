@@ -35,7 +35,7 @@ def update_pickle(text, path):
 
 
 class DataDownloader:
-    def __init__(self, start_date='20100101', end_date=None):
+    def __init__(self, start_date='20050101', end_date=None):
         self.start_date = start_date
         self.end_date = end_date
         self.trade_dates = self.get_trade_dates()
@@ -64,7 +64,7 @@ class DataDownloader:
         #stk_set = DataReader.read_E_fund()
         #赛选特定几个数据
         #list_1 = ('510050.SH', '159902.SZ', '510330.SH', '159915.SZ', '510500.SH', '512010.SH', '502003.SH')
-        list_1 = ('510050.SH', '159902.SZ')
+        list_1 = ('000300.SH', '399006.SZ', '399905.SZ')
         list_1 = list(list_1)
         #stk_set = stk_set[stk_set[['ts_code']].apply(lambda x : x.str.contains('|'.join(list_1))).any(1)]
         ###########
@@ -211,7 +211,7 @@ class DataDownloader:
         '''
         场内基金数据
         '''
-        res_df=pro.fund_basic(market='E', status='L')
+        res_df=pro.index_basic()
         return res_df
 
     def get_dailyMkt_mulP_fund(self):
@@ -225,11 +225,10 @@ class DataDownloader:
         m_ls = list(m_ls)
         raw_df = pd.concat(m_ls)
         ##############################################
-        raw_df.drop_duplicates(subset=['ts_code', 'nav_date', 'update_flag'], keep='last', inplace=True)
+        #raw_df.drop_duplicates(subset=['ts_code', 'nav_date'], keep='last', inplace=True)
         res_dict = {}
-        for data_name in ['unit_nav', 'accum_nav', 'net_asset', 'total_netasset',
-                          'adj_nav']:
-            res_df = raw_df.pivot(index='nav_date', columns='ts_code', values=data_name)
+        for data_name in ['open', 'close', 'high', 'low','pre_close', 'vol', 'amount']:
+            res_df = raw_df.pivot(index='trade_date', columns='ts_code', values=data_name)
             res_dict[data_name] = res_df.sort_index()
         return res_dict
 
@@ -243,10 +242,10 @@ class DataDownloader:
 
         try:
             # 偶尔会因为网络问题请求失败，报错重新请求
-            df = pro.fund_nav(ts_code=ts_code, market='E', start_date=self.start_date, end_date=self.end_date)
+            df = pro.index_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
             m_ls.append(df)
         except:
-            df = pro.fund_nav(ts_code=ts_code, market='E', start_date=self.start_date, end_date=self.end_date)
+            df = pro.index_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
             m_ls.append(df)
 class DataWriter:
     @staticmethod
@@ -327,21 +326,21 @@ class DataWriter:
         '''
             需要保证已存储的ochlv数据的日期一致
         '''
-        if not os.path.exists(dataBase + 'daily_data/open.pkl') or cover:
+        if not os.path.exists(dataBase + 'mkt//open.pkl') or cover:
             print(f'--------Mkt,第一次下载该数据，可能耗时较长')
             res_dict = DataDownloader().get_dailyMkt_mulP_fund()
             for data_name, df in res_dict.items():
-                data_path = dataBase + f'daily/mkt//{data_name}.pkl'
+                data_path = dataBase + f'mkt//{data_name}.pkl'
                 df.to_pickle(data_path)
         else:
-            savedData_df = pd.read_pickle(dataBase + f'daily/mkt/open.pkl')
+            savedData_df = pd.read_pickle(dataBase + 'mkt/open.pkl')
             savedLastDate = savedData_df.index[-1]
             print(f'---------Mkt,上次更新至{savedLastDate}，正在更新至最新交易日')
 
             res_dict = DataDownloader(savedLastDate).get_dailyMkt_mulP_fund()
             new_df = pd.DataFrame()
             for data_name, last_df in res_dict.items():
-                data_path = dataBase + f'daily/mkt//{data_name}.pkl'
+                data_path = dataBase + f'mkt//{data_name}.pkl'
                 new_df = pd.concat([savedData_df, last_df]).sort_index()
                 new_df = new_df[~new_df.index.duplicated(keep='first')]
                 new_df.to_pickle(data_path)
@@ -379,7 +378,7 @@ class DataReader:
 
     @staticmethod
     def read_dailyMkt(data_name):
-        data_path = dataBase + f'daily/mkt/{data_name}.pkl'
+        data_path = dataBase + f'mkt//{data_name}.pkl'
         return DataReader.commonFunc(data_path)
 
     @staticmethod
@@ -412,3 +411,31 @@ if __name__ == '__main__':
     #DataWriter.update_IdxWeight('399300.SZ', cover=True)
     #DataWriter.update_dailyMkt(cover=True)
     #DataWriter.update_limit_valid(cover=True)
+
+
+
+'''
+test_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//close.pkl')
+test_pre_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//pre_close.pkl')
+test_high = pd.read_pickle('C://temp//fund_data//base_data//mkt//high.pkl')
+test_low = pd.read_pickle('C://temp//fund_data//base_data//mkt//low.pkl')
+test_amount = pd.read_pickle('C://temp//fund_data//base_data//mkt//amount.pkl')
+
+#'close,pre_close,high,low,amount'
+dfs = [test_close['000300.SH'],test_pre_close['000300.SH'],test_high['000300.SH'],test_low['000300.SH'],test_amount['000300.SH']]
+result = pd.concat(dfs,axis=1)
+result.columns = ['close','pre_close','high','low','amount']
+
+
+result = result.dropna(inplace=False) 
+
+result.to_csv('c://temp//000300SH.csv')
+
+import datetime as datetime
+close_df=pd.read_csv('c://temp//000300SH.csv')
+
+
+close_df['trade_date']=pd.to_datetime(close_df['trade_date'].astype(str))
+close_df.set_index('trade_date', inplace=True)
+close_df.sort_index(inplace=True) 
+'''
