@@ -245,7 +245,7 @@ class DataWriter:
                 data_path = dataBase+f'daily/mkt//{data_name}.pkl'
                 df.to_pickle(data_path)
         else:
-            savedData_df = pd.read_pickle(dataBase+f'daily/mkt/open.pkl')
+            savedData_df = pd.read_pickle(dataBase+f'daily/mkt/{data_name}.pkl')
             savedLastDate = savedData_df.index[-1]
             print(f'---------Mkt,上次更新至{savedLastDate}，正在更新至最新交易日')
 

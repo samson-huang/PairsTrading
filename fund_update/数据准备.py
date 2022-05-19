@@ -302,7 +302,7 @@ class DataWriter:
                 data_path = dataBase + f'daily/mkt//{data_name}.pkl'
                 df.to_pickle(data_path)
         else:
-            savedData_df = pd.read_pickle(dataBase + f'daily/mkt/open.pkl')
+            savedData_df = pd.read_pickle(dataBase + f'daily/mkt/{data_name}.pkl')
             savedLastDate = savedData_df.index[-1]
             print(f'---------Mkt,上次更新至{savedLastDate}，正在更新至最新交易日')
 
@@ -333,7 +333,7 @@ class DataWriter:
                 data_path = dataBase + f'mkt//{data_name}.pkl'
                 df.to_pickle(data_path)
         else:
-            savedData_df = pd.read_pickle(dataBase + 'mkt/open.pkl')
+            savedData_df = pd.read_pickle(dataBase + f'mkt//open.pkl')
             savedLastDate = savedData_df.index[-1]
             print(f'---------Mkt,上次更新至{savedLastDate}，正在更新至最新交易日')
 
@@ -341,7 +341,8 @@ class DataWriter:
             new_df = pd.DataFrame()
             for data_name, last_df in res_dict.items():
                 data_path = dataBase + f'mkt//{data_name}.pkl'
-                new_df = pd.concat([savedData_df, last_df]).sort_index()
+                savedData_df1 = pd.read_pickle(dataBase + f'mkt//{data_name}.pkl')
+                new_df = pd.concat([savedData_df1, last_df]).sort_index()
                 new_df = new_df[~new_df.index.duplicated(keep='first')]
                 new_df.to_pickle(data_path)
             print(f'---------已更新至最新日期{new_df.index[-1]}')
@@ -435,7 +436,8 @@ import datetime as datetime
 close_df=pd.read_csv('c://temp//000300SH.csv')
 
 
-close_df['trade_date']=pd.to_datetime(close_df['trade_date'].astype(str))
-close_df.set_index('trade_date', inplace=True)
-close_df.sort_index(inplace=True) 
+#close_df['trade_date']=pd.to_datetime(close_df['trade_date'].astype(str))
+#close_df.set_index('trade_date', inplace=True)
+result.index=pd.to_datetime(result.index)
+result.sort_index(inplace=True) 
 '''
