@@ -350,7 +350,7 @@ summary(test4)
 
 ###########复用评测#################
 
-    def summary(back_testing):
+def summary(back_testing):
 
         back_df = back_testing
 
@@ -381,7 +381,7 @@ summary(test4)
 
     # 计算风险指标
 
-    def risk_indicator(x_df, mark_col):
+def risk_indicator(x_df, mark_col):
         '''
         传入经back_testing
 

@@ -57,8 +57,8 @@ def query_index_data(ts_code: str, start: str, end: str, fields: str) -> pd.Data
     return df
 
 
-# 持仓标记
-def add_flag(signal_ser: pd.Series, S: float) -> pd.DataFrame:
+# 持仓标记不对称取值
+def add_flag(signal_ser: pd.Series, S: float, s: float) -> pd.DataFrame:
     '''
     开平仓标记
         1-open/hold 0-close
@@ -76,7 +76,7 @@ def add_flag(signal_ser: pd.Series, S: float) -> pd.DataFrame:
 
             flag[trade] = 1
 
-        elif signal < -S:
+        elif signal < s:
 
             flag[trade] = 0
 
@@ -89,10 +89,10 @@ def add_flag(signal_ser: pd.Series, S: float) -> pd.DataFrame:
     return flag
 
 
-def creat_algorithm_returns(signal_df: pd.DataFrame, benchmark_ser: pd.Series, S: float) -> tuple:
+def creat_algorithm_returns(signal_df: pd.DataFrame, benchmark_ser: pd.Series, S: float, s:float) -> tuple:
     '''生成策略收益表'''
 
-    flag_df = signal_df.apply(lambda x: add_flag(x, S))
+    flag_df = signal_df.apply(lambda x: add_flag(x, S, s))
 
     log_ret = np.log(benchmark_ser / benchmark_ser.shift(1))  # 获取对数收益率
 
@@ -188,8 +188,9 @@ test_high = pd.read_pickle('C://temp//fund_data//base_data//mkt//high.pkl')
 test_low = pd.read_pickle('C://temp//fund_data//base_data//mkt//low.pkl')
 test_amount = pd.read_pickle('C://temp//fund_data//base_data//mkt//amount.pkl')
 
+index_code = '399006.SZ'
 #'close,pre_close,high,low,amount'
-dfs = [test_close['000300.SH'],test_pre_close['000300.SH'],test_high['000300.SH'],test_low['000300.SH'],test_amount['000300.SH']]
+dfs = [test_close[index_code],test_pre_close[index_code],test_high[index_code],test_low[index_code],test_amount[index_code]]
 result = pd.concat(dfs,axis=1)
 result.columns = ['close','pre_close','high','low','amount']
 
@@ -210,9 +211,9 @@ signal_df.tail()
 
 #获取最后一天收盘买卖信号
 
-flag_df=signal_df.apply(lambda x: add_flag(x, 0.7))
+flag_df=signal_df.apply(lambda x: add_flag(x, 0.7, -0.7))
 flag_df.tail()
 ##########################################
 algorithm_ret_ver2, benchmark = creat_algorithm_returns(
-    signal_df, close_df['close'], 0.7)
+    signal_df, close_df['close'], 0.7, -0.7)
 view_nav(algorithm_ret_ver2[-200:], benchmark[-200:])

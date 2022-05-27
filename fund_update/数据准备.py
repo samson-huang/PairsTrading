@@ -422,22 +422,35 @@ test_high = pd.read_pickle('C://temp//fund_data//base_data//mkt//high.pkl')
 test_low = pd.read_pickle('C://temp//fund_data//base_data//mkt//low.pkl')
 test_amount = pd.read_pickle('C://temp//fund_data//base_data//mkt//amount.pkl')
 
+
+index_code = '000300.SH'
 #'close,pre_close,high,low,amount'
-dfs = [test_close['000300.SH'],test_pre_close['000300.SH'],test_high['000300.SH'],test_low['000300.SH'],test_amount['000300.SH']]
+dfs = [test_close[index_code],test_pre_close[index_code],test_high[index_code],test_low[index_code],test_amount[index_code]]
 result = pd.concat(dfs,axis=1)
 result.columns = ['close','pre_close','high','low','amount']
 
 
 result = result.dropna(inplace=False) 
 
-result.to_csv('c://temp//000300SH.csv')
-
-import datetime as datetime
-close_df=pd.read_csv('c://temp//000300SH.csv')
-
-
+#result.to_csv('c://temp//000300SH.csv')
+#import datetime as datetime
+#close_df=pd.read_csv('c://temp//000300SH.csv')
 #close_df['trade_date']=pd.to_datetime(close_df['trade_date'].astype(str))
 #close_df.set_index('trade_date', inplace=True)
 result.index=pd.to_datetime(result.index)
 result.sort_index(inplace=True) 
+
+
+close_df=result
+
+price_df=close_df[['close']]
+# 指标计算
+LR = cala_LR(price_df['close'])
+
+
+rsrs = RSRS_improve2()  # 调用RSRS计算类
+signal_df = rsrs.get_RSRS(close_df, (1 - LR), 10, 60, 'ols')  # 获取各RSRS信号
+
+signal_df.tail()
+
 '''

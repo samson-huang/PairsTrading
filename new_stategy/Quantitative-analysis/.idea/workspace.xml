@@ -2,8 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e3506a4e-1718-4230-a1c5-368558cde42a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../../fund_update/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../fund_update/数据准备.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/数据准备.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/RSRS择时改进.py" beforeDir="false" afterPath="$PROJECT_DIR$/RSRS择时改进.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/对RSRS模型的一次修改.py" beforeDir="false" afterPath="$PROJECT_DIR$/对RSRS模型的一次修改.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/对RSRS模型的一次修改_new实战.py" beforeDir="false" afterPath="$PROJECT_DIR$/对RSRS模型的一次修改_new实战.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../factor_analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../factor_analysis/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../portfolio_fund/portfolio_fund - 快捷方式.lnk" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
