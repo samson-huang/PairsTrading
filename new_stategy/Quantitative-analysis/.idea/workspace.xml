@@ -2,13 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e3506a4e-1718-4230-a1c5-368558cde42a" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/技术指标形态识别.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../fund_update/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../fund_update/数据准备.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/数据准备.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/对RSRS模型的一次修改.py" beforeDir="false" afterPath="$PROJECT_DIR$/对RSRS模型的一次修改.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/对RSRS模型的一次修改_new实战.py" beforeDir="false" afterPath="$PROJECT_DIR$/对RSRS模型的一次修改_new实战.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../factor_analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../factor_analysis/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../portfolio_fund/portfolio_fund - 快捷方式.lnk" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -139,6 +135,11 @@
           <url>file://$PROJECT_DIR$/基于CCK模型的股票市场羊群效应研究.py</url>
           <line>40</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/对RSRS模型的一次修改_new实战.py</url>
+          <line>2</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

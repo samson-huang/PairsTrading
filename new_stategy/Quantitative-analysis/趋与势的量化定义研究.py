@@ -1,4 +1,4 @@
-from typing import (Tuple,List,Callable,Union,Dict)
+ï»¿from typing import (Tuple,List,Callable,Union,Dict)
 
 import pandas as pd
 import numpy as np
@@ -11,28 +11,28 @@ import seaborn as sns
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-plt.rcParams['font.sans-serif'] = ['SimHei']  #ÓÃÀ´Õı³£ÏÔÊ¾ÖĞÎÄ±êÇ©
-plt.rcParams['axes.unicode_minus'] = False  #ÓÃÀ´Õı³£ÏÔÊ¾¸ººÅ
+plt.rcParams['font.sans-serif'] = ['SimHei']  #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºä¸­æ–‡æ ‡ç­¾
+plt.rcParams['axes.unicode_minus'] = False  #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºè´Ÿå·
 
-# ±ê×¼»¯Ç÷ÊÆ
+# æ ‡å‡†åŒ–è¶‹åŠ¿
 class Normalize_Trend(object):
     
     '''
-    ±ê×¼»¯¼Û¸ñÎ»ÒÆ
+    æ ‡å‡†åŒ–ä»·æ ¼ä½ç§»
     
-    ×¢Òâ:Î»ÒÆÏòÁ¿±È×´Ì¬±ä»¯ÏòÁ¿¶àÒ»¸ö³õÊ¼µ¥Ôª0
+    æ³¨æ„:ä½ç§»å‘é‡æ¯”çŠ¶æ€å˜åŒ–å‘é‡å¤šä¸€ä¸ªåˆå§‹å•å…ƒ0
     '''
     
     def __init__(self,close_ser: pd.Series) -> None:
 
         if not isinstance(close_ser, pd.Series):
 
-            raise ValueError('ÊäÈë²ÎÊıÀàĞÍ±ØĞëÎªpd.Series')
+            raise ValueError('è¾“å…¥å‚æ•°ç±»å‹å¿…é¡»ä¸ºpd.Series')
 
         self.close_ser = close_ser
 
     def normalize_monotone(self) -> pd.Series:
-        '''µ¥µ÷ĞÔ±ê×¼»¯'''
+        '''å•è°ƒæ€§æ ‡å‡†åŒ–'''
 
         sign = self.close_ser.pct_change().apply(np.sign)
         sign = sign.cumsum().fillna(0)
@@ -40,14 +40,14 @@ class Normalize_Trend(object):
         return sign
 
     def normalize_movingaverage(self, window: int = 5) -> pd.Series:
-        '''5ÖÜÆÚ¾ùÏßµÄ±ê×¼»¯'''
+        '''5å‘¨æœŸå‡çº¿çš„æ ‡å‡†åŒ–'''
 
         close_ser = self.close_ser
         size = len(close_ser)
 
         if size < window:
 
-            raise ValueError('ÊäÈëÊı¾İ³¤¶ÈĞ¡ÓÚ´°¿ÚÆÚ')
+            raise ValueError('è¾“å…¥æ•°æ®é•¿åº¦å°äºçª—å£æœŸ')
 
         ma = close_ser.rolling(window).mean()
         sign = (close_ser - ma).apply(np.sign).iloc[window - 2:]
@@ -63,7 +63,7 @@ class Normalize_Trend(object):
 
         if size < window:
 
-            raise ValueError('ÊäÈëÊı¾İ³¤¶ÈĞ¡ÓÚ´°¿ÚÆÚ')
+            raise ValueError('è¾“å…¥æ•°æ®é•¿åº¦å°äºçª—å£æœŸ')
 
         sign_monotone = close_ser.pct_change().apply(np.sign)
 
@@ -71,58 +71,58 @@ class Normalize_Trend(object):
         sign_ma = (close_ser - ma).apply(np.sign)
 
         # @jqz1226
-        # ¿ÉÒÔ°´ÕÕ4ÖÖÇéĞÎ·Ö±ğ·ÖÎö£º
-        # 1. Ç°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÏÂ£¬µ±Ç°ÊÕÅÌ¼ÛÕ¾ÉÏ¾ùÏß£¬×´Ì¬¼ÇÎª1£»·ÖÎö£ºµ±Ç°sign_ma = 1£¬
-        # ÊÕÅÌ¼ÛÄÜ´Ó¾ùÏßÏÂÔ¾µ½¾ùÏßÉÏ£¬±ØÈ»ÊÇÓÉÓÚ¼Û¸ñÉÏÕÇ£¬¹Êsign_monotone = 1, ÓÚÊÇ (1+1)/2 = 1
-        # 2. Ç°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÉÏ£¬µ±Ç°ÊÕÅÌ¼ÛµøÆÆ¾ùÏß£¬×´Ì¬¼ÇÎª-1£»·ÖÎö£ºµ±Ç°sign_ma=-1£¬
-        # ÊÕÅÌ¼ÛÄÜ´Ó¾ùÏßÉÏµôµ½¾ùÏßÏÂ£¬±ØÈ»ÊÇÓÉÓÚ¼Û¸ñÏÂµø£¬¹Êsign_monotone = -1, ÓÚÊÇ((-1)+(-1))/2 = -1
-        # 3. 3a) Ç°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÉÏ£¬µ±Ç°ÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÉÏ£¬µ±Ç°ÊÕÅÌ¼Û´óÓÚ»òµÈÓÚÇ°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼Û£¬
-        # ×´Ì¬¼ÇÎª1£»·ÖÎö£ºµ±Ç°sign_ma = 1£¬ÊÕÅÌ¼ÛÉÏÉı£¬sign_monotone = 1, ÓÚÊÇ (1+1)/2 = 1
-        # 3b) Ç°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÉÏ£¬µ±Ç°ÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÉÏ£¬µ±Ç°ÊÕÅÌ¼ÛĞ¡ÓÚÇ°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼Û£¬
-        # ×´Ì¬¼ÇÎª0£»·ÖÎö£ºµ±Ç°sign_ma = 1£¬ÊÕÅÌ¼ÛÏÂ½µ£¬sign_monotone = -1, ÓÚÊÇ ((1)+(-1))/2 = 0
-        # 4. 4a) Ç°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÏÂ£¬µ±Ç°ÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÏÂ£¬µ±Ç°ÊÕÅÌ¼Û´óÓÚÇ°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼Û£¬
-        # ×´Ì¬¼ÇÎª0£¬·ÖÎö£ºµ±Ç°sign_ma = -1£¬ÊÕÅÌ¼ÛÉÏÉı£¬sign_monotone = 1, ÓÚÊÇ (-1+1)/2 = 0
-        # 4b) Ç°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÏÂ£¬µ±Ç°ÊÕÅÌ¼ÛÎ»ÓÚ¾ùÏßÖ®ÏÂ£¬µ±Ç°ÊÕÅÌ¼ÛĞ¡ÓÚ»òµÈÓÚÇ°Ò»¸ö½»Ò×ÈÕÊÕÅÌ¼Û£¬
-        # ×´Ì¬¼ÇÎª-1¡£·ÖÎö£ºµ±Ç°sign_ma = -1£¬ÊÕÅÌ¼ÛÏÂ½µ£¬sign_monotone = -1, ÓÚÊÇ ((-1)+(-1))/2 = -1
+        # å¯ä»¥æŒ‰ç…§4ç§æƒ…å½¢åˆ†åˆ«åˆ†æï¼š
+        # 1. å‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸‹ï¼Œå½“å‰æ”¶ç›˜ä»·ç«™ä¸Šå‡çº¿ï¼ŒçŠ¶æ€è®°ä¸º1ï¼›åˆ†æï¼šå½“å‰sign_ma = 1ï¼Œ
+        # æ”¶ç›˜ä»·èƒ½ä»å‡çº¿ä¸‹è·ƒåˆ°å‡çº¿ä¸Šï¼Œå¿…ç„¶æ˜¯ç”±äºä»·æ ¼ä¸Šæ¶¨ï¼Œæ•…sign_monotone = 1, äºæ˜¯ (1+1)/2 = 1
+        # 2. å‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸Šï¼Œå½“å‰æ”¶ç›˜ä»·è·Œç ´å‡çº¿ï¼ŒçŠ¶æ€è®°ä¸º-1ï¼›åˆ†æï¼šå½“å‰sign_ma=-1ï¼Œ
+        # æ”¶ç›˜ä»·èƒ½ä»å‡çº¿ä¸Šæ‰åˆ°å‡çº¿ä¸‹ï¼Œå¿…ç„¶æ˜¯ç”±äºä»·æ ¼ä¸‹è·Œï¼Œæ•…sign_monotone = -1, äºæ˜¯((-1)+(-1))/2 = -1
+        # 3. 3a) å‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸Šï¼Œå½“å‰æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸Šï¼Œå½“å‰æ”¶ç›˜ä»·å¤§äºæˆ–ç­‰äºå‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ï¼Œ
+        # çŠ¶æ€è®°ä¸º1ï¼›åˆ†æï¼šå½“å‰sign_ma = 1ï¼Œæ”¶ç›˜ä»·ä¸Šå‡ï¼Œsign_monotone = 1, äºæ˜¯ (1+1)/2 = 1
+        # 3b) å‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸Šï¼Œå½“å‰æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸Šï¼Œå½“å‰æ”¶ç›˜ä»·å°äºå‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ï¼Œ
+        # çŠ¶æ€è®°ä¸º0ï¼›åˆ†æï¼šå½“å‰sign_ma = 1ï¼Œæ”¶ç›˜ä»·ä¸‹é™ï¼Œsign_monotone = -1, äºæ˜¯ ((1)+(-1))/2 = 0
+        # 4. 4a) å‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸‹ï¼Œå½“å‰æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸‹ï¼Œå½“å‰æ”¶ç›˜ä»·å¤§äºå‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ï¼Œ
+        # çŠ¶æ€è®°ä¸º0ï¼Œåˆ†æï¼šå½“å‰sign_ma = -1ï¼Œæ”¶ç›˜ä»·ä¸Šå‡ï¼Œsign_monotone = 1, äºæ˜¯ (-1+1)/2 = 0
+        # 4b) å‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸‹ï¼Œå½“å‰æ”¶ç›˜ä»·ä½äºå‡çº¿ä¹‹ä¸‹ï¼Œå½“å‰æ”¶ç›˜ä»·å°äºæˆ–ç­‰äºå‰ä¸€ä¸ªäº¤æ˜“æ—¥æ”¶ç›˜ä»·ï¼Œ
+        # çŠ¶æ€è®°ä¸º-1ã€‚åˆ†æï¼šå½“å‰sign_ma = -1ï¼Œæ”¶ç›˜ä»·ä¸‹é™ï¼Œsign_monotone = -1, äºæ˜¯ ((-1)+(-1))/2 = -1
 
-        sign_compound = (sign_monotone + sign_ma) / 2  # ¼òµ¥Æ½¾ù
+        sign_compound = (sign_monotone + sign_ma) / 2  # ç®€å•å¹³å‡
         sign_compound = sign_compound.iloc[window - 2:].cumsum().fillna(0)
 
         return sign_compound
 
 class Tren_Score(object):
     '''
-    ¸ù¾İ±ê×¼»¯ºóµÄ¼Û¸ñÊı¾İ¼ÆËãÇ÷ÊÆµÃ·Ö
+    æ ¹æ®æ ‡å‡†åŒ–åçš„ä»·æ ¼æ•°æ®è®¡ç®—è¶‹åŠ¿å¾—åˆ†
     ------
-    ÊäÈë²ÎÊı£º
-        normalize_trend_ser:pd.Series index-date values-±ê×¼»¯ºóµÄ¼Û¸ñÊı¾İ
+    è¾“å…¥å‚æ•°ï¼š
+        normalize_trend_ser:pd.Series index-date values-æ ‡å‡†åŒ–åçš„ä»·æ ¼æ•°æ®
 
-    ·½·¨£º
-        ÆÀ·Ö·½·¨¾ùÓĞÁ½ÖÖ¼ÆËãÄ£Ê½Çø±ğÊÇ»®·Ö²¨¶ÎµÄ·½·¨²»Í¬
-        ·Ö±ğÊÇopposite/absolute ¼´¡¾Ïà¶Ô²¨¶Î»®·Ö¡¿ºÍ¡¾¾ø¶Ô²¨¶Î»®·Ö¡¿
+    æ–¹æ³•ï¼š
+        è¯„åˆ†æ–¹æ³•å‡æœ‰ä¸¤ç§è®¡ç®—æ¨¡å¼åŒºåˆ«æ˜¯åˆ’åˆ†æ³¢æ®µçš„æ–¹æ³•ä¸åŒ
+        åˆ†åˆ«æ˜¯opposite/absolute å³ã€ç›¸å¯¹æ³¢æ®µåˆ’åˆ†ã€‘å’Œã€ç»å¯¹æ³¢æ®µåˆ’åˆ†ã€‘
 
-        calc_trend_score:¼ÆËã¡°Ç÷ÊÆ¡±µÃ·Ö
+        calc_trend_score:è®¡ç®—â€œè¶‹åŠ¿â€å¾—åˆ†
             score Dict
-                - trend_score ÊÆµÃ·Ö
-                - act_score Ç÷µÃ·Ö
-            - point_frame Dict ±ê¼Ç±í¸ñ
-            - point_mask Dict ±ê¼Çµã
-        calc_absolute_score:¼ÆËã»ìºÏÄ£Ê½µÃ·Ö
+                - trend_score åŠ¿å¾—åˆ†
+                - act_score è¶‹å¾—åˆ†
+            - point_frame Dict æ ‡è®°è¡¨æ ¼
+            - point_mask Dict æ ‡è®°ç‚¹
+        calc_absolute_score:è®¡ç®—æ··åˆæ¨¡å¼å¾—åˆ†
     '''
     def __init__(self, normalize_trend_ser: pd.Series) -> None:
 
         if not isinstance(normalize_trend_ser, pd.Series):
 
-            raise ValueError('ÊäÈë²ÎÊıÀàĞÍ±ØĞëÎªpd.Series')
+            raise ValueError('è¾“å…¥å‚æ•°ç±»å‹å¿…é¡»ä¸ºpd.Series')
 
         self.normalize_trend_ser = normalize_trend_ser
 
-        # ´¢´æ±ê¼Çµã±í¸ñ
+        # å‚¨å­˜æ ‡è®°ç‚¹è¡¨æ ¼
         self.point_frame:Dict[pd.DataFrame] = defaultdict(pd.DataFrame)
         self.score_record = namedtuple('ScoreRecord','trend_score,act_score')
         self.score:Dict = defaultdict(namedtuple)
 
-        # ´¢´æ±ê¼Çµã±ê¼Ç
+        # å‚¨å­˜æ ‡è®°ç‚¹æ ‡è®°
         self.point_mask:Dict[List] =  defaultdict(list)
 
         self.func_dic: Dict = {
@@ -131,16 +131,16 @@ class Tren_Score(object):
         }
 
     def calc_trend_score(self, method: str) -> float:
-        '''ÊÆ'''
+        '''åŠ¿'''
 
         func: Callable = self.func_dic[method]
 
-        # Ç÷ÊÆ¼«ÖµµãµÃ±ê¼Ç
+        # è¶‹åŠ¿æå€¼ç‚¹å¾—æ ‡è®°
         cond:pd.Series = func()
 
-        # ÊÆµÃ·Ö
+        # åŠ¿å¾—åˆ†
         trend_score = np.square(self.normalize_trend_ser[cond].diff()).sum()
-        # Ç÷µÃ·Ö
+        # è¶‹å¾—åˆ†
         act_score = self.normalize_trend_ser.diff().sum()
 
         self.score[method] = self.score_record(trend_score=trend_score,
@@ -152,7 +152,7 @@ class Tren_Score(object):
 
     def calc_absolute_score(self) -> float:
 
-        '''ÊÆµÄÖÕ¼«¶¨Òå'''
+        '''åŠ¿çš„ç»ˆæå®šä¹‰'''
 
         opposite = self.calc_trend_score('opposite')
         absolute = self.calc_trend_score('absolute')
@@ -163,10 +163,10 @@ class Tren_Score(object):
 
     def _get_opposite_piont(self) -> List:
         '''
-        »ñÈ¡Ïà¶Ô¹ÕµãµÄÎ»ÖÃ
+        è·å–ç›¸å¯¹æ‹ç‚¹çš„ä½ç½®
         ------
         return np.array([True,..False,...True])
-            True±íÊ¾Îª¹Õµã£¬False±íÊ¾²»ÊÇ
+            Trueè¡¨ç¤ºä¸ºæ‹ç‚¹ï¼ŒFalseè¡¨ç¤ºä¸æ˜¯
         '''
         ser = self.normalize_trend_ser
         flag_ser = pd.Series(index=ser.index, dtype=ser.index.dtype)
@@ -196,32 +196,32 @@ class Tren_Score(object):
         flag_ser.iloc[0] = True
         flag_ser.iloc[-1] = True
 
-        # ¹ÕµãË÷Òı
+        # æ‹ç‚¹ç´¢å¼•
 
         return flag_ser.values.tolist()
 
     def _get_absolute_point(self) -> List:
         '''
-        »ñÈ¡¾ø¶Ô¹ÕµãµÄÎ»ÖÃ
+        è·å–ç»å¯¹æ‹ç‚¹çš„ä½ç½®
         ------
         return np.array([True,..False,...True])
-            True±íÊ¾Îª¹Õµã£¬False±íÊ¾²»ÊÇ
+            Trueè¡¨ç¤ºä¸ºæ‹ç‚¹ï¼ŒFalseè¡¨ç¤ºä¸æ˜¯
         '''
         arr = self.normalize_trend_ser.values
         size = len(arr)
         
-        # TODO:²»ÖªµÀÎÒÊÇ²»ÊÇÃ»Àí½âÑĞ±¨Ëã·¨
-        # Èç¹ûÊ¹ÓÃÏÂÃæËã·¨ÕÒ×î´ó×îĞ¡ ÔÚ[0,-1,-1,0,1,0,-1,-1,-2]ÕâÖÖÇé¿öÏÂ
-        # ×î´óÖµ»á±»±ê¼ÇÔÚÏÂ±êÎª8µÄÔªËØÉÏ
+        # TODO:ä¸çŸ¥é“æˆ‘æ˜¯ä¸æ˜¯æ²¡ç†è§£ç ”æŠ¥ç®—æ³•
+        # å¦‚æœä½¿ç”¨ä¸‹é¢ç®—æ³•æ‰¾æœ€å¤§æœ€å° åœ¨[0,-1,-1,0,1,0,-1,-1,-2]è¿™ç§æƒ…å†µä¸‹
+        # æœ€å¤§å€¼ä¼šè¢«æ ‡è®°åœ¨ä¸‹æ ‡ä¸º8çš„å…ƒç´ ä¸Š
 
         # distances = np.abs(arr.reshape(-1, 1) - np.tile(arr, (size, 1)))
 
         # d_arr = np.tril(distances)[:, 0]
-        # # »ñÈ¡×î´ó/Ğ¡Öµ
+        # # è·å–æœ€å¤§/å°å€¼
         # ind_max = np.argmax(d_arr)
         # ind_min = np.argmin(d_arr)
     
-        # # ×î´ó/Ğ¡ÖµË÷ÒıÏÂ±ê
+        # # æœ€å¤§/å°å€¼ç´¢å¼•ä¸‹æ ‡
         # idx_max = np.argwhere(d_arr == ind_max).reshape(1, -1)[0]
         # idx_min = np.argwhere(d_arr == ind_min).reshape(1, -1)[0]
 
@@ -247,7 +247,7 @@ import mpl_finance as mpf
 from matplotlib import ticker
 from matplotlib.pylab import date2num
 
-# »­KÏß
+# ç”»Kçº¿
 def plot_ochl(data_df,title:str=None,ax=None):
     
     if ax is None:
@@ -261,7 +261,7 @@ def plot_ochl(data_df,title:str=None,ax=None):
     
     data['dates'] = np.arange(len(data))
     ax.xaxis_date()
-    ax.set_xlim(1, len(data))  # ¸ß°æ±¾mpl²»ĞèÒªÕâ¸ö..Õâ¸ö¿´²»µ½ÏÂ±êÎª0µÃKÏß
+    ax.set_xlim(1, len(data))  # é«˜ç‰ˆæœ¬mplä¸éœ€è¦è¿™ä¸ª..è¿™ä¸ªçœ‹ä¸åˆ°ä¸‹æ ‡ä¸º0å¾—Kçº¿
     def format_date(x,pos):
         
         if x<0 or x>len(date_tickers)-1:
@@ -293,7 +293,7 @@ import foundation_tushare
 import json
 from datetime import datetime
 
-# Çë¸ù¾İ×Ô¼ºµÄÇé¿öÌîĞ´tsµÄtoken
+# è¯·æ ¹æ®è‡ªå·±çš„æƒ…å†µå¡«å†™tsçš„token
 setting = json.load(open('C:\config\config.json'))
 my_pro = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
@@ -375,5 +375,5 @@ fif,axes = plt.subplots(1,3,figsize=(18,6))
 
 for ax,(col_name,score_ser),(_,ser_v) in zip(axes,score_df1.T.items(),df1.items()):
     
-    a,b = score_ser # Ç÷,ÊÆ
+    a,b = score_ser # è¶‹,åŠ¿
     ser_v.plot(ax=ax,marker='o',title=f'{col_name}:<{a},{b}>')
