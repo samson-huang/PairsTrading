@@ -288,8 +288,9 @@ pd.DataFrame.plot.ochl = plot_ochl
 
 
 import sys 
-sys.path.append("C://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//Quantitative-analysis//") 
-import foundation_tushare 
+sys.path.append("c://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//")
+
+import foundation_tushare
 import json
 from datetime import datetime
 
@@ -297,7 +298,7 @@ from datetime import datetime
 setting = json.load(open('C:\config\config.json'))
 my_pro = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
-price = my_pro.daily(ts_code='601388.SH', end_date='20210913')
+price = my_pro.index_daily(ts_code='399006.SZ')
 price.index=price['trade_date']
 price=pd.DataFrame(price[['close','open','high','low']])
 
@@ -377,3 +378,35 @@ for ax,(col_name,score_ser),(_,ser_v) in zip(axes,score_df1.T.items(),df1.items(
     
     a,b = score_ser # 趋,势
     ser_v.plot(ax=ax,marker='o',title=f'{col_name}:<{a},{b}>')
+
+#对量化趋势得分进行应用
+#检查不同行情下得分段情况
+hs300_temp = my_pro.index_daily(ts_code='000300.SH')
+hs300 = hs300_temp
+hs300.index=hs300['trade_date']
+hs300=pd.DataFrame(price[['close','open','high','low']])
+hs300.index=pd.to_datetime(hs300.index)
+hs300=hs300.sort_index()
+
+slice_price = hs300.loc['2020-01-01':'2021-10-01','close']
+
+weekly_bar = slice_price.resample('W').last()
+
+normalize = Normalize_Trend(weekly_bar)
+normalize_trend_ser = normalize.normalize_compound(5)
+
+trend_score = Tren_Score(normalize_trend_ser)
+trend_score.calc_trend_score('absolute')
+
+fig, axes = plt.subplots(2, figsize=(18, 12))
+
+#plot.ochl(hs300.loc['2020-01-01':'2021-10-01'],ax=axes[0],title='沪深300')
+plot_ochl(hs300.loc['2020-01-01':'2021-10-01'],ax=axes[0],title='沪深300')
+a = trend_score.score['absolute'].trend_score
+b = trend_score.score['absolute'].act_score
+
+axes[1].set_title(f'标准化后走势<势={a},趋={b}>')
+normalize_trend_ser.plot(ax=axes[1], marker='o',ms=4)
+trend_score.point_frame['absolute'].plot(
+    ax=axes[1], marker='o', ls='--', color='darkgray');
+

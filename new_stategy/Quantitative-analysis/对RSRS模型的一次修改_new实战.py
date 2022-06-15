@@ -181,7 +181,7 @@ class RSRS_improve2(RSRS):
 
         return res_df.drop(columns='R_2').iloc[M:]
 
-
+test_open = pd.read_pickle('C://temp//fund_data//base_data//mkt//open.pkl')
 test_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//close.pkl')
 test_pre_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//pre_close.pkl')
 test_high = pd.read_pickle('C://temp//fund_data//base_data//mkt//high.pkl')
