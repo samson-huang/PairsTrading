@@ -384,7 +384,7 @@ for ax,(col_name,score_ser),(_,ser_v) in zip(axes,score_df1.T.items(),df1.items(
 hs300_temp = my_pro.index_daily(ts_code='000300.SH')
 hs300 = hs300_temp
 hs300.index=hs300['trade_date']
-hs300=pd.DataFrame(price[['close','open','high','low']])
+hs300=pd.DataFrame(hs300[['close','open','high','low']])
 hs300.index=pd.to_datetime(hs300.index)
 hs300=hs300.sort_index()
 
@@ -410,3 +410,144 @@ normalize_trend_ser.plot(ax=axes[1], marker='o',ms=4)
 trend_score.point_frame['absolute'].plot(
     ax=axes[1], marker='o', ls='--', color='darkgray');
 
+#构造信号用于回测
+def calc_trend_score(ser: pd.Series) -> float:
+    # 转为周度
+    # ser = ser.resample('W').last().copy()
+    normalize = Normalize_Trend(ser)
+
+    # 此时是周级别得均线
+    normalize_trend_ser = normalize.normalize_compound(5)
+
+    trend_score = Tren_Score(normalize_trend_ser)
+
+    trend_score.calc_trend_score('absolute')
+
+    return trend_score.score['absolute'].trend_score
+
+score = hs300['close'].rolling(60).apply(calc_trend_score,raw=False)
+lower_bound = score.rolling(20).apply(lambda x: x.quantile(0.05),raw=False)
+upper_bound = score.rolling(20).apply(lambda x: x.quantile(0.85),raw=False)
+
+fig, axes = plt.subplots(2, 1, figsize=(18, 12))
+plot_ochl(hs300,ax=axes[0],title='走势')
+
+axes[1].set_title('信号')
+score.plot(ax=axes[1], color='darkgray', label='trend_score')
+upper_bound.plot(ax=axes[1], ls='--', label='upper')
+lower_bound.plot(ax=axes[1], ls='--', label='lower')
+
+plt.legend();
+
+#大于上轨开仓至信号上传下轨平仓
+
+def get_hold_flag(df: pd.DataFrame) -> pd.Series:
+    '''
+    标记持仓
+    ------
+    输入参数：
+        df:index-date columns-score|lower_bound|upper_bound
+    ------
+    return index-date 1-持仓;0-空仓
+    '''
+    flag = pd.Series(index=df.index, data=np.zeros(len(df)))
+
+    for trade, row in df.iterrows():
+
+        sign = row['score']
+        lower = row['lower_bound']
+        upper = row['upper_bound']
+        try:
+            previous_score
+        except NameError:
+            previous_score = sign
+            previous_lower = lower
+            previous_upper = upper
+            order_flag = 0
+            continue
+
+        if previous_score > previous_lower and sign <= lower:
+
+            flag[trade] = 0
+            order_flag = 0
+
+        elif previous_score < previous_upper and sign >= upper:
+            flag[trade] = 1
+            order_flag = 1
+
+        else:
+
+            flag[trade] = order_flag
+
+        previous_score = sign
+        previous_lower = lower
+        previous_upper = upper
+
+    return flag
+
+df = pd.concat((score,upper_bound,lower_bound),axis=1)
+df.columns = ['score','upper_bound','lower_bound']
+
+flag = get_hold_flag(df)
+next_ret = hs300['close'].pct_change().shift(-1)
+algorithms_ret = flag * next_ret.loc[flag.index]
+
+algorithms_cum = ep.cum_returns(algorithms_ret)
+
+
+test123456=hs300['close']/hs300['close'][0]
+fig,axes = plt.subplots(2,figsize=(18,12))
+
+axes[0].set_title('指数')
+test123456[-200:].plot(ax=axes[0])
+axes[1].set_title('净值')
+flag[-200:].plot(ax=axes[0],secondary_y=True,ls='--',color='darkgray')
+algorithms_cum[-200:].plot(ax=axes[1]);
+
+
+##########################################################################################
+def creat_algorithm_returns(flag_df: pd.Series, benchmark_ser: pd.Series) -> tuple:
+    '''生成策略收益表'''
+
+
+    log_ret = np.log(benchmark_ser / benchmark_ser.shift(1))  # 获取对数收益率
+
+    next_ret = log_ret.shift(-1)  # 获取next_ret
+
+    # 策略收益
+    algorithm_ret = flag_df.apply(lambda x: x * next_ret)
+
+    # 使用pyfolio分析格式化index
+    algorithm_ret = algorithm_ret.tz_localize('UTC')
+    algorithm_ret = algorithm_ret.dropna()
+
+    benchmark = log_ret.tz_localize('UTC').reindex(algorithm_ret.index)
+
+    return algorithm_ret, benchmark
+
+
+def view_nav(algorithm_ret: pd.DataFrame, benchmark_ser: pd.Series):
+    '''画净值图'''
+
+    plt.rcParams['font.family'] = 'Microsoft JhengHei'
+    # 策略净值
+    algorithm_cum = (1 + algorithm_ret).cumprod()
+
+    benchmark = (1 + benchmark_ser).cumprod()
+
+    benchmark = benchmark.reindex(algorithm_cum.index)
+
+    algorithm_cum.plot(figsize=(18, 8))  # 画图
+    benchmark.plot(label='benchmark', ls='--', color='black')
+    plt.legend()
+
+################################################################################
+######################画图看效果#############################
+algorithm_cum = (1 + algorithms_cum).cumprod()
+
+benchmark = (1 + benchmark_ser).cumprod()
+
+benchmark = benchmark.reindex(algorithm_cum.index)
+benchmark.plot(figsize=(18, 8))  # 画图
+test.plot(label='benchmark', ls='--', color='black')
+plt.legend()
