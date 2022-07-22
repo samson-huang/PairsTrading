@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="63b4688f-1f66-4559-b508-77836a44b5d7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../Quantitative-analysis/C-VIX中国版VIX 编制手册.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Quantitative-analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Quantitative-analysis/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_lib/data_download/data_io.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_lib/data_download/data_io.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/数据准备与单因子检验.py" beforeDir="false" afterPath="$PROJECT_DIR$/数据准备与单因子检验.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_rsch/单因子检测.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_rsch/单因子检测.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

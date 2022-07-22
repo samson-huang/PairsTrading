@@ -1,6 +1,6 @@
 local_path="c://Users//huangtuo//Documents//"
 import sys
-sys.path.append(local_path+"GitHub//PairsTrading//new_stategy//factor_analysis//my_lib//")
+sys.path.append(local_path+"GitHub//PairsTrading//new_stategy//factor_analysis//")
 
 
 from my_lib.data_download.data_io import DataReader
