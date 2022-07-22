@@ -7,9 +7,10 @@ import os
 import pickle
 import warnings
 warnings.filterwarnings('ignore')
-
+#local_path="G://GitHub//PairsTrading//new_stategy//foundation_tools//"
+local_path="c://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//"
 import sys
-sys.path.append("G://GitHub//PairsTrading//new_stategy//foundation_tools//")
+sys.path.append(local_path)
 import foundation_tushare
 import json
 # 请根据自己的情况填写ts的token

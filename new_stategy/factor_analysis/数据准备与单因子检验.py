@@ -10,6 +10,9 @@ import numpy as np
 import pandas as pd
 import tushare as ts
 
+
+from collections import OrderedDict
+
 warnings.filterwarnings('ignore')
 sys.path.append("G://GitHub//PairsTrading//new_stategy//foundation_tools//")
 
@@ -55,8 +58,9 @@ class DataDownloader:
     def get_stks(self):
         stk_set = set()
         for list_status in ['L', 'D', 'P']:
-            stk_set |= set(pro.stock_basic(list_status=list_status, fileds='ts_code')['ts_code'].to_list())
-
+            stk_set |= set(pro.stock_basic(list_status=list_status, fileds='ts_code',exchange='SSE')['ts_code'].to_list())
+        for list_status in ['L', 'D', 'P']:
+            stk_set |= set(pro.stock_basic(list_status=list_status, fileds='ts_code',exchange='SZSE')['ts_code'].to_list())
         return sorted(list(stk_set))
 
     def get_IdxWeight(self, idx_code):
@@ -135,18 +139,21 @@ class DataDownloader:
         tushare的接口一次最多返回5000条数据，所以按天调取。用并行加速。
         '''
         try:
-            df = pro.limit_list(trade_date=trade_date)
+            df = pro.limit_list(trade_date=trade_date,limit_type='U')
             m_ls.append([trade_date, df])
         except:
-            df = pro.suspend_d(trade_date=trade_date)
+            df = pro.limit_list(trade_date=trade_date,limit_type='U')
             m_ls.append([trade_date, df])
 
     def get_limit_valid(self):
         '''
-        停牌股
+        涨停股
         '''
+
         res_df = pd.DataFrame(index=self.trade_dates, columns=self.stk_codes).fillna(1)
+        #res_df.to_csv('C://temp//res_df.csv')
         m_ls = Manager().list()
+        
         pools = Pool(3)
         for date in self.trade_dates:
             pools.apply_async(self.get_limit_oneDate,
@@ -155,8 +162,24 @@ class DataDownloader:
         pools.close()
         pools.join()
         m_ls = list(m_ls)
+        # using set()
+        # to remove duplicated
+        # from list
+        '''
+        f = open('C://temp//m_ls.pkl', "wb")
+        pickle.dump(m_ls, f)
+        f.close()
+        f1 = open('C://temp//m_ls.pkl', "rb")
+        m_ls = pickle.load(f1)
+        f1.close()
+        m_ls = list(filter(None, m_ls))
+        '''
+
         for date, df in m_ls:
-            res_df.loc[date, df['ts_code'].to_list()] = np.nan
+            try:
+               res_df.loc[date, df['ts_code'].to_list()] = np.nan
+            except Exception as e:
+               print(date+'          ')
         return res_df.sort_index()
 
     def get_dailyMkt_oneStock(self, ts_code, m_ls):
@@ -309,8 +332,8 @@ class DataReader:
 
 
 if __name__ == '__main__':
-    DataWriter.update_ST_valid(cover=True)
-    DataWriter.update_suspend_valid(cover=True)
-    DataWriter.update_IdxWeight('399300.SZ', cover=True)
-    DataWriter.update_dailyMkt(cover=True)
+    #DataWriter.update_ST_valid(cover=True)
+    #DataWriter.update_suspend_valid(cover=True)
+    #DataWriter.update_IdxWeight('399300.SZ', cover=True)
+    #DataWriter.update_dailyMkt(cover=True)
     DataWriter.update_limit_valid(cover=True)

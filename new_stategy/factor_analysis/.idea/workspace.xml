@@ -2,11 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="63b4688f-1f66-4559-b508-77836a44b5d7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../../fund_update/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../fund_update/数据准备.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/数据准备.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Quantitative-analysis/对RSRS模型的一次修改.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Quantitative-analysis/对RSRS模型的一次修改.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Quantitative-analysis/对RSRS模型的一次修改_new实战.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Quantitative-analysis/对RSRS模型的一次修改_new实战.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../Quantitative-analysis/C-VIX中国版VIX 编制手册.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Quantitative-analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Quantitative-analysis/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_lib/data_download/data_io.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_lib/data_download/data_io.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/数据准备与单因子检验.py" beforeDir="false" afterPath="$PROJECT_DIR$/数据准备与单因子检验.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -41,7 +41,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.数据准备">
+  <component name="RunManager" selected="Python.数据准备与单因子检验">
     <configuration name="数据准备与单因子检验" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="factor_analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -49,9 +49,9 @@
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\ProgramData\Anaconda3\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/数据准备与单因子检验.py" />
@@ -128,9 +128,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.数据准备" />
-        <item itemvalue="Python.sample" />
         <item itemvalue="Python.数据准备与单因子检验" />
+        <item itemvalue="Python.sample" />
       </list>
     </recent_temporary>
   </component>
@@ -166,17 +165,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/数据准备与单因子检验.py</url>
-          <line>313</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/数据准备与单因子检验.py</url>
-          <line>314</line>
+          <line>333</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/数据准备与单因子检验.py</url>
-          <line>315</line>
+          <line>338</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -201,13 +195,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/数据准备与单因子检验.py</url>
-          <line>311</line>
-          <option name="timeStamp" value="9" />
+          <line>182</line>
+          <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/数据准备与单因子检验.py</url>
-          <line>312</line>
-          <option name="timeStamp" value="10" />
+          <line>180</line>
+          <option name="timeStamp" value="15" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
