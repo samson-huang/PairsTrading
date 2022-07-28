@@ -1,4 +1,4 @@
-# coding: utf-8
+ï»¿# coding: utf-8
 #import tushare as ts
 import sys 
 sys.path.append("C://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//") 
@@ -30,20 +30,20 @@ import matplotlib.pyplot as plt
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
 
-#ÆÓËØ±´Ò¶Ë¹ÓëÂß¼­»Ø¹é
+#æœ´ç´ è´å¶æ–¯ä¸é€»è¾‘å›å½’
 from sklearn.naive_bayes import GaussianNB
 from sklearn.linear_model import LogisticRegression
 
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
-import joblib # ÓÃÓÚÄ£ĞÍµ¼³ö
+import joblib # ç”¨äºæ¨¡å‹å¯¼å‡º
 
-plt.rcParams['font.sans-serif'] = ['SimHei']  #ÓÃÀ´Õı³£ÏÔÊ¾ÖĞÎÄ±êÇ©
-plt.rcParams['axes.unicode_minus'] = False  #ÓÃÀ´Õı³£ÏÔÊ¾¸ººÅ
+plt.rcParams['font.sans-serif'] = ['SimHei']  #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºä¸­æ–‡æ ‡ç­¾
+plt.rcParams['axes.unicode_minus'] = False  #ç”¨æ¥æ­£å¸¸æ˜¾ç¤ºè´Ÿå·
 
-# Ê¹ÓÃts
-# Çë¸ù¾İ×Ô¼ºµÄÇé¿öÌîĞ´tsµÄtoken
+# ä½¿ç”¨ts
+# è¯·æ ¹æ®è‡ªå·±çš„æƒ…å†µå¡«å†™tsçš„token
 setting = json.load(open('C:\config\config.json'))
 my_ts  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 
@@ -56,7 +56,7 @@ def job(index_name,start,end):
     mid_data=index_df
     mid_data.index = pd.to_datetime(mid_data.trade_date)
     del mid_data['trade_date']
-    mid_data.sort_index(inplace=True)  # ÅÅĞò
+    mid_data.sort_index(inplace=True)  # æ’åº
     
     status_frame: pd.DataFrame = foundation_tushare.get_clf_wave(mid_data, 2, 'c', True)
     dir_frame: pd.DataFrame = foundation_tushare.get_clf_wave(mid_data, 2, 'c', False)
@@ -115,7 +115,7 @@ def job(index_name,start,end):
     path="C://demo_test//"+index_name.replace('.', '')+end
     test4.to_csv (path+".csv", encoding = "utf-8")   
     test5.to_csv (path+"_tail.csv", encoding = "utf-8")   	
-    print(index_name+"ÔËĞĞ³É¹¦")
+    print(index_name+"è¿è¡ŒæˆåŠŸ")
 
 
 

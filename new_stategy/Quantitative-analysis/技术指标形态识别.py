@@ -29,6 +29,8 @@ plt.rcParams['axes.unicode_minus'] = False  #用来正常显示负号
 
 #data1 = get_price('000009.SH', start_date='2021-01-21', end_date='2021-12-31',
 #                 fields=['open', 'close', 'low', 'high'], panel=False)
+#data1 = pro.index_daily(ts_code='399006.SZ', start_date='20220101', end_date='20220727',fields=['trade_date','open', 'close', 'low', 'high'])
+
 data1 = pro.daily(ts_code='000009.SZ', start_date='20210121', end_date='20211231',fields=['trade_date','open', 'close', 'low', 'high'])
 data1.index = pd.to_datetime(data1.trade_date)
 del data1['trade_date']

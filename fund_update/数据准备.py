@@ -63,8 +63,13 @@ class DataDownloader:
     def get_stks_fund(self):
         #stk_set = DataReader.read_E_fund()
         #赛选特定几个数据
-        #list_1 = ('510050.SH', '159902.SZ', '510330.SH', '159915.SZ', '510500.SH', '512010.SH', '502003.SH')
-        list_1 = ('000300.SH', '399006.SZ', '399905.SZ')
+        #list_sh     上证380   上证180       上证50      沪深300     科创50
+        list_sh =('000009.SH','000010.SH','000016.SH','000300.SH','000688.SH',
+                   # 中证1000     中证100   中证500	   中证800
+                  '000852.SH','000903.SH','000905.SH','000906.SH')
+        #深圳指数   深证成指    中小板指	   创业板指     深证100
+        list_sz =('399001.SZ','399005.SZ','399006.SZ','399330.SZ')
+        list_1 = list_sh+list_sz
         list_1 = list(list_1)
         #stk_set = stk_set[stk_set[['ts_code']].apply(lambda x : x.str.contains('|'.join(list_1))).any(1)]
         ###########
