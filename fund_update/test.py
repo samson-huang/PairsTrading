@@ -1,5 +1,6 @@
 import sys
 sys.path.append("c://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//")
+import send_mail_tool
 from technical_analysis_patterns import (rolling_patterns2pool,plot_patterns_chart)
 from typing import (List, Tuple, Dict, Callable, Union)
 from tqdm.notebook import tqdm
@@ -34,7 +35,9 @@ if __name__ == '__main__':
    data1=result[-100:]
    data1.index = pd.to_datetime(data1.index)
    data1.sort_index(inplace=True)
-   patterns_record1 = rolling_patterns2pool(data1['close'],n=35)
-   plot_patterns_chart(data1,patterns_record1,True,False)
-   plt.title('沪深300')
-   plot_patterns_chart(data1,patterns_record1,True,True);
+   #patterns_record1 = rolling_patterns2pool(data1['close'],n=35)
+   #plot_patterns_chart(data1,patterns_record1,True,False)
+   #plt.title('沪深300')
+   #plot_patterns_chart(data1,patterns_record1,True,True);
+   send_fundmail=send_mail_tool()
+   send_fundmail.action_send()

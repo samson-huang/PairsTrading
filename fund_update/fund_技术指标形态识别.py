@@ -12,6 +12,7 @@ import tushare as ts
 
 import sys
 sys.path.append("c://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//")
+
 from technical_analysis_patterns import (rolling_patterns2pool,plot_patterns_chart)
 from typing import (List, Tuple, Dict, Callable, Union)
 from tqdm.notebook import tqdm
@@ -49,5 +50,10 @@ patterns_record1 = rolling_patterns2pool(data1['close'],n=35)
 plot_patterns_chart(data1,patterns_record1,True,False)
 plt.title('沪深300')
 plot_patterns_chart(data1,patterns_record1,True,True);
+
+
+
+
+
 
 
