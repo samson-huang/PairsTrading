@@ -604,12 +604,12 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
             if slice_range:
 
                 mpf.plot(_get_slice_price(tline), style=s, tlines=tline,
-                         type='candle', datetime_format='%Y-%m-%d', ax=ax, savefig='C://temp//upload//slice_range.png')
+                         type='candle', datetime_format='%Y-%m-%d', ax=ax)
 
             else:
 
                 mpf.plot(ohlc_data, style=s, tlines=tline,
-                         type='candle', datetime_format='%Y-%m-%d', ax=ax, savefig='C://temp//upload//slice_range.png')
+                         type='candle', datetime_format='%Y-%m-%d', ax=ax)
 
         plt.subplots_adjust(hspace=0.5)
         return axes
@@ -627,7 +627,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
             all_dates = pd.to_datetime(all_dates)
 
             mpf.plot(_get_slice_price(all_dates), style=s, tlines=tlines,
-                     type='candle', datetime_format='%Y-%m-%d', ax=ax,savefig='C://temp//upload//slice_range.png')
+                     type='candle', datetime_format='%Y-%m-%d', ax=ax)
             return ax
 
         else:

@@ -15,7 +15,7 @@ setting = json.load(open('C://config//config.json'))
 _user = "375317196@qq.com"
 _pwd = setting['qq']
 # _to = "ft_clover@163.com"
-_recer=["tuo.huang@zdzq.com","huangtuo02@163.com",]
+_recer=["tuo.huang@zdzq.com.cn","huangtuo02@163.com",]
 
 class send_mail_tool:
     def __init__(self, _user=_user, _pwd=_pwd, _recer=_recer ,fund_code=None ,fund_name=None):
@@ -25,7 +25,7 @@ class send_mail_tool:
         self.fund_code = fund_code
         self.fund_name = fund_name
 
-    @staticmethod
+
     def action_send(self):
         """
         发送邮件
@@ -33,8 +33,8 @@ class send_mail_tool:
         #创建一个带附件的实例
         msg=MIMEMultipart()
         msg["Subject"] = " don't panic"
-        msg["From"] = _user
-        msg["To"] = ",".join(_recer)#区别与给一个人发，指定某个人用 msg["To"] = _to 多个人用.join
+        msg["From"] = self._user
+        msg["To"] = ",".join(self._recer)#区别与给一个人发，指定某个人用 msg["To"] = _to 多个人用.join
         #邮件正文内容
         msg.attach(MIMEText('请先想想这一点。','plain', 'utf-8'))
         #构造附件1，传输当前目录下的图片.txt文件
@@ -59,8 +59,8 @@ class send_mail_tool:
 
         try:
             s=smtplib.SMTP_SSL("smtp.qq.com",465)
-            s.login(_user,_pwd)
-            s.sendmail(_user,_recer,msg.as_string())
+            s.login(self._user,self._pwd)
+            s.sendmail(self._user,self._recer,msg.as_string())
             s.quit()
             print("Success!")
         except smtplib.SMTPException as e:
