@@ -518,7 +518,7 @@ def rolling_patterns(price: pd.Series, *, bw: Union[str, np.ndarray] = 'cv_ls', 
     return record
 
 
-def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, slice_range: bool = False, subplots: bool = False, ax=None):
+def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, slice_range: bool = False, subplots: bool = False, index_code, ax=None):
     """标记识别出来的形态
 
     Args:
@@ -612,6 +612,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
                          type='candle', datetime_format='%Y-%m-%d', ax=ax)
 
         plt.subplots_adjust(hspace=0.5)
+        plt.savefig('C://temp//upload//'+index_code+'20220810temp.jpg')
         return axes
 
     else:
@@ -634,6 +635,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
 
             mpf.plot(ohlc_data, style=s, tlines=tlines,
                      type='candle', datetime_format='%Y-%m-%d', ax=ax)
+        plt.savefig('C://temp//upload//'+index_code+'20220810temp2.jpg')
         return ax
 
 
