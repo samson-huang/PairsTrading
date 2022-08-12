@@ -518,7 +518,7 @@ def rolling_patterns(price: pd.Series, *, bw: Union[str, np.ndarray] = 'cv_ls', 
     return record
 
 
-def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, slice_range: bool = False, subplots: bool = False, index_code, ax=None):
+def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, slice_range: bool = False, subplots: bool = False, local_url: str = None, ax=None):
     """标记识别出来的形态
 
     Args:
@@ -544,7 +544,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
 
     s = mpf.make_mpf_style(marketcolors=mc)
 
-    def _get_slice_price(tline: Union[Dict, np.array]) -> pd.DataFrame:
+    def _get_slice_price(tline: Union[Dict, np.array], slice_end: bool = True ) -> pd.DataFrame:
         """划分区间"""
 
         if isinstance(tline, dict):
@@ -552,7 +552,10 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
             start_idx = ohlc_data.index.get_loc(tline['tlines'][0][0])
             end_idx = ohlc_data.index.get_loc(tline['tlines'][-1][-1])
             start = max(0, start_idx-25)
-            end = min(len(ohlc_data), end_idx+30)
+            if slice_end:
+                end = min(len(ohlc_data), end_idx+30)
+            else:
+                end = max(len(ohlc_data), end_idx + 30)
 
             return ohlc_data.iloc[start:end]
 
@@ -612,7 +615,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
                          type='candle', datetime_format='%Y-%m-%d', ax=ax)
 
         plt.subplots_adjust(hspace=0.5)
-        plt.savefig('C://temp//upload//'+index_code+'20220810temp.jpg')
+        plt.savefig(local_url)
         return axes
 
     else:
@@ -627,15 +630,16 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
             all_dates = np.sort(np.unique(all_dates.flatten()))
             all_dates = pd.to_datetime(all_dates)
 
-            mpf.plot(_get_slice_price(all_dates), style=s, tlines=tlines,
+            mpf.plot(_get_slice_price(all_dates,False), style=s, tlines=tlines,
                      type='candle', datetime_format='%Y-%m-%d', ax=ax)
+            plt.savefig(local_url)
             return ax
 
         else:
 
             mpf.plot(ohlc_data, style=s, tlines=tlines,
                      type='candle', datetime_format='%Y-%m-%d', ax=ax)
-        plt.savefig('C://temp//upload//'+index_code+'20220810temp2.jpg')
+        plt.savefig(local_url)
         return ax
 
 
