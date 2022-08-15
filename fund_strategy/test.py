@@ -37,6 +37,9 @@ if __name__ == '__main__':
    list_1 = list(list_1)
    local_datetime = datetime.datetime.now().strftime('%Y%m%d')
 
+   with open('C://temp//upload//codefundsecname.json') as file:
+      code2secname = json.loads(file.read())
+
    for index_code in list_1:
       #index_code = '000300.SH'
 

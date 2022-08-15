@@ -5,6 +5,10 @@ LastEditTime: 2022-04-16 22:33:39
 LastEditors: Please set LastEditors
 Description: 生成结果页面
 '''
+import sys
+#sys.path.append("C:\\temp\\Technical Pattern Recognition\\")
+sys.path.append("C:\\Users\\huangtuo\\Documents\\GitHub\\PairsTrading\\fund_strategy\\技术分析算法框架与实战\\Technical Pattern Recognition\\")
+
 import build_timing_signal
 import _imports
 import pyvisflow as pvf
@@ -38,15 +42,44 @@ def load_data()->pd.DataFrame:
     -------
     pd.DataFrame
     """
-    with open(r'Data\code2secname.json', 'r') as file:
+    with open(r'Data\codefundsecname.json', 'r') as file:
         code2secname = json.loads(file.read())
 
-    price = pd.read_csv(r'Data\industry_zx_l2.csv', index_col=[0], parse_dates=[0])
+    #price = pd.read_csv(r'Data\industry_zx_l2.csv', index_col=[0], parse_dates=[0])
+    test_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//close.pkl')
+    test_high = pd.read_pickle('C://temp//fund_data//base_data//mkt//high.pkl')
+    test_low = pd.read_pickle('C://temp//fund_data//base_data//mkt//low.pkl')
+    test_open = pd.read_pickle('C://temp//fund_data//base_data//mkt//open.pkl')
+
+    test_open1 = test_open.stack()
+    test_open1 = test_open1.reset_index()
+    test_open1.columns = ['trade_date', 'symbol', 'OPEN']
+
+    test_high1 = test_high.stack()
+    test_high1 = test_high1.reset_index()
+    test_high1.columns = ['trade_date', 'symbol', 'HIGH']
+
+    test_low1 = test_low.stack()
+    test_low1 = test_low1.reset_index()
+    test_low1.columns = ['trade_date', 'symbol', 'LOW']
+
+    test_close1 = test_close.stack()
+    test_close1 = test_close1.reset_index()
+    test_close1.columns = ['trade_date', 'symbol', 'CLOSE']
+
+    test1 = pd.merge(test_open1, test_high1, on=["trade_date", "symbol"])
+    test2 = pd.merge(test_low1, test_close1, on=["trade_date", "symbol"])
+    test3 = pd.merge(test1, test2, on=["trade_date", "symbol"])
+
+    test3.index = pd.to_datetime(test3['trade_date'])
+    del test3['trade_date']
+
+    price=test3
     # price.index.names = ['trade']
     price['symbol'] = price['symbol'].map(code2secname)
 
     price.columns = [col.lower() for col in price.columns]
-
+    price=price[-2000:]
     return price
 
 
@@ -134,10 +167,10 @@ def block_zx_level2_pattern():
     
     
 
-    pvf.markdown("""# 行业指数形态匹配情况""")
+    pvf.markdown("""# 日常指数形态匹配情况""")
 
     table = pvf.dataTable(patterns_df.sort_values('方向'))
-    page = len(re_res)//5 + 1
+    page = len(re_res)//5+1
     table.page_size = page # 设置页面
     
     pvf.markdown("""*形态匹配结果*""")
@@ -145,7 +178,7 @@ def block_zx_level2_pattern():
     fig = plot_subplots(re_res,price)
     box.plotly().from_dict(fig.to_dict())
   
-    box.styles.set_height('150vh').set('overflow-y', 'auto')
+    #box.styles.set_height('25vh').set('overflow-y', 'auto')
     pvf.to_html('形态识别结果.html')
 
 block_zx_level2_pattern()

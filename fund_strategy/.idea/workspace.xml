@@ -4,9 +4,8 @@
     <list default="true" id="9b46f4c8-6af3-40d4-8047-8759d5dc87de" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/数据准备.py" beforeDir="false" afterPath="$PROJECT_DIR$/数据准备.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../new_stategy/foundation_tools/send_mail_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../new_stategy/foundation_tools/send_mail_tool.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../new_stategy/foundation_tools/technical_analysis_patterns.py" beforeDir="false" afterPath="$PROJECT_DIR$/../new_stategy/foundation_tools/technical_analysis_patterns.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition/形态识别结果.html" beforeDir="false" afterPath="$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition/形态识别结果.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -57,7 +56,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="fund_update_data" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="fund_update" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -65,11 +64,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/fund_update_data.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -145,9 +144,9 @@
       <list>
         <item itemvalue="Python.test" />
         <item itemvalue="Python.数据准备" />
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.send_mail _tool" />
         <item itemvalue="Python.send_mail" />
-        <item itemvalue="Python.fund_update_data" />
       </list>
     </recent_temporary>
   </component>
@@ -242,13 +241,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/test.py</url>
-          <line>63</line>
+          <line>66</line>
           <option name="timeStamp" value="30" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/test.py</url>
-          <line>61</line>
+          <line>64</line>
           <option name="timeStamp" value="37" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition/main.py</url>
+          <line>164</line>
+          <option name="timeStamp" value="39" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition/main.py</url>
+          <line>165</line>
+          <option name="timeStamp" value="40" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/技术分析算法框架与实战/Technical Pattern Recognition/main.py</url>
+          <line>172</line>
+          <option name="timeStamp" value="45" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
