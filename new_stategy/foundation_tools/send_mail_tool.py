@@ -48,22 +48,25 @@ class send_mail_tool:
            '图形说明请见《图形说明.png》文件','plain', 'utf-8'))
 
         #构造附件1，传输当前目录下的图片.txt文件
-        att1=MIMEText(open('C://temp//upload//图形说明.gif','rb').read(),'base64','utf-8')
+        att1=MIMEText(open('C://temp//upload//message.gif','rb').read(),'base64','utf-8')
         att1['Content-Type']='application/octet-stream'
-        att1['Content-Disposition']='attachment;filename="图形说明.gif"' #filename 填什么，邮件里边展示什么
+        att1['Content-Disposition']='attachment;filename="message.gif"' #filename 填什么，邮件里边展示什么
         msg.attach(att1)
 
         list_1 = np.load('C://temp//upload//index_list.npy')
         list_1 = list_1.tolist()
+
+        with open('C://temp//upload//codefundsecname.json') as file:
+            code2secname = json.loads(file.read())
         for index_code in list_1:
             #构造附件2，传输当前目录下的图片.jpg文件
-            local_url_new=self.local_url+'_'+index_code.replace('.', '')+'_detail.jpg'
+            local_url_new=self.local_url+'_'+code2secname[index_code]+'_detail.jpg'
             att2=MIMEText(open(local_url_new,'rb').read(),'base64','utf-8')
             att2['Content-Type']='application/octet-stream'
             att2['Content-Disposition']='attachment;filename="'+index_code.replace('.', '')+'.jpg''"' #filename填什么，邮件里边展示什么
             msg.attach(att2)
 
-            local_url_new=self.local_url+'_'+index_code.replace('.', '')+'_overall.jpg'
+            local_url_new=self.local_url+'_'+code2secname[index_code]+'_overall.jpg'
             att3=MIMEText(open(local_url_new,'rb').read(),'base64','utf-8')
             att3['Content-Type']='application/octet-stream'
             att3['Content-Disposition']='attachment;filename="'+index_code.replace('.', '')+'.jpg''"' #filename填什么，邮件里边展示什么

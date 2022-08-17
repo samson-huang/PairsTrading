@@ -43,25 +43,25 @@ if __name__ == '__main__':
    for index_code in list_1:
       #index_code = '000300.SH'
 
-      local_url='C://temp//upload//'+local_datetime+'_'+index_code.replace('.', '')+'_detail.jpg'
+      local_url='C://temp//upload//'+local_datetime+'_'+code2secname[index_code]+'_detail.jpg'
       #'close,pre_close,high,low,amount'
       #fields=['trade_date','open', 'close', 'low', 'high']
 
       dfs = [test_open[index_code],test_close[index_code],test_low[index_code],test_high[index_code]]
       result = pd.concat(dfs,axis=1)
       result.columns = ['open', 'close', 'low', 'high']
-
+      
       data1=result[-100:]
       data1.index = pd.to_datetime(data1.index)
       data1.sort_index(inplace=True)
       patterns_record1 = rolling_patterns2pool(data1['close'],n=35)
 
-      plot_patterns_chart(data1,patterns_record1,True,False,local_url.replace('detail', 'overall'))
-      plt.title(index_code.replace('.', ''))
-      plot_patterns_chart(data1,patterns_record1,True,True,local_url);
+      plot_patterns_chart(data1,patterns_record1,True,False,code2secname[index_code],local_url.replace('detail', 'overall'))
+      plt.title(code2secname[index_code])
+      plot_patterns_chart(data1,patterns_record1,True,True,code2secname[index_code],local_url);
 
 
    # 邮件发送
-   local_url_mail = 'C://temp//upload//' + local_datetime
-   recer = ["tianfangfang1105@126.com","huangtuo02@163.com", ]
-   send_fundmail=send_mail_tool(_recer=recer,local_url=local_url_mail).action_send()
+   #local_url_mail = 'C://temp//upload//' + local_datetime
+   #recer = ["tianfangfang1105@126.com","huangtuo02@163.com", ]
+   #send_fundmail=send_mail_tool(_recer=recer,local_url=local_url_mail).action_send()
