@@ -249,27 +249,27 @@ from matplotlib.pylab import date2num
 
 # 画K线
 def plot_ochl(data_df,title:str=None,ax=None):
-    
+
     if ax is None:
-        
+
         fig,ax = plt.subplots()
-        
+
     #data = self._data.copy()
     data = data_df.copy()
     date_tickers = pd.to_datetime(data.index)
     date_tickers = data.index
-    
+
     data['dates'] = np.arange(len(data))
     ax.xaxis_date()
     ax.set_xlim(1, len(data))  # 高版本mpl不需要这个..这个看不到下标为0得K线
     def format_date(x,pos):
-        
+
         if x<0 or x>len(date_tickers)-1:
-            
+
             return ''
-        
+
         return date_tickers[int(x)].strftime('%Y-%m-%d')
-    
+
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
     mpf.candlestick_ochl(
                     ax=ax,
@@ -279,7 +279,7 @@ def plot_ochl(data_df,title:str=None,ax=None):
                     colordown='g',
                     alpha=0.7)
     ax.set_title(title)
-    
+
     plt.xticks(rotation=30)
     return ax
 
@@ -523,7 +523,8 @@ axes[1].set_title('净值')
 flag[-200:].plot(ax=axes[0],secondary_y=True,ls='--',color='darkgray')
 algorithms_cum[-200:].plot(ax=axes[1]);
 
-
+new_flag=flag.to_frame()
+new_flag.tail(20).T
 ##########################################################################################
 def creat_algorithm_returns(flag_df: pd.Series, benchmark_ser: pd.Series) -> tuple:
     '''生成策略收益表'''

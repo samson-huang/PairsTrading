@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9b46f4c8-6af3-40d4-8047-8759d5dc87de" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../new_stategy/foundation_tools/send_mail_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../new_stategy/foundation_tools/send_mail_tool.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../new_stategy/foundation_tools/technical_analysis_patterns.py" beforeDir="false" afterPath="$PROJECT_DIR$/../new_stategy/foundation_tools/technical_analysis_patterns.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/趋与势的量化定义研究.py" beforeDir="false" afterPath="$PROJECT_DIR$/趋与势的量化定义研究.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
