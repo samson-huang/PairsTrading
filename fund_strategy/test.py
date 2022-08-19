@@ -54,12 +54,18 @@ if __name__ == '__main__':
       data1=result[-100:]
       data1.index = pd.to_datetime(data1.index)
       data1.sort_index(inplace=True)
-      patterns_record1 = rolling_patterns2pool(data1['close'],n=35)
 
+
+      #############图形判断###############
+      patterns_record1 = rolling_patterns2pool(data1['close'],n=35)
       plot_patterns_chart(data1,patterns_record1,True,False,code2secname[index_code],local_url.replace('detail', 'overall'))
       plt.title(code2secname[index_code])
       plot_patterns_chart(data1,patterns_record1,True,True,code2secname[index_code],local_url);
+      ####################################
 
+      ###############趋与势模型############
+
+      ####################################
 
    # 邮件发送
    #local_url_mail = 'C://temp//upload//' + local_datetime
