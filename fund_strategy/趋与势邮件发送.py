@@ -16,6 +16,8 @@ import mpl_finance as mpf
 
 from matplotlib import ticker
 from matplotlib.pylab import date2num
+import os
+from openpyxl import load_workbook
 
 plt.rcParams['font.sans-serif'] = ['SimHei']  #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus'] = False  #用来正常显示负号
@@ -27,6 +29,34 @@ test_high = pd.read_pickle('C://temp//fund_data//base_data//mkt//high.pkl')
 test_low = pd.read_pickle('C://temp//fund_data//base_data//mkt//low.pkl')
 test_amount = pd.read_pickle('C://temp//fund_data//base_data//mkt//amount.pkl')
 test_open = pd.read_pickle('C://temp//fund_data//base_data//mkt//open.pkl')
+
+def mkdir(path):
+    '''
+    创建指定的文件夹
+    :param path: 文件夹路径，字符串格式
+    :return: True(新建成功) or False(文件夹已存在，新建失败)
+    '''
+    # 去除首位空格
+    path = path.strip()
+    # 去除尾部 \ 符号
+    path = path.rstrip("\\")
+
+    # 判断路径是否存在
+    # 存在     True
+    # 不存在   False
+    isExists = os.path.exists(path)
+
+    # 判断结果
+    if not isExists:
+        # 如果不存在则创建目录
+         # 创建目录操作函数
+        os.makedirs(path)
+        print(path + ' 创建成功')
+        return True
+    else:
+        # 如果目录存在则不创建，并提示目录已存在
+        print(path + ' 目录已存在')
+        return False
 
 if __name__ == '__main__':
    # list_sh     上证380   上证180       上证50      沪深300     科创50
@@ -42,7 +72,9 @@ if __name__ == '__main__':
 
    with open('C://temp//upload//codefundsecname.json') as file:
       code2secname = json.loads(file.read())
-
+   mkdir('C://temp//upload//'+ local_datetime + '_trend//')
+   trigger_flag=pd.DataFrame()
+   trigger_summary = pd.DataFrame()
    for index_code in list_1:
         txt_url ='C://temp//upload//'+ local_datetime + '_trend//readme.txt'
         local_url = 'C://temp//upload//'+ local_datetime + '_trend//' + local_datetime + '_' + code2secname[index_code] + '_trend.jpg'
@@ -71,9 +103,9 @@ if __name__ == '__main__':
 
         fig,axes = plt.subplots(2,figsize=(18,12))
 
-        axes[0].set_title('指数')
+        axes[0].set_title(code2secname[index_code] + '指数')
         (price['close']/price['close'][0]).plot(ax=axes[0])
-        axes[1].set_title('净值')
+        axes[1].set_title(code2secname[index_code] + '净值')
         flag.plot(ax=axes[0],secondary_y=True,ls='--',color='darkgray')
         algorithms_cum.plot(ax=axes[1]);
         fig.savefig(local_url)
@@ -84,12 +116,18 @@ if __name__ == '__main__':
         test123.columns = ['pct_chg']
         new_flag=flag.to_frame()
         test4=pd.merge(test123,new_flag,how='inner', left_index=True, right_index=True)
-        test4.columns=['pct_chg','trend_MARK']
+        test4.columns=['pct_chg',code2secname[index_code] + '_MARK']
         test4=test4.dropna(axis=0,how='any')
         writing_text=summary(test4)
-        with open(txt_url, "a") as file:
-            file.write("\n"+"#############"+local_datetime + '_' + code2secname[index_code]+"##############")
-            file.write("\n"+new_flag.tail(20).T)
-            file.write("\n" + writing_text.T)
-            file.write("\n" + "###########################")
+        newflag_txt=new_flag.tail(20)
 
+        #newflag_txt.index = pd.to_datetime(newflag_txt[1:])
+        newflag_txt.columns = [code2secname[index_code]]
+        trigger_flag=pd.concat([trigger_flag,newflag_txt],axis=1)
+        trigger_summary = pd.concat([trigger_summary,writing_text],axis=1)
+
+   writer = pd.ExcelWriter('C:\\temp\\upload\\'+ local_datetime + '_trend\\trend_summary.xlsx')
+
+   trigger_summary.to_excel(writer, 'backtest_evaluate')
+   trigger_flag.to_excel(writer, 'index_buy_sell')
+   writer.save()

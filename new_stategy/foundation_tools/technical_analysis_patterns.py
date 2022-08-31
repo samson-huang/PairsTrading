@@ -578,7 +578,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
             datepair = [(d1, d2) for d1, d2 in zip(d, d[1:])]
             datepairs.append(datepair)
             titles.append(title)
-
+    max_date = max(max(sum(datepairs, []))).strftime('%Y-%m-%d')
     tlines = [dict(tlines=datepair, tline_use='close', colors=color, alpha=0.5, linewidths=5) for datepair,
               color in zip(datepairs, itertools.cycle(COLORS)) if datepair is not None]
 
@@ -632,7 +632,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
 
             mpf.plot(_get_slice_price(all_dates,False), style=s, tlines=tlines,
                      type='candle', datetime_format='%Y-%m-%d', ax=ax)
-            plt.title(fund_name)
+            plt.title(fund_name+' 最后标记日 '+max_date)
             plt.savefig(local_url)
             return ax
 
