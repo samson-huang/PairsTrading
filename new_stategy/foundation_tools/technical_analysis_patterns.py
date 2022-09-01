@@ -732,7 +732,8 @@ def rolling_patterns2pool(price: pd.Series, n: int, reset_window: int = None, *,
                 # 为了不重复分析，我们只保留第一次识别到该形态的时点。
                 for k, v in current_pattern.items():
 
-                    if k not in keys:
+                    #if k not in keys:
+                    if 1==1:
                         point, idx = v[0]
                         patterns[k].append(point)  # 两点为识别出的形态区间
                         points[k].append(idx)  # 形态区间的五点位置
