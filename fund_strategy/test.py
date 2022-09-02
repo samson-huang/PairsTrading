@@ -55,6 +55,7 @@ def mkdir(path):
 
 
 if __name__ == '__main__':
+
    # list_sh     上证380   上证180       上证50      沪深300     科创50
    #list_sh = ( '000009.SH','000010.SH', '000016.SH', '000300.SH', '000688.SH',
               # 中证1000     中证100   中证500	   中证800
@@ -66,9 +67,11 @@ if __name__ == '__main__':
    list_1 = ('399005.SZ',)
    list_1 = list(list_1)
    local_datetime = datetime.datetime.now().strftime('%Y%m%d')
+
    mkdir('C://temp//upload//' + local_datetime + '_pattern_graph//')
    with open('C://temp//upload//codefundsecname.json') as file:
       code2secname = json.loads(file.read())
+   #########################生成图片#####################################
 
    for index_code in list_1:
       #index_code = '000300.SH'
@@ -81,13 +84,13 @@ if __name__ == '__main__':
       result = pd.concat(dfs,axis=1)
       result.columns = ['open', 'close', 'low', 'high']
       
-      data1=result[-40:]
+      data1=result[-60:-2]
       data1.index = pd.to_datetime(data1.index)
       data1.sort_index(inplace=True)
 
 
       #############图形判断###############
-      patterns_record1 = rolling_patterns2pool(data1['close'],n=35)
+      patterns_record1 = rolling_patterns2pool(data1['close'],n=20)
       plot_patterns_chart(data1,patterns_record1,True,False,code2secname[index_code],local_url.replace('detail', 'overall'))
       plt.title(code2secname[index_code])
       plot_patterns_chart(data1,patterns_record1,True,True,code2secname[index_code],local_url);
@@ -97,7 +100,7 @@ if __name__ == '__main__':
 
       ####################################
 
-   # 邮件发送
+   ######################### 邮件发送#####################################
    #local_url_mail = 'C://temp//upload//'+ local_datetime + '_pattern_graph//' + local_datetime
    #recer = ["tianfangfang1105@126.com","huangtuo02@163.com", ]
    #send_fundmail=send_mail_tool(_recer=recer,local_url=local_url_mail).action_send()

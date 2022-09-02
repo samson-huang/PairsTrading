@@ -534,7 +534,9 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
 
     COLORS = ['Crimson', 'DarkGoldenRod', 'DarkOliveGreen', 'DeepSkyBlue']
     if not record_patterns.patterns:
-        raise ValueError('record_patterns为空')
+        #无patterns时候返回空
+        #raise ValueError('record_patterns为空')
+        return  ''
 
     # 设置蜡烛图风格
     mc = mpf.make_marketcolors(up='r', down='g',
@@ -715,7 +717,8 @@ def rolling_patterns2pool(price: pd.Series, n: int, reset_window: int = None, *,
 
         if current_pattern:
 
-            if (num % reset_window == 0) and (num != 0):
+            #if (num % reset_window == 0) and (num != 0):
+            if 1 == 1:
                 # 当大于更新长度时更新字典
 
                 for k, v in current_pattern.items():
@@ -723,7 +726,7 @@ def rolling_patterns2pool(price: pd.Series, n: int, reset_window: int = None, *,
                     point, idx = v[0]
                     patterns[k].append(point)  # 两点为识别出的形态区间
                     points[k].append(idx)  # 形态区间的五点位置
-
+            '''
             else:
 
                 # 当不是形态更新节点时 使用首次识别的形态
@@ -737,6 +740,7 @@ def rolling_patterns2pool(price: pd.Series, n: int, reset_window: int = None, *,
                         point, idx = v[0]
                         patterns[k].append(point)  # 两点为识别出的形态区间
                         points[k].append(idx)  # 形态区间的五点位置
+            '''
         else:
 
             continue
