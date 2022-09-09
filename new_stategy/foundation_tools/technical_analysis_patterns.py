@@ -215,6 +215,8 @@ def find_price_patterns(max_min: pd.Series, save_all: bool = True) -> Dict:
     if size < 5:
         return {}
 
+    #arrs: np.ndarray = rolling_windows(max_min.values, 5)  # 平滑并确定好高低点的价格数据
+    #idxs: np.ndarray = rolling_windows(max_min.index.values, 5)  # 索引
     arrs: np.ndarray = rolling_windows(max_min.values, 5)  # 平滑并确定好高低点的价格数据
     idxs: np.ndarray = rolling_windows(max_min.index.values, 5)  # 索引
 
@@ -488,7 +490,8 @@ def rolling_patterns(price: pd.Series, *, bw: Union[str, np.ndarray] = 'cv_ls', 
 
         if current_pattern:
 
-            if (i % reset_window == 0) and (i != 0):
+            #if (i % reset_window == 0) and (i != 0):
+            if 1 == 1:
                 # 当大于更新长度时更新字典
 
                 for k, v in current_pattern.items():
@@ -496,7 +499,7 @@ def rolling_patterns(price: pd.Series, *, bw: Union[str, np.ndarray] = 'cv_ls', 
                     point, idx = v
                     patterns[k].append(point)  # 两点为识别出的形态区间
                     points[k].append(idx)  # 形态区间的五点位置
-
+            '''
             else:
 
                 # 当不是形态更新节点时 使用首次识别的形态
@@ -509,6 +512,7 @@ def rolling_patterns(price: pd.Series, *, bw: Union[str, np.ndarray] = 'cv_ls', 
                         point, idx = v
                         patterns[k].append(point)  # 两点为识别出的形态区间
                         points[k].append(idx)  # 形态区间的五点位置
+            '''
         else:
 
             continue
@@ -536,6 +540,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
     if not record_patterns.patterns:
         #无patterns时候返回空
         #raise ValueError('record_patterns为空')
+        plt.savefig(local_url)
         return  ''
 
     # 设置蜡烛图风格
@@ -717,7 +722,7 @@ def rolling_patterns2pool(price: pd.Series, n: int, reset_window: int = None, *,
 
         if current_pattern:
 
-            #if (num % reset_window == 0) and (num != 0):
+            #if (num % reset_window == 0) and (num != 0):  如果一段时间出现多个图形，只显示第一个出现的图形
             if 1 == 1:
                 # 当大于更新长度时更新字典
 
@@ -726,7 +731,7 @@ def rolling_patterns2pool(price: pd.Series, n: int, reset_window: int = None, *,
                     point, idx = v[0]
                     patterns[k].append(point)  # 两点为识别出的形态区间
                     points[k].append(idx)  # 形态区间的五点位置
-            '''
+            '''如果一段时间出现多个图形，只显示第一个出现的图形
             else:
 
                 # 当不是形态更新节点时 使用首次识别的形态

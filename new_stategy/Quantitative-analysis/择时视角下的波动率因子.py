@@ -15,7 +15,7 @@ from alphalens import plotting
 import alphalens.performance as perf
 
 #from jqdata import *
-#from jqfactor import (Factor, calc_factors)
+#from jqfactor_analyzer import (Factor, calc_factors)
 
 from functools import reduce
 from tqdm import tqdm_notebook
@@ -649,4 +649,236 @@ def prepare_data(symbol: str, startDt: str, endDt: str) -> pd.DataFrame:
     return factor_df
 
 
-factor_df = prepare_data('000300.XSHG', '2013-01-01', '2021-03-17')
+#factor_df = prepare_data('000300.XSHG', '2013-01-01', '2021-03-17')
+
+# 数据保存
+#factor_df.to_csv('factor_df.csv')
+
+# 读取
+factor_df = pd.read_csv('c://temp//factor_df.csv',index_col=[0],parse_dates=[0])
+
+# 查看数据结构
+factor_df.head()
+
+'''
+信号构造
+构思一:
+借用扩散指标的构造方法,
+
+构建数量剪刀差:因子升序分五组,头部组合数量M日移动平均-底部组合数量M日移动平均
+数量剪刀差N日移动平均
+数量剪刀差与第二部的慢均线形成双均线
+'''
+# 每日分组
+rank_df = factor_df.apply(pd.cut,bins=5,labels=['G%s'%i for i in range(1,6)],axis=1)
+
+bottom_ser = (rank_df == 'G1').sum(axis=1) #
+top_ser = (rank_df == 'G5').sum(axis=1)
+
+startDt = factor_df.index.min().strftime('%Y-%m-%d')
+endDt = factor_df.index.max().strftime('%Y-%m-%d')
+
+#benchmark = get_price('000300.XSHG',startDt,endDt,fields='close',panel=False)
+
+test_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//close.pkl')
+test_pre_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//pre_close.pkl')
+test_high = pd.read_pickle('C://temp//fund_data//base_data//mkt//high.pkl')
+test_low = pd.read_pickle('C://temp//fund_data//base_data//mkt//low.pkl')
+test_amount = pd.read_pickle('C://temp//fund_data//base_data//mkt//amount.pkl')
+test_open = pd.read_pickle('C://temp//fund_data//base_data//mkt//open.pkl')
+
+dfs = [test_close['000300.SH']]
+result = pd.concat(dfs, axis=1)
+result.columns = ['close']
+
+data1 = result
+data1.index = pd.to_datetime(data1.index)
+data1.sort_index(inplace=True)
+
+benchmark =data1.loc[startDt:endDt]
+#因子是升序排列,统计G1(low)组和G5(high)每日的数量,数量变化与沪深300走势的关系较为明显。
+
+# 直接统计数量
+plt.rcParams['font.family'] = 'serif'
+fig,axes = plt.subplots(3,figsize=(18,4 * 3))
+
+axes[0].set_title('底部数量')
+axes[0].plot(bottom_ser.rolling(30).mean(),color='Crimson',label='MA30')
+
+axes[1].set_title('顶部数量')
+axes[1].plot(top_ser.rolling(30).mean(),color='Coral',label='MA30')
+
+axes[2].set_title('沪深300指数')
+axes[2].plot(benchmark['close'])
+
+#将两个组合做差,可以看到拐点与指数有一定的预见性。
+N = 30
+# 信号对数化方便做差
+log_bottom = np.log(talib.EMA(bottom_ser,N))
+log_top = np.log(talib.EMA(top_ser,N))
+diff_signal = log_top - log_bottom # 差值
+line = diff_signal.plot(figsize=(18,4),secondary_y=True)
+benchmark['close'].plot(ax=line)
+
+# 信号双均线
+flag = diff_signal - talib.EMA(diff_signal,10)
+flag = (flag > 0) * 1
+
+next_ret = benchmark['close'].pct_change().shift(-1)
+algorithm_ret = flag * next_ret
+cumRet = 1 + ep.cum_returns(algorithm_ret)
+#################报错#######################
+trade_info = tradeAnalyze(flag,next_ret) # 初始化交易信息
+# 画图
+cumRet.plot(figsize=(18,5),label='净值',title='回测')
+
+(benchmark['close'] / benchmark['close'][0]).plot(color='darkgray',label='HS300')
+plot_trade_pos(trade_info,benchmark['close'] / benchmark['close'][0])
+
+plt.legend()
+####################################################
+
+
+
+#################################################
+show_worst_drawdown_periods(algorithm_ret)
+fig,ax = plt.subplots(figsize=(18,4))
+plot_drawdown_periods(algorithm_ret,5,ax)
+ax.plot(benchmark['close'] / benchmark['close'][0],color='darkgray')
+
+
+#################寻找最优参数#################
+
+#使用sklearn将上述过程打包,并使用RandomizedSearchCV进行寻参。
+from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from typing import Callable
+
+
+# 构造趋势指标构建
+class creatSignal_a(TransformerMixin, BaseEstimator):
+
+    def __init__(self, creatperiod: int, creatfunc: Callable) -> None:
+        '''
+        createperiod:头部-顶部的数量周期
+        creatfunc:均线计算方法函数
+        '''
+        self.creatperiod = creatperiod
+        self.creatfunc = creatfunc
+
+    def fit(self, factor_df: pd.Series, returns=None):
+        return self
+
+    def transform(self, factor_df: pd.DataFrame) -> pd.Series:
+        # 每日分组
+        rank_df = factor_df.apply(pd.cut, bins=5, labels=['G%s' % i for i in range(1, 6)], axis=1)
+
+        bottom_ser = (rank_df == 'G1').sum(axis=1)
+        top_ser = (rank_df == 'G5').sum(axis=1)
+
+        log_bottom = np.log(self.creatfunc(bottom_ser, self.creatperiod))
+        log_top = np.log(self.creatfunc(top_ser, self.creatperiod))
+
+        diff_signal = log_top - log_bottom  # 差值
+
+        return diff_signal.dropna()
+
+
+# 策略构建
+class AlgorthmStrategy_a(BaseEstimator):
+
+    def __init__(self, window: int, mafunc: Callable) -> None:
+        self.window = window
+        self.mafunc = mafunc
+
+    # 策略是如何训练的
+    def fit(self, signal: pd.Series, returns: pd.Series) -> pd.Series:
+        '''
+        signal:信号数据
+        returns:收益数据
+        '''
+        idx = signal.index
+        algorithm_ret = self.predict(signal) * returns.shift(-1).reindex(idx)
+        return algorithm_ret.dropna()
+
+    # 策略如何进行信号生成
+    def predict(self, signal: pd.Series) -> pd.Series:
+        '''singal:信号数据'''
+
+        longSignal = self.mafunc(signal, self.window)
+        diffSeries = signal - longSignal  # 双均线信号
+
+        return (diffSeries > 0) * 1
+
+    # 如何判断策略是优是劣质
+    def score(self, signal: pd.Series, returns: pd.Series) -> float:
+        '''本质上是设置一个目标函数'''
+        ret = self.fit(signal, returns)
+
+        # 优化指标为： 卡玛比率 + 夏普
+        # 分数越大越好
+
+        risk = ep.calmar_ratio(ret) + ep.sharpe_ratio(ret)
+
+        return risk
+
+from sklearn.model_selection import RandomizedSearchCV
+import scipy.stats as st
+
+# 回测时间设置
+startDt = factor_df.index.min().strftime('%Y-%m-%d')
+endDt = factor_df.index.max().strftime('%Y-%m-%d')
+
+# 基准
+benchmark = get_price('000300.XSHG',startDt,endDt,fields='close',panel=False)
+
+returns = benchmark['close'].pct_change().reindex(factor_df.index)
+
+# 构造PIPELINE
+ivr_timing = Pipeline([('creatSignal', creatSignal_a(30, talib.SMA)),
+                         ('backtesting', AlgorthmStrategy_a(5, talib.SMA))])
+
+# 寻参范围设置
+## 阈值
+
+randint = st.randint(low=3, high=150)
+window_randint = st.randint(low=2,high=60)
+
+# 超参设置
+param_grid = {'creatSignal__creatperiod': randint,
+              'backtesting__window': window_randint
+             }
+
+
+grid_search = RandomizedSearchCV(
+    ivr_timing, param_grid, n_iter=100, verbose=2, n_jobs=3,random_state=42)
+
+grid_search.fit(factor_df, returns)
+
+
+# 最优参数
+grid_search.best_params_
+#{'backtesting__window': 44, 'creatSignal__creatperiod': 31}
+
+
+#回测
+
+#金叉买入,死叉卖出
+
+# 使用最优参数构建开平仓 使用最优估计
+flag = grid_search.best_estimator_.predict(factor_df)
+next_ret = returns.shift(-1)
+# 计算收益率
+algorithm_ret = flag * next_ret
+trade_info = tradeAnalyze(flag, next_ret)  # 初始化交易信息
+
+mpl.rcParams['font.family'] = 'serif'
+
+# 画图
+(1 + ep.cum_returns(algorithm_ret)).plot(
+    figsize=(18, 5), label='异常交易因子择时', title='异常交易因子择时', color='r')
+
+(benchmark['close'] / benchmark['close'][0]).plot(label='HS300', color='darkgray')
+plot_trade_pos(trade_info, benchmark['close'] / benchmark['close'][0])
+plt.legend()
