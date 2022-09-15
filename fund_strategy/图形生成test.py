@@ -64,7 +64,7 @@ if __name__ == '__main__':
    #list_sz = ('399001.SZ', '399005.SZ', '399006.SZ', '399330.SZ')
 
    #list_1 = list_sh + list_sz
-   list_1 = ('000300.SH',)
+   list_1 = ('000905.SH',)
    list_1 = list(list_1)
    local_datetime = datetime.datetime.now().strftime('%Y%m%d')
    mkdir('C://temp//upload//' + local_datetime + '_pattern_graph//')
@@ -82,9 +82,11 @@ if __name__ == '__main__':
       result = pd.concat(dfs,axis=1)
       result.columns = ['open', 'close', 'low', 'high']
       
-      data1=result[-40:]
+      data1=result[-40:-2]
       data1.index = pd.to_datetime(data1.index)
       data1.sort_index(inplace=True)
+      ###为了提前生成图形，生成t+1天模拟数据，跟T价格指数相同
+      data1.loc[data1.index[-1] + datetime.timedelta(days=1)] = data1.iloc[-1, :]
 
 
       #############图形判断###############

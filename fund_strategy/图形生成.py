@@ -85,6 +85,8 @@ if __name__ == '__main__':
       data1=result[-40:]
       data1.index = pd.to_datetime(data1.index)
       data1.sort_index(inplace=True)
+      ###为了提前生成图形，生成t+1天模拟数据，跟T价格指数相同
+      data1.loc[data1.index[-1] + datetime.timedelta(days=1)] = data1.iloc[-1, :]
 
 
       #############图形判断###############
