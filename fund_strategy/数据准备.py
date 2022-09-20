@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 setting = json.load(open('C://config//config.json'))
 # pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 ts.set_token(setting['token'])
-pro = ts.pro_api(timeout=5)
+#pro = ts.pro_api(timeout=5)
 
 global dataBase
 curPath = os.path.abspath(os.path.dirname('c:\\temp\\fund_data\\'))

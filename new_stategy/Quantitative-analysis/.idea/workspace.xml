@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e3506a4e-1718-4230-a1c5-368558cde42a" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/C-VIX中国版VIX 编制手册.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../fund_strategy/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_strategy/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../fund_strategy/数据准备.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_strategy/数据准备.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../foundation_tools/scr/load_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/../foundation_tools/scr/load_config.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />

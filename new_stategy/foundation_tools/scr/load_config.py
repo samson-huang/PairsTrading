@@ -19,8 +19,8 @@ sys.path.append(str(cur_root.parent))
 # print(os.listdir('..'))
 __all__ = ['ts_token']
 
-with open(r'config.json', 'r') as file:
-
+#with open(r'config.json', 'r') as file:
+with open(r'C://config//config.json', 'r') as file:
     config = json.loads(file.read())
 
 ts_token = config['ts_token']
