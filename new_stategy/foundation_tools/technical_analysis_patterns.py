@@ -623,6 +623,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
 
         plt.subplots_adjust(hspace=0.5)
         plt.savefig(local_url)
+
         return axes
 
     else:
@@ -641,6 +642,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
                      type='candle', datetime_format='%Y-%m-%d', ax=ax)
             plt.title(fund_name+' 最后标记日 '+max_date)
             plt.savefig(local_url)
+            plt.close()
             return ax
 
         else:
@@ -648,6 +650,7 @@ def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, sl
             mpf.plot(ohlc_data, style=s, tlines=tlines,
                      type='candle', datetime_format='%Y-%m-%d', ax=ax)
         plt.savefig(local_url)
+        plt.close()
         return ax
 
 

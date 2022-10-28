@@ -64,7 +64,7 @@ if __name__ == '__main__':
    #list_sz = ('399001.SZ', '399005.SZ', '399006.SZ', '399330.SZ')
 
    #list_1 = list_sh + list_sz
-   list_1 = ('000905.SH',)
+   list_1 = ('000903.SH',)
    list_1 = list(list_1)
    local_datetime = datetime.datetime.now().strftime('%Y%m%d')
    mkdir('C://temp//upload//' + local_datetime + '_pattern_graph//')
@@ -95,6 +95,7 @@ if __name__ == '__main__':
       plot_patterns_chart(data1,patterns_record1,True,False,code2secname[index_code],local_url.replace('detail', 'overall'))
       plt.title(code2secname[index_code])
       plot_patterns_chart(data1,patterns_record1,True,True,code2secname[index_code],local_url);
+      plt.close()
       ####################################
 
       ###############趋与势模型############

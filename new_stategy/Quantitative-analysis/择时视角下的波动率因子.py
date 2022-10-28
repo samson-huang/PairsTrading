@@ -417,6 +417,7 @@ def get_order_position(pos: pd.Series) -> pd.DataFrame:
     if len(tradeDict[row_num]) < 2:
         tmp = tradeDict[row_num]
         tmp += [np.nan]
+        del tradeDict[row_num]
     tradeFrame = pd.DataFrame(tradeDict).T
     tradeFrame.columns = ['Buy', 'Sell']
 
@@ -728,7 +729,7 @@ next_ret = benchmark['close'].pct_change().shift(-1)
 algorithm_ret = flag * next_ret
 cumRet = 1 + ep.cum_returns(algorithm_ret)
 #################报错#######################
-trade_info = tradeAnalyze(flag,next_ret) # 初始化交易信息
+trade_info = tradeAnalyze(flag[:-1],next_ret[:-1]) # 初始化交易信息
 # 画图
 cumRet.plot(figsize=(18,5),label='净值',title='回测')
 
@@ -831,7 +832,7 @@ startDt = factor_df.index.min().strftime('%Y-%m-%d')
 endDt = factor_df.index.max().strftime('%Y-%m-%d')
 
 # 基准
-benchmark = get_price('000300.XSHG',startDt,endDt,fields='close',panel=False)
+#benchmark = get_price('000300.XSHG',startDt,endDt,fields='close',panel=False)
 
 returns = benchmark['close'].pct_change().reindex(factor_df.index)
 
@@ -873,7 +874,7 @@ next_ret = returns.shift(-1)
 algorithm_ret = flag * next_ret
 trade_info = tradeAnalyze(flag, next_ret)  # 初始化交易信息
 
-mpl.rcParams['font.family'] = 'serif'
+plt.rcParams['font.family'] = 'serif'
 
 # 画图
 (1 + ep.cum_returns(algorithm_ret)).plot(
@@ -882,3 +883,35 @@ mpl.rcParams['font.family'] = 'serif'
 (benchmark['close'] / benchmark['close'][0]).plot(label='HS300', color='darkgray')
 plot_trade_pos(trade_info, benchmark['close'] / benchmark['close'][0])
 plt.legend()
+
+# 风险指标
+Strategy_performance(algorithm_ret,'daily').style.format('{:.2%}')
+
+# 展示交易明细
+trade_info.show_all()
+
+show_worst_drawdown_periods(algorithm_ret.dropna())
+fig,ax = plt.subplots(figsize=(18,4))
+plot_drawdown_periods(algorithm_ret.dropna(),5,ax)
+ax.plot(benchmark['close'] / benchmark['close'][0],color='darkgray')
+
+# 查看信号
+fig,ax = plt.subplots(figsize=(18,4))
+
+ax.set_title('查看最优参数下的信号')
+N = grid_search.best_params_['creatSignal__creatperiod']
+M = grid_search.best_params_['backtesting__window']
+ser = top_ser.rolling(N).mean() - bottom_ser.rolling(N).mean()
+ma = ser.rolling(M).mean()
+
+ax.plot(ser,color='Crimson',label='signal')
+ax.plot(ma,label='MA')
+ax1 = ax.twinx()
+ax1.plot(benchmark['close'],label='HS300',color='darkgray')
+plot_trade_pos(trade_info,benchmark['close'],ax=ax1)
+
+h1,l1 = ax.get_legend_handles_labels()
+h2,l2 = ax1.get_legend_handles_labels()
+ax.legend(h1+h2,l1+l2)
+plt.grid(False)
+

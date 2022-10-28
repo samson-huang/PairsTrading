@@ -95,6 +95,7 @@ if __name__ == '__main__':
       plot_patterns_chart(data1,patterns_record1,True,False,code2secname[index_code],local_url.replace('detail', 'overall'))
       plt.title(code2secname[index_code])
       plot_patterns_chart(data1,patterns_record1,True,True,code2secname[index_code],local_url);
+      plt.close()
       ####################################
 
       ###############趋与势模型############
