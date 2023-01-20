@@ -2,12 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="63b4688f-1f66-4559-b508-77836a44b5d7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/多因子指数增强-hugo.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../fund_update/数据准备.py" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_update/数据准备.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../2022-new/test1.py" beforeDir="false" afterPath="$PROJECT_DIR$/../2022-new/test1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../Quantitative-analysis/技术指标形态识别.py" beforeDir="false" afterPath="$PROJECT_DIR$/../Quantitative-analysis/技术指标形态识别.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../fund_strategy/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../fund_strategy/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Quantitative-analysis/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../Quantitative-analysis/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_rsch/单因子检测.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_rsch/单因子检测.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/多因子指数增强-hugo.py" beforeDir="false" afterPath="$PROJECT_DIR$/多因子指数增强-hugo.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -49,7 +47,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.test">
+  <component name="RunManager" selected="Python.图形生成">
     <configuration name="数据准备与单因子检验" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="factor_analysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -63,6 +61,48 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/数据准备与单因子检验.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="数据准备" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="factor_analysis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\ProgramData\Anaconda3\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../fund_strategy" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../fund_strategy/数据准备.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="图形生成" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="factor_analysis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\ProgramData\Anaconda3\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../fund_strategy" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../fund_strategy/图形生成.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -178,8 +218,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test" />
+        <item itemvalue="Python.图形生成" />
         <item itemvalue="Python.数据准备" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.数据准备与单因子检验" />
         <item itemvalue="Python.sample" />
       </list>
