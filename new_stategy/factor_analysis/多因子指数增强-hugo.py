@@ -1,7 +1,7 @@
 #from jqdata import *
-from jqdatasdk  import (get_factor_values,
-                      calc_factors,
-                      Factor)
+#from jqdatasdk  import (get_factor_values,
+#                      calc_factors,
+#                      Factor)
 
 import talib
 import numpy as np
@@ -33,7 +33,7 @@ plt.style.use('seaborn')
 #部分因子无法直接使用聚宽的因子库获取故这里手动构造模型所需因子，
 #此部分因子在上述模型所需的表中的因子计算方式项中标记有Factor
 
-class EPTTM(Factor):
+class EPTTM():
     name = 'EPTTM'
     max_window = 1
     dependencies = ['pe_ratio']
@@ -42,7 +42,7 @@ class EPTTM(Factor):
         return (1 / data['pe_ratio']).iloc[0]
 
 
-class SPTTM(Factor):
+class SPTTM():
     name = 'SPTTM'
     max_window = 1
     dependencies = ['ps_ratio']
@@ -51,7 +51,7 @@ class SPTTM(Factor):
         return (1 / data['ps_ratio']).iloc[0]
 
 
-class SUE0(Factor):
+class SUE0():
     '''含漂移项'''
 
     name = 'SUE0'
@@ -82,7 +82,7 @@ class SUE0(Factor):
         return (df.iloc[:, 0] - Q) / epsilon
 
 
-class SUR0(Factor):
+class SUR0():
     '''含漂移项'''
 
     name = 'SUR0'
@@ -114,7 +114,7 @@ class SUR0(Factor):
         return (df.iloc[:, 0] - Q) / epsilon
 
 
-class DELTAROE(Factor):
+class DELTAROE():
     '''单季度净资产收益率-去年同期单季度净资产收益率'''
 
     name = 'DELTAROE'
@@ -125,7 +125,7 @@ class DELTAROE(Factor):
         return (data['roe'] - data['roe_4']).iloc[0]
 
 
-class DELTAROA(Factor):
+class DELTAROA():
     '''单季度总资产收益率-去年同期单季度中资产收益率'''
 
     name = 'DELTAROA'
@@ -136,7 +136,7 @@ class DELTAROA(Factor):
         return (data['roa'] - data['roa_4']).iloc[0]
 
 
-class ILLIQ(Factor):
+class ILLIQ():
     name = 'ILLIQ'
     max_window = 21
     dependencies = ['close', 'money']
@@ -147,7 +147,7 @@ class ILLIQ(Factor):
         return (abs_ret / data['money'].iloc[1:]).mean()
 
 
-class ATR1M(Factor):
+class ATR1M():
     '''过去20个交易日日内真实波幅均值'''
     name = 'ATR1M'
     max_window = 22
@@ -164,7 +164,7 @@ class ATR1M(Factor):
         return TR.iloc[-20:].mean()
 
 
-class ATR3M(Factor):
+class ATR3M():
     '''过去60个交易日日内真实波幅均值'''
     name = 'ATR3M'
     max_window = 62
@@ -602,6 +602,7 @@ next_ret = get_next_ret(factors5,True,'2020-10-14')
 
 factors5['NEXT_RET'] = next_ret
 
+factors5.loc[('2010-01-29',),:]
 
 # 根据IR计算因子权重
 
@@ -646,8 +647,10 @@ factor_names = [name for name in factors5.columns if name not in [
 factors5['SCORE'] = (factors5[factor_names].mul(weights)).sum(axis=1)
 
 factors5.head()
-
-
+#####
+test123=factors5.loc[('2010-01-29',),:]
+test123.to_csv('c:/temp/factors5_2010-01-29.csv')
+####
 #六、分层抽样指数增强策略实现¶
 #6.1 策略概述
 

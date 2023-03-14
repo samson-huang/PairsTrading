@@ -1,5 +1,8 @@
 import sys
-sys.path.append("G://GitHub//PairsTrading//new_stategy//factor_analysis//")
+#
+#path_local = "G://GitHub"
+path_local = "C://Users//huangtuo//Documents//GitHub"
+sys.path.append(path_local+"//PairsTrading//new_stategy//factor_analysis//")
 
 from my_lib.data_download.data_io import DataReader
 from my_lib.factor_evaluate.factor_evaluate import factor_stats
@@ -89,6 +92,15 @@ factor_stats(
 )
 
 #
+
+#转换城alphalens-example方式
+test_df=rtn_df
+test_df=test_df.reset_index()
+test_df=test_df.melt(id_vars=['trade_date'],var_name='ts_code',value_name='pct_chg')
+
+assets = test_df.set_index([test_df['trade_date'], test_df['ts_code']], drop=True)
+assets = assets.drop(['trade_date','ts_code'],axis=1)
+assets.tail()
 
 
 
