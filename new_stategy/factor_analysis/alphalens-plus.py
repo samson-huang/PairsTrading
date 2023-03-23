@@ -14,7 +14,7 @@ import numpy as np
 import tushare as ts
 from alphalens.utils import get_clean_factor_and_forward_returns
 from alphalens.tears import create_full_tear_sheet
-
+import alphalens as al
 import json
 import os
 import pickle
@@ -49,12 +49,12 @@ rtn_df.tail(5)
 
 
 
-#实际沪深300个股收益数据
-factor_df_hs300=factor_df*univ_a
+#剔除NAN实际沪深300个股收益数据
+factor_df_hs300=rtn_df*univ_a
 factor_df_hs300=factor_df_hs300.dropna(axis=1,how='all')
 
 
-#准备沪深300个股close数据
+#剔除NAN准备沪深300个股close数据
 test_close = DataReader.read_dailyMkt('close')
 close_hs300=test_close*univ_a
 close_hs300=close_hs300.dropna(axis=1,how='all')
@@ -72,12 +72,12 @@ assets = assets.drop(['trade_date','ts_code'],axis=1)
 assets=assets.dropna(axis=0,how='all')
 
 assets.tail()
-
+assets.loc["2022-07-14","000001.SZ"]
 
 ######################
 
 # 我们是使用pct_chg因子数据预测收盘价，因此需要偏移1天，但是这里有2只股票，所以是shift(2)
-ret = get_clean_factor_and_forward_returns(assets[['pct_chg']].shift(2), close)
+ret = get_clean_factor_and_forward_returns(assets, close_hs300)
 create_full_tear_sheet(ret, long_short=False)
 
 
