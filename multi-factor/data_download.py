@@ -211,12 +211,22 @@ class DataDownloader:
             res_df = raw_df.pivot(index='trade_date', columns='ts_code', values=data_name)
             res_dict[data_name] = res_df.sort_index()
         return res_dict
-######################场内基金更新######################################################
+######################场内基础数据更新######################################################
     def get_E_fund(self):
         '''
         场内基金数据
         '''
         res_df=pro.index_basic()
+        return res_df
+
+    def get_E_stock_basic(self):
+        '''
+        所有股票基本数据
+        '''
+        res_df = pro.stock_basic(exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,'
+        'fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
+        res_df = pro.stock_basic(exchange='', list_status='D', fields='')
+        res_df = pro.stock_basic(exchange='', list_status='P', fields='')
         return res_df
 
     def get_dailyMkt_mulP_factors(self):
