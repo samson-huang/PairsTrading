@@ -1,0 +1,6 @@
+python scripts/get_data.py qlib_data --target_dir C:/Users/huangtuo/.qlib/qlib_data/cn_data --region cn
+python qlib-main/scripts/get_data.py qlib_data --target_dir C:/Users/huangtuo/.qlib/qlib_data/cn_data --region cn
+
+python qlib-main/scripts/data_collector/yahoo/collector.py update_data_to_bin --qlib_data_1d_dir C:/Users/huangtuo/.qlib/qlib_data/cn_data --trading_date 2020-09-25 --end_date 2020-09-30
+
+python scripts/data_collector/yahoo/collector.py update_data_to_bin --qlib_data_1d_dir <user data dir> --trading_date <start date> --end_date <end date>

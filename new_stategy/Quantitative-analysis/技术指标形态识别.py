@@ -31,13 +31,13 @@ plt.rcParams['axes.unicode_minus'] = False  #用来正常显示负号
 #                 fields=['open', 'close', 'low', 'high'], panel=False)
 #data1 = pro.index_daily(ts_code='399006.SZ', start_date='20220101', end_date='20220727',fields=['trade_date','open', 'close', 'low', 'high'])
 
-data1 = pro.daily(ts_code='000009.SZ', start_date='20210121', end_date='20211231',fields=['trade_date','open', 'close', 'low', 'high'])
+data1 = pro.daily(ts_code='000676.SZ', start_date='20230101', end_date='20230505',fields=['trade_date','open', 'close', 'low', 'high'])
 data1.index = pd.to_datetime(data1.trade_date)
 del data1['trade_date']
 data1.sort_index(inplace=True)
 patterns_record1 = rolling_patterns2pool(data1['close'],n=35)
 plot_patterns_chart(data1,patterns_record1,True,False)
-plt.title('中国宝安')
+plt.title('智度股份')
 plot_patterns_chart(data1,patterns_record1,True,True);
 
 

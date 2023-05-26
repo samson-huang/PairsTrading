@@ -35,7 +35,7 @@ def update_pickle(text, path):
 
 
 class DataDownloader:
-    def __init__(self, start_date='20230320', end_date='20230320'):
+    def __init__(self, start_date='20220101', end_date='20230330'):
         self.start_date = start_date
         self.end_date = end_date
         self.trade_dates = self.get_trade_dates()
@@ -223,10 +223,14 @@ class DataDownloader:
         '''
         所有股票基本数据
         '''
-        res_df = pro.stock_basic(exchange='', list_status='L', fields='ts_code,symbol,name,area,industry,'
+        res_df_l = pro.stock_basic(exchange='', list_status='L',
+                                   fields='ts_code,symbol,name,area,industry,'
+       'fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
+        res_df_d = pro.stock_basic(exchange='', list_status='D', fields='ts_code,symbol,name,area,industry,'
         'fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
-        res_df = pro.stock_basic(exchange='', list_status='D', fields='')
-        res_df = pro.stock_basic(exchange='', list_status='P', fields='')
+        res_df_p = pro.stock_basic(exchange='', list_status='P', fields='ts_code,symbol,name,area,industry,'
+        'fullname,enname,cnspell,market,exchange,curr_type,list_status,list_date,delist_date,is_hs')
+        res_df = pd.concat([res_df_l,res_df_d,res_df_p], axis=0)
         return res_df
 
     def get_dailyMkt_mulP_factors(self):
@@ -332,11 +336,16 @@ class DataWriter:
                 new_df.to_pickle(data_path)
             print(f'---------已更新至最新日期{new_df.index[-1]}')
 
-###########################更新场内基金#################################################
+###########################更新场内factor#################################################
     @staticmethod
     def update_E_fund(cover=False):
         data_path = dataBase + 'all_e_funds.pkl'
         return DataWriter.commonFunc(data_path, 'get_E_fund', cover)
+
+    @staticmethod
+    def update_E_stock_basic(cover=False):
+        data_path = dataBase + 'all_stock_basic.pkl'
+        return DataWriter.commonFunc(data_path, 'get_E_stock_basic', cover)
 
     @staticmethod
     def update_dailyMkt_factors(cover=False):
@@ -417,9 +426,16 @@ class DataReader:
         data_path = dataBase + 'all_e_funds.pkl'
         return DataReader.commonFunc(data_path)
 
+
+    @staticmethod
+    def read_E_stock_basic():
+        data_path = dataBase + 'all_stock_basic.pkl'
+        return DataReader.commonFunc(data_path)
 if __name__ == '__main__':
     #DataWriter.update_E_fund(cover=False)
     #DataWriter.update_dailyMkt_fund(cover=False)
+
+    #DataWriter.update_E_stock_basic(cover=False)
     DataWriter.update_dailyMkt_factors(cover=False)
 
 

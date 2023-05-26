@@ -14,7 +14,7 @@ import mplfinance as mpf
 import matplotlib.pyplot as plt
 import datetime
 import os
-
+import statsmodels.api as sm
 test_circ_mv = pd.read_pickle('C://temp//multi_factor_data//base_data//mkt//circ_mv.pkl')
 test_close = pd.read_pickle('C://temp//multi_factor_data//base_data//mkt//close.pkl')
 test_dv_ratio = pd.read_pickle('C://temp//multi_factor_data//base_data//mkt//dv_ratio.pkl')
@@ -37,21 +37,27 @@ test_volume_ratio = pd.read_pickle('C://temp//multi_factor_data//base_data//mkt/
 #                          'pb','ps','ps_ttm','dv_ratio','dv_ttm','total_share','float_share','free_share',
 #                          'total_mv','circ_mv']
 
+global dataBase
+curPath = os.path.abspath(os.path.dirname('c:\\temp\\multi_factor_data\\'))
+# rootPath = curPath[:curPath.find("多因子框架\\")+len("多因子框架\\")]
+rootPath = curPath
+dataBase = rootPath + '\\base_data\\'
+
 #转换城alphalens-example方式
 class transformer_data:
     def __init__(self, start_date='20230320', end_date='20230320'):
         self.start_date = start_date
         self.end_date = end_date
-        self.local_url='C://temp//multi_factor_data//base_data//mkt//'
+        self.local_url = dataBase + 'mkt\\'
     @staticmethod
-    def data_melt(para_name,*args, **kwds):
-        para_name_return = pd.read_pickle('C://temp//multi_factor_data//base_data//mkt//'+para_name+'.pkl')
+    def data_melt(para_name, *args, **kwds):
+        para_name_return = pd.read_pickle(dataBase+'mkt//'+para_name+'.pkl')
         para_name_return=para_name_return.reset_index()
         para_name_return=para_name_return.melt(id_vars=['trade_date'],var_name='ts_code',value_name=para_name)
         return para_name_return
 
     @staticmethod
-    def data_merge(name_list,*args, **kwds):
+    def data_merge(name_list, *args, **kwds):
         count_num = 1
         for data_name in name_list:
             return_data_indermediate=transformer_data.data_melt(data_name)
@@ -64,7 +70,7 @@ class transformer_data:
 
 
 columns = ['close', 'turnover_rate', 'turnover_rate_f', 'volume_ratio','pe', 'pe_ttm',
-                  'pb','ps','ps_ttm','dv_ratio','dv_ttm','total_share','float_share','free_share',
+                   'pb', 'ps', 'ps_ttm', 'dv_ratio', 'dv_ttm', 'total_share', 'float_share','free_share',
                   'total_mv','circ_mv']
 data_final=transformer_data.data_merge(columns)
 
@@ -72,15 +78,25 @@ data_final=transformer_data.data_merge(columns)
 data_final.set_index(['trade_date', 'ts_code'])
 
 
+data_path = dataBase + 'all_stock_basic.pkl'
+df = pd.read_pickle(data_path)
 
-#3.1缺失值处理
+test123 = pd.merge(data_final, df[['ts_code','industry']], on=['ts_code'])
+
+#test123[(test123["ts_code"] == "000001.SZ")&(test123["trade_date"] == "20230320")]
+test123 = test123.set_index(['trade_date', 'ts_code'])
+test123.info()
+
+
+import datacompy
+
 # step1:构建缺失值处理函数
-def factors_null_process(data: pd.DataFrame) -> pd.DataFrame:
+def factors_null_process(data: pd.DataFrame ) -> pd.DataFrame:
     # 删除行业缺失值
-    data = data[data['INDUSTRY_CODE'].notnull()]
+    data = data[data['industry'].notnull()]
     # 变化索引，以行业为第一索引，股票代码为第二索引
     data_ = data.reset_index().set_index(
-        ['INDUSTRY_CODE', 'code']).sort_index()
+        ['industry', 'ts_code']).sort_index()
     # 用行业中位数填充
     data_ = data_.groupby(level=0).apply(
         lambda factor: factor.fillna(factor.median()))
@@ -88,8 +104,8 @@ def factors_null_process(data: pd.DataFrame) -> pd.DataFrame:
     # 有些行业可能只有一两个个股却都为nan此时使用0值填充
     data_ = data_.fillna(0)
     # 将索引换回
-    data_ = data_.reset_index().set_index('code').sort_index()
-    return data_.drop('date', axis=1)
+    data_ = data_.reset_index().set_index('ts_code').sort_index()
+    return data_.drop('trade_date', axis=1)
 
 #3.2去极值
 # step2:构建绝对中位数处理法函数
@@ -101,7 +117,7 @@ def extreme_process_MAD(data: pd.DataFrame, num: int = 3) -> pd.DataFrame:
 
     # 获取数据集中需测试的因子名
     feature_names = [i for i in data_.columns.tolist() if i not in [
-        'INDUSTRY_CODE','market_cap']]
+        'industry','total_mv']]
 
     # 获取中位数
     median = data_[feature_names].median(axis=0)
@@ -121,7 +137,7 @@ def data_scale_Z_Score(data: pd.DataFrame) -> pd.DataFrame:
     data_ = data.copy()
     # 获取数据集中需测试的因子名
     feature_names = [i for i in data_.columns.tolist() if i not in [
-        'INDUSTRY_CODE','market_cap']]
+        'industry','total_mv']]
     data_.loc[:, feature_names] = (
         data_.loc[:, feature_names] - data_.loc[:, feature_names].mean()) / data_.loc[:, feature_names].std()
     return data_
@@ -131,7 +147,7 @@ def data_scale_Z_Score(data: pd.DataFrame) -> pd.DataFrame:
 def neutralization(data: pd.DataFrame) -> pd.DataFrame:
     '''按市值、行业进行中性化处理 ps:处理后无行业市值信息'''
     factor_name = [i for i in data.columns.tolist() if i not in [
-        'INDUSTRY_CODE', 'market_cap']]
+        'industry', 'total_mv']]
 
     # 回归取残差
     def _calc_resid(x: pd.DataFrame, y: pd.Series) -> float:
@@ -139,30 +155,30 @@ def neutralization(data: pd.DataFrame) -> pd.DataFrame:
 
         return result.resid
 
-    X = pd.get_dummies(data['INDUSTRY_CODE'])
+    X = pd.get_dummies(data['industry'])
     # 总市值单位为亿元
-    X['market_cap'] = np.log(data['market_cap'] * 100000000)
+    X['total_mv'] = np.log(data['total_mv'] * 100000000)
 
     df = pd.concat([_calc_resid(X.fillna(0), data[i])
                     for i in factor_name], axis=1)
 
     df.columns = factor_name
 
-    df['INDUSTRY_CODE'] = data['INDUSTRY_CODE']
-    df['market_cap'] = data['market_cap']
+    df['industry'] = data['industry']
+    df['total_mv'] = data['total_mv']
 
     return df
 
 ## 其实可以直接pipe处理但是这里为了后续灵活性没有选择pipe化
 
 # 去极值
-factors1 = factors.groupby(level='date').apply(extreme_process_MAD)
+factors1 = factors.groupby(level='trade_date').apply(extreme_process_MAD)
 # 缺失值处理
-factors2 = factors1.groupby(level='date').apply(factors_null_process)
+factors2 = factors1.groupby(level='trade_date').apply(factors_null_process)
 # 中性化
-factors3 = factors2.groupby(level='date').apply(neutralization)
+factors3 = factors2.groupby(level='trade_date').apply(neutralization)
 # 标准化
-factors4 = factors3.groupby(level='date').apply(data_scale_Z_Score)
+factors4 = factors3.groupby(level='trade_date').apply(data_scale_Z_Score)
 
 
 print(factors.info())
@@ -173,7 +189,7 @@ print(factors2.info())
 ## step5:构建对称正交变换函数
 def lowdin_orthogonal(data: pd.DataFrame) -> pd.DataFrame:
     data_ = data.copy()  # 创建副本不影响原数据
-    col = [col for col in data_.columns if col not in ['INDUSTRY_CODE', 'market_cap']]
+    col = [col for col in data_.columns if col not in ['industry', 'total_mv']]
 
     F = np.mat(data_[col])  # 除去行业指标,将数据框转化为矩阵
     M = F.T @ F  # 等价于 (F.shape[0] - 1) * np.cov(F.T)
@@ -185,14 +201,14 @@ def lowdin_orthogonal(data: pd.DataFrame) -> pd.DataFrame:
     return data_
 
 #对称正交化
-factors5 = factors4.groupby(level='date').apply(lowdin_orthogonal)
+factors5 = factors4.groupby(level='trade_date').apply(lowdin_orthogonal)
 factors5.info()
 
 
 # 构建计算横截面因子载荷相关系数均值函数
 def get_relations(datas: pd.DataFrame) -> pd.DataFrame:
     relations = 0
-    for trade, d in datas.groupby(level='date'):
+    for trade, d in datas.groupby(level='trade_date'):
         relations += d.corr()
 
     relations_mean = relations / len(datas.index.levels[0])
@@ -214,6 +230,9 @@ fig=plt.figure(figsize=(26,18))
 relations= get_relations(factors5.iloc[:,:-2])
 sns.heatmap(relations,annot=True,linewidths=0.05,
             linecolor='white',annot_kws={'size':8,'weight':'bold'})
+
+#################################################################################
+
 
 #五、打分法计算预期收益
 
