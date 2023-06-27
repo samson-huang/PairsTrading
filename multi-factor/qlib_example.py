@@ -67,5 +67,18 @@ industry_code = industry_code.set_index('code')
 merged_df = pd.merge(hd, industry_code, left_index=True, right_index=True).sort_index()
 
 
+merged_df=pd.read_csv('c://temp/merged_df.csv')
+merged_df.set_index(['date', 'code'], inplace=True)
+
+
+
+merged_df_new = pd.merge(merged_df, SW2021_temp, on='key', how='left')
+
+
+merged_df_new.to_csv('c://temp//merged_df_new.csv')
+factors=merged_df_new.astype(float)
+factors['industry_code'] = factors['industry_code'].astype(int)
+
+
 
 
