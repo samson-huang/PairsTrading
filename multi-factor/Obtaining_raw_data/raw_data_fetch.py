@@ -156,8 +156,11 @@ class RawDataFetcher(FactorGenerater):
             del dat['Unnamed: 0']
             panel[d] = dat
             print(d)
-        datpanel = pd.Panel(panel)
-        datpanel = datpanel.to_frame().stack().unstack(level=(0,1)) #貌似某些情况下会有BUG,有索引但是没数据
+        #datpanel = pd.Panel(panel)
+        # 将字典转换为MultiIndex DataFrame
+        datpanel = pd.concat(panel.values(), keys=panel.keys(), axis=1)
+        datpanel = datpanel.stack().unstack(level=(0, 1))
+        #datpanel = datpanel.to_frame().stack().unstack(level=(0,1)) #貌似某些情况下会有BUG,有索引但是没数据
         #开始计算结果指标(月频),在每个时间截面逐个处理每只股票
         df = pd.DataFrame(index=all_stocks_info.index, columns=mdays)
         for d in df.columns: #每月最后一天
@@ -192,7 +195,9 @@ class RawDataFetcher(FactorGenerater):
             del dat['Unnamed: 0']
             panel[d] = dat
             print(d)
-        datpanel = pd.Panel(panel)
+        #datpanel = pd.Panel(panel)
+        # 将字典转换为MultiIndex DataFrame
+        datpanel = pd.concat(panel.values(), keys=panel.keys(), axis=1)
         datpanel = datpanel.swapaxes(0, 1)
         #开始计算结果指标(月频),在每个时间截面逐个处理每只股票
         df = pd.DataFrame(index=all_stocks_info.index, columns=mdays)
@@ -220,8 +225,10 @@ class RawDataFetcher(FactorGenerater):
         '''
         '''
         #-------------------------------------------------------------
+        '''-----20230704
         #创建一些行情指标
-        self.create_indicator("__temp_daily__", "S_DQ_ADJFACTOR", "adjfactor")
+        #self.create_indicator("__temp_daily__", "S_DQ_ADJFACTOR", "adjfactor")
+        self.create_indicator("__temp_adj_factor__", "adj_factor", "adjfactor")
         adjfactor = self.preprocess(self.adjfactor)
         self.close_file(adjfactor, 'adjfactor')
 
@@ -259,26 +266,40 @@ class RawDataFetcher(FactorGenerater):
         self.close_file(close, 'close')
         self.close_file(hfq_close, 'hfq_close')
         #-------------------------------------------------------------
+        -----20230704'''
+        #-----生成月度数据0230704新增
+
         #生成周期为1,3,6,12月收益率
         s = pd.to_datetime('20200101') #统计周期开始
         e = pd.to_datetime('20201231') #统计周期结束
         tdays_be_month = self.trade_days_begin_end_of_month
         tdays_be_month = tdays_be_month[(tdays_be_month>=s)&(tdays_be_month<=e)].dropna(how='all')
-        months_end = tdays_be_month.index
+        #months_end = tdays_be_month.index
+        months_end = tdays_be_month['month_end'].values
+
         hfq_close = self.hfq_close
         #***pct_chg_M
+        '''-----20230705
         pct_chg_M = pd.DataFrame()
         for m_end_date in months_end:
-            m_start_date = tdays_be_month.loc[m_end_date].values[0]
+            #m_start_date = tdays_be_month.loc[m_end_date].values[0]
+            m_start_date=tdays_be_month.loc[tdays_be_month['month_end'] == m_end_date].index[0]
+            #m_end_date = m_end_date.strftime('%Y-%m-%d')
+            print(m_end_date)
             pct_chg_M[self.month_map.loc[m_end_date]] = hfq_close[m_end_date] / hfq_close[m_start_date] - 1
+            #pct_chg_M[self.month_map[m_end_date]] = hfq_close[m_end_date] / hfq_close[m_start_date] - 1
+
         self.close_file(pct_chg_M, 'pct_chg_M')
+        -----20230705'''
         #pct_chg_Nm
         for period in (1,3,6,12):
             pct_chg_Nm = pd.DataFrame()
             if period != 1: 
                 for m_end_date in months_end[::-1]:
                     try:
-                        start_date_before_n_period = tdays_be_month.loc[self._get_date(m_end_date, -period+1, months_end)].values[0]
+                        #start_date_before_n_period = tdays_be_month.loc[self._get_date(m_end_date, -period+1, months_end)].values[0]
+                        test23 = self._get_date(m_end_date, -period + 1, months_end)
+                        start_date_before_n_period = tdays_be_month.loc[tdays_be_month['month_end'] == test23].index[0]
                         s = hfq_close[m_end_date] / hfq_close[start_date_before_n_period] - 1
                         pct_chg_Nm[self.month_map[m_end_date]] = s
                     except KeyError:
@@ -663,14 +684,14 @@ class TushareFetcher(RawDataFetcher):
         ''' 每月第一个和最后一个交易日映射
         '''
         tdays = self.tradedays
-        months_start = tdays[0:1] + list(after_d for before_d, after_d in zip(tdays[:-1], tdays[1:]) if before_d.month != after_d.month)
-        months_end = list(before_d for before_d, after_d in zip(tdays[:-1], tdays[1:]) if before_d.month != after_d.month) + tdays[-1:]
+        months_end = tdays[0:1] + list(after_d for before_d, after_d in zip(tdays[:-1], tdays[1:]) if before_d.month != after_d.month)
+        months_start = list(before_d for before_d, after_d in zip(tdays[:-1], tdays[1:]) if before_d.month != after_d.month) + tdays[-1:]
         if latest_month_end_tradeday is None:
             latest_month_end_tradeday = self.month_map.index[-1]
         if months_end[-1] > latest_month_end_tradeday:
             months_start, months_end = months_start[:-1], months_end[:-1]
-        trade_days_be_month = pd.DataFrame(months_end, index=months_start, columns=['month_end'])
-        trade_days_be_month.index.name = 'month_start'
+        trade_days_be_month = pd.DataFrame(months_start, index=months_end, columns=['months_start'])
+        trade_days_be_month.index.name = 'month_end'
         self.close_file(trade_days_be_month, 'trade_days_begin_end_of_month')
 
     def create_trade_status(self):
@@ -938,9 +959,10 @@ class TushareFetcher(RawDataFetcher):
             panel[d] = dat
             print(d)
         #panel = pd.Panel(panel)
-        test=123
-        panel = panel.to_dataframe()
-        panel = panel.to_frame()
+        #panel = panel.to_frame()
+        # 将字典转换为MultiIndex DataFrame
+        panel = pd.concat(panel.values(), keys=panel.keys(), axis=1)
+        # 重排列层次结构
         panel = panel.stack().unstack(level=(0,1))
         #-------------------------------------------------------
         #开始计算结果指标(月频)
@@ -1011,8 +1033,11 @@ class TushareFetcher(RawDataFetcher):
             del dat['Unnamed: 0']
             panel[d] = dat
             print(d)
-        panel = pd.Panel(panel)
-        panel = panel.to_frame()
+        #panel = pd.Panel(panel)
+        #panel = panel.to_frame()
+        # 将字典转换为MultiIndex DataFrame
+        panel = pd.concat(panel.values(), keys=panel.keys(), axis=1)
+        # 重排列层次结构
         '''
                                              2009-03-31           2009-06-30           2009-09-30           2009-12-31           2010-03-31           2010-06-30           2010-09-30           2010-12-31           2011-03-31           2011-06-30           2011-09-30           2011-12-31           2012-03-31           2012-06-30           2012-09-30           2012-12-31           2013-03-31           2013-06-30           2013-09-30           2013-12-31           2014-03-31           2014-06-30           2014-09-30           2014-12-31           2015-03-31           2015-06-30           2015-09-30           2015-12-31           2016-03-31           2016-06-30           2016-09-30           2016-12-31           2017-03-31           2017-06-30           2017-09-30           2017-12-31           2018-03-31           2018-06-30           2018-09-30           2018-12-31           2019-03-31           2019-06-30           2019-09-30           2019-12-31
 major     minor                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       

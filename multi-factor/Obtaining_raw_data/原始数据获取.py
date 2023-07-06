@@ -57,10 +57,11 @@ def TushareFetch():
     fetcher.create_pb_lf_m()
     fetcher.create_ps_ttm_m()
     fetcher.create_pcf_ncf_ttm_m()
-  '''
+
     fetcher.create_pcf_ocf_ttm_m()
     fetcher.create_dividendyield2_m()
     fetcher.create_profit_ttm_G_m()
+
     fetcher.create_indicator_m_by_q("__temp_fina_indicator__", "q_sales_yoy", "qfa_yoysales_m")
     fetcher.create_indicator_m_by_q("__temp_fina_indicator__", "q_profit_yoy", "qfa_yoyprofit_m")
     fetcher.create_indicator_m_by_q("__temp_fina_indicator__", "ocf_yoy", "qfa_yoyocf_m") #临时替代
@@ -76,7 +77,13 @@ def TushareFetch():
     fetcher.create_indicator_m_by_q("__temp_fina_indicator__", "debt_to_eqt", "longdebttoequity_m") #临时替代
     fetcher.create_indicator_m_by_q("__temp_fina_indicator__", "cash_to_liqdebt", "cashtocurrentdebt_m")
     fetcher.create_indicator_m_by_q("__temp_fina_indicator__", "current_ratio", "current_m")
+
     fetcher.create_daily_quote_indicators()
+    #---------------拆分create_daily_quote_indicators
+     '''
+    #fetcher.create_month_tdays_begin_end()
+    fetcher.create_daily_quote_indicators()
+    # ---------------拆分create_daily_quote_indicators
     fetcher.create_indicator("__temp_daily_basic__", "circ_mv", "mkt_cap_float")
     fetcher.create_indicator("__temp_daily_basic__", "total_mv", "mkt_cap_ard")
     fetcher.create_indicator_m_by_q("__temp_fina_indicator__", "longdeb_to_debt", "longdebttodebt_lyr_m")
