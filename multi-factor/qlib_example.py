@@ -14,12 +14,12 @@ setting = json.load(open('C://config//config.json'))
 ts.set_token(setting['token'])
 pro = ts.pro_api()
 
-qlib.init()
+#qlib.init()
 
 MARKET = "csi300"
 BENCHMARK = "SH000300"
 EXP_NAME = "tutorial_exp"
-
+'''暂时不从qlib获取Alpha158数据
 hd=pd.read_csv('c://temp/Alpha158_test.csv')
 hd.head()
 hd.set_index(['datetime', 'instrument'], inplace=True)
@@ -29,7 +29,7 @@ hd.index.set_names(new_names, inplace=True)
 
 
 hd.loc[:, ['KMID','KLEN']].head()
-
+'''
 # 获取申万二级行业列表
 SW2021 = pro.index_classify(level='L2', src='SW2021')
 
@@ -96,10 +96,7 @@ ts_daily_basic_temp = ts_daily_basic_temp.rename(columns={'industry_code': 'INDU
 ts_daily_basic_temp.set_index(['date', 'code'], inplace=True)
 #某一列为 NaN 的行
 ts_daily_basic_temp[ts_daily_basic_temp['industry_code'].isna()]
-
-
 merged_df_new=pd.read_csv('c://temp/merged_df_new.csv')
-ts_daily_basic = pro.daily_basic(ts_code='', trade_date='20120707')
 ############################
 #20230710 重载多因子指数增强
 #######################
