@@ -35,8 +35,8 @@ class lazyproperty:
             return value
 
 class Data:
-    startday = "20090101"
-    endday = "20191231"
+    startday = "20200101"
+    endday = "20201231"
     #endday = pd.tseries.offsets.datetime.now().strftime("%Y%m%d")
     freq = "M"
 
@@ -297,7 +297,9 @@ class FactorGenerater:
         cond = (pd.isnull(df0['delist_date'])) | (df0['delist_date'] >= tdate) #股票退市时间晚于指定时间
         df0 = df0[cond]
         #接下来还需要判断如果每月停牌日期大于一定数目就排除这只股票
-        bdate = self.trade_days_begin_end_of_month.at[tdate, 'month_start']
+        #bdate = self.trade_days_begin_end_of_month.at[tdate, 'month_start']
+        test123=self.trade_days_begin_end_of_month
+        bdate = test123.loc[test123['month_end'] == tdate].index[0]
         tradestatus = self.trade_status.loc[df0.index, bdate:tdate]
         tradestatus = (tradestatus==0) #停牌的股票为True
         cond = (tradestatus.sum(axis=1) < 10) #停牌日期小于10天的股票才入选, 超过10天的排除
@@ -306,8 +308,8 @@ class FactorGenerater:
         del df0['delist_date']
         stocklist = df0.index.tolist()
         caldate = self.month_map[tdate]
-        df0["industry_zx"] = self.industry_citic.loc[stocklist, caldate] #中信行业分类
-        df0["industry_sw"] = df0["industry_zx"]
+        #df0["industry_zx"] = self.industry_citic.loc[stocklist, caldate] #中信行业分类
+        #df0["industry_sw"] = df0["industry_zx"]
         df0['MKT_CAP_FLOAT'] = self.mkt_cap_float_m.loc[stocklist, caldate]
         try:
             tdate = self._get_next_month_first_trade_date(tdate) #下个月第一个交易日
@@ -530,7 +532,10 @@ class FactorGenerater:
         caldate = self.month_map[tdate]
         res = pd.DataFrame(index=stocks)
         for offset in params:
-            period_d = self._get_period_d(tdate, offset=-offset, freq="M", datelist=dates)
+            #----20230707
+            #period_d = self._get_period_d(tdate, offset=-offset, freq="M", datelist=dates)
+            period_d = dates
+            # ----20230707
             cur_pct_chg_d = pct_chg.loc[stocks, period_d]
             cur_turnover = turnover.loc[stocks, period_d]
             wgt_pct_chg = cur_pct_chg_d * cur_turnover
@@ -544,7 +549,10 @@ class FactorGenerater:
         return res
 
     def _get_turnover_data(self, stocks, tdate, dates, params=(1,3,6,12)):
-        base_period_d = self._get_period_d(tdate, offset=-2, freq="y", datelist=dates)
+        # ----20230707
+        #base_period_d = self._get_period_d(tdate, offset=-2, freq="y", datelist=dates)
+        base_period_ddates
+        # ----20230707
         cur_turnover_base = self.turn.loc[stocks, base_period_d]
         turnover_davg_base = cur_turnover_base.apply(np.nanmean, axis=1)
         res = pd.DataFrame(index=stocks)
@@ -563,8 +571,10 @@ class FactorGenerater:
             beta   --slope
         """
         index_code, period = params
-
+        # ----20230707
         col_index = self._get_period(tdate, offset=-period, freq="M", datelist=dates, resample=False) #前推60个月(五年)
+        col_index = dates
+        # ----20230707
         pct_chg_idx = self.pct_chg_M.loc[index_code, col_index]
         pct_chg_m = self.pct_chg_M.loc[stocks, col_index].dropna(how='any', axis=0).T
         x, y = pct_chg_idx.values.reshape(-1,1), pct_chg_m.values

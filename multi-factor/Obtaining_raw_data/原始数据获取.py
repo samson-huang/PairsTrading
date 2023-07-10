@@ -7,6 +7,8 @@ Author: Moses
 E-mail: 8342537@qq.com
 """
 import sys
+import os
+import pandas as pd
 
 # 添加包含本地库的目录到sys.path中
 sys.path.append('C:/Users/huangtuo/Documents/GitHub/PairsTrading/multi-factor/Obtaining_raw_data')
@@ -253,11 +255,11 @@ def WindFetch():
 
 if __name__ == '__main__':
     #WindFetch()
-    TushareFetch()
+    #TushareFetch()
 
-    '''
+
     path = os.path.dirname(os.path.dirname(__file__))
-    df = pd.read_csv(os.path.join(path, "industry_zx.csv"), index_col=[0], engine='python', encoding='gbk')
+    df = pd.read_csv(os.path.join(path, "\\raw_data\\src\\industry_zx.csv"), index_col=[0], engine='python', encoding='gbk')
     df.columns = pd.to_datetime(df.columns)
     new_df = pd.DataFrame(index=df.index)
     def _get_month_end(date):
@@ -272,5 +274,4 @@ if __name__ == '__main__':
         cday = _get_month_end(tday)
         new_df[cday] = df[tday]
     print(new_df.iloc[0:10])
-    new_df.to_csv(os.path.join(path, 'industry_citic.csv'), encoding='gbk')
-    '''
+    new_df.to_csv(os.path.join(path, '\\raw_data\\src\\industry_citic.csv'), encoding='gbk')

@@ -690,7 +690,7 @@ class TushareFetcher(RawDataFetcher):
             latest_month_end_tradeday = self.month_map.index[-1]
         if months_end[-1] > latest_month_end_tradeday:
             months_start, months_end = months_start[:-1], months_end[:-1]
-        trade_days_be_month = pd.DataFrame(months_start, index=months_end, columns=['months_start'])
+        trade_days_be_month = pd.DataFrame(months_start, index=months_end, columns=['month_start'])
         trade_days_be_month.index.name = 'month_end'
         self.close_file(trade_days_be_month, 'trade_days_begin_end_of_month')
 
