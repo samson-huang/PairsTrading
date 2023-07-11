@@ -14,6 +14,7 @@ setting = json.load(open('C://config//config.json'))
 ts.set_token(setting['token'])
 pro = ts.pro_api()
 
+#暂时不从qlib获取数据
 #qlib.init()
 
 MARKET = "csi300"
