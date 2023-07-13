@@ -215,7 +215,7 @@ daily_NEXT_RET.head()
 merged_df = pd.concat([daily_NEXT_RET['pct_change'], factors5], axis=1)
 
 merged_df = merged_df.rename(columns={'pct_change': 'NEXT_RET'})
-
+factors5 = merged_df
 
 # 根据IR计算因子权重
 
@@ -262,3 +262,7 @@ factors5['SCORE'] = (factors5[factor_names].mul(weights)).sum(axis=1)
 
 #六、分层抽样指数增强策略实现
 #6.1 策略概述
+
+#step1:将基准指数成份股按以上行业划分成34个子集，在每个子集中用市值因子将股票划分为数目相等的三组；
+#step2:计算每个小组内所有股票在基准指数中的总权重；
+#step3:在每个小组中选择预期收益（打分法）最高的一只股票，令它在投资组合中的权重等于它所处小组的权重。这样就能选出包含102只股票的分层抽样组合。
