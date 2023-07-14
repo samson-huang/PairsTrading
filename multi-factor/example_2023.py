@@ -209,7 +209,8 @@ sns.heatmap(relations,annot=True,linewidths=0.05,
 #daily_NEXT_RET = pro.daily(trade_date='20230710')
 daily_NEXT_RET =ts_daily_basic_temp[['close']]
 daily_NEXT_RET['pct_change'] = daily_NEXT_RET.groupby(level='code').close.pct_change()
-
+#
+#daily_NEXT_RET['pct_change'] = np.random.uniform(-0.1, 0.1, size=len(daily_NEXT_RET))
 daily_NEXT_RET.head()
 
 merged_df = pd.concat([daily_NEXT_RET['pct_change'], factors5], axis=1)
@@ -259,7 +260,7 @@ factor_names = [name for name in factors5.columns if name not in [
 
 # 计算因子分数
 factors5['SCORE'] = (factors5[factor_names].mul(weights)).sum(axis=1)
-
+#factors5['SCORE']  = np.random.uniform(-0.1, 0.1, size=len(daily_NEXT_RET))
 #六、分层抽样指数增强策略实现
 #6.1 策略概述
 

@@ -80,23 +80,28 @@ def get_weighs(symbol: str, start: str, end: str, method: str = 'cons') -> pd.Da
         ser['date'] = pd.to_datetime(ser['date'])
         return ser.set_index(['date', 'industry'])
         '''
-    elif method == 'cons':
+        elif method == 'cons':
 
-        #df = pd.concat([get_index_weights(symbol, date=d) for d in periods])
-        #查询到对应日期，且有权重数据，返回
-        #pandas.DataFrame， code(股票代码)，display_name(股票名称), date(日期),
+        # df = pd.concat([get_index_weights(symbol, date=d) for d in periods])
+        # 查询到对应日期，且有权重数据，返回
+        # pandas.DataFrame， code(股票代码)，display_name(股票名称), date(日期),
         # weight(权重)；
 
         df = pd.concat([pro.index_weight(index_code=symbol, trade_date=d.strftime('%Y%m%d'))
                         for d in periods])
-        df = df[['con_code','trade_date','weight']]
-        df = df.rename(columns={'trade_date': 'date','con_code': 'code'})
-        #df.drop(columns='display_name', inplace=True)
-
+        df = df[['con_code', 'trade_date', 'weight']]
+        df = df.rename(columns={'trade_date': 'date', 'con_code': 'code'})
+        # df.drop(columns='display_name', inplace=True)
         df.set_index('date', append=True, inplace=True)
         df = df.swaplevel()
         df['weight'] = df['weight'] / 100
-        return df
+        df = df.reset_index()
+        # 将'date'列转换为datetime类型
+        df['date'] = pd.to_datetime(df['date'], format='%Y%m%d')
+        # 设置日期的格式
+        df['date'] = df['date'].dt.strftime('%Y-%m-%d')
+        df = df.set_index(['date', 'code'])
+        return df[['weight']]
 
 
 def get_group(ser: pd.Series, N: int = 3, ascend: bool = True) -> pd.Series:
@@ -143,11 +148,8 @@ def stratified_sampling(symbol: str, START_DATE: str, END_DATE: str, factors: pd
     k1 = [pd.Grouper(level='date'),
           pd.Grouper(key='INDUSTRY_CODE')]
 
-    #factors_['GROUP'] = factors_.groupby(
-    #    k1)['market_cap'].apply(lambda x: get_group(x, 3))
-    GROUPS = factors_.groupby(
-         k1)['market_cap'].apply(lambda x: get_group(x, 3))
-    groups.index = groups.index.droplevel(0)
+    factors_['GROUP'] = factors_.groupby(
+        k1)['market_cap'].apply(lambda x: get_group(x, 3))
         # 获取每组得分最大的
     k2 = [pd.Grouper(level='date'),
           pd.Grouper(key='INDUSTRY_CODE'),
@@ -162,7 +164,10 @@ def stratified_sampling(symbol: str, START_DATE: str, END_DATE: str, factors: pd
     industry_kfold_stock.index.names = ['date', 'code']
 
     # 加入权重
-    industry_kfold_stock['weight'] = ind_weight['weight']
+    #industry_kfold_stock['weight'] = ind_weight['weight']
+    # 按照两个索引列合并20230714
+    industry_kfold_stock = industry_kfold_stock.merge(ind_weight['weight'], left_index=True, right_index=True)
+
 
     # 令权重加总为1
     industry_kfold_stock['w'] = industry_kfold_stock.groupby(
