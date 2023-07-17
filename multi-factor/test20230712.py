@@ -33,7 +33,7 @@ warnings.filterwarnings('ignore')
 setting = json.load(open('C://config//config.json'))
 # pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
 ts.set_token(setting['token'])
-pro = ts.pro_api()
+#pro = ts.pro_api()
 
 #暂时不从qlib获取数据
 #qlib.init()
