@@ -1,6 +1,6 @@
-# ÒıÈë±¾µØ¿â
+ï»¿# å¼•å…¥æœ¬åœ°åº“
 import sys
-sys.path.append("c://Users//huangtuo//Documents//GitHub//PairsTrading//multi-factor//¸ö¹É¶¯Á¿Ğ§Ó¦µÄÊ¶±ğ¼°Çò¶ÓÓ²±ÒÒò×Ó//")
+sys.path.append("c://Users//huangtuo//Documents//GitHub//PairsTrading//multi-factor//ä¸ªè‚¡åŠ¨é‡æ•ˆåº”çš„è¯†åˆ«åŠçƒé˜Ÿç¡¬å¸å› å­//")
 
 
 from typing import List, Tuple
