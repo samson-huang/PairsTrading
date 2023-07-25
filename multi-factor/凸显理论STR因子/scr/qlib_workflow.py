@@ -351,7 +351,8 @@ def run_model(
         # 训练
         #############
 
-        model.fit(dataset, save_path=save_path)
+        #model.fit(dataset, save_path=save_path)
+        model.fit(dataset)
 
         # 训练好的模型以pkl文件形式保存到本次实验运行记录目录下的artifacts子目录
         R.save_objects(**{trained_model: model})
@@ -398,7 +399,9 @@ def run_model(
                 "start_time": start_time,  # test集开始时间
                 "end_time": end_time,  # test集结束时间
                 "account": 100000000,
-                "benchmark": "000300.SH",  # 基准
+                #"benchmark": "000300.SH",  # 基准  20230719
+                "benchmark": "SH000300",  # 基准
+
                 "exchange_kwargs": {
                     "freq": "day",  # 使用日线数据
                     "limit_threshold": 0.095,  # 涨跌停板幅度

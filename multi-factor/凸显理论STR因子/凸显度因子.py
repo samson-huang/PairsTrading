@@ -1,5 +1,5 @@
-import sys
-sys.path.append('C://Users//huangtuo//Documents//GitHub//PairsTrading//fund_strategy//')
+ï»¿import sys
+sys.path.append('C://Users//huangtuo//Documents//GitHub//PairsTrading//multi-factor//å‡¸æ˜¾ç†è®ºSTRå› å­//')
 
 
 
@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import qlib
 from qlib.data import D
-from qlib.workflow import R  # ÊµÑé¼ÇÂ¼¹ÜÀíÆ÷
+from qlib.workflow import R  # å®éªŒè®°å½•ç®¡ç†å™¨
 # from qlib.workflow.record_temp import PortAnaRecord, SigAnaRecord, SignalRecord
 from qlib.data.dataset.loader import StaticDataLoader
 from qlib.data.dataset.handler import DataHandlerLP
@@ -25,32 +25,32 @@ from scr.plotting import model_performance_graph, report_graph
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# pltÖĞÎÄÏÔÊ¾
+# pltä¸­æ–‡æ˜¾ç¤º
 plt.rcParams["font.sans-serif"] = ["SimHei"]
-# pltÏÔÊ¾¸ººÅ
+# pltæ˜¾ç¤ºè´Ÿå·
 plt.rcParams["axes.unicode_minus"] = False
 
 qlib.init(provider_uri="C:/Users/huangtuo/qlib_bin/" ,region="cn")
 
-# Ê¹ÓÃD.featureÓëDataLoader,DataHandlerLP,DatasetH»ñÈ¡Êı¾İµÄÊı¾İMutiIndexË÷Òı²»Í¬
-# Ç°ÕßInstrument,datetimeºóÕßÊÇdatetime,Instrument
-POOLS: List = D.list_instruments(D.instruments("csi300"),as_list=True,start_time="2013-10-01", end_time="2023-06-26")
-pct_chg: pd.DataFrame = D.features(POOLS, fields=["$close/Ref($close,1)-1"],start_time="2013-10-01", end_time="2023-06-26")
+# ä½¿ç”¨D.featureä¸DataLoader,DataHandlerLP,DatasetHè·å–æ•°æ®çš„æ•°æ®MutiIndexç´¢å¼•ä¸åŒ
+# å‰è€…Instrument,datetimeåè€…æ˜¯datetime,Instrument
+POOLS: List = D.list_instruments(D.instruments("csi300"),as_list=True)
+pct_chg: pd.DataFrame = D.features(POOLS, fields=["$close/Ref($close,1)-1"])
 pct_chg: pd.DataFrame = pct_chg.unstack(level=0)["$close/Ref($close,1)-1"]
 	
-# Î´À´ÆÚÊÕÒæ
+# æœªæ¥æœŸæ”¶ç›Š
 next_ret: pd.DataFrame = D.features(POOLS, fields=["Ref($open,-2)/Ref($open,-1)-1"])
 next_ret.columns = ["next_ret"]
 next_ret: pd.DataFrame = next_ret.swaplevel()
 next_ret.sort_index(inplace=True)
 
-# »ù×¼
+# åŸºå‡†
 bench: pd.DataFrame = D.features(["SH000300"], fields=["$close/Ref($close,1)-1"])
 bench: pd.Series = bench.droplevel(level=0).iloc[:, 0]
 
-# ¼ÆËãw
+# è®¡ç®—w
 w: pd.DataFrame = pct_chg.pipe(calc_sigma).pipe(calc_weight)
-# ¼ÆËãstÒò×Ó
+# è®¡ç®—stå› å­
 STR: pd.DataFrame = w.rolling(20).cov(pct_chg)
 
 STR: pd.Series = STR.stack()
@@ -63,30 +63,30 @@ feature_df.columns = pd.MultiIndex.from_tuples(
 
 feature_df.head()
 
-#µ¥Òò×Ó·ÖÎöqlibµÄexample
+#å•å› å­åˆ†æqlibçš„example
 score_df:pd.DataFrame = feature_df.dropna().copy()
 score_df.columns = ['label','score']
 
 model_performance_graph(score_df)
 
-#×¢ÒâÁ¦Ë¥¼õ
-# ¼ÆËã»ñµÃ¾ª¿Ö¶È,×¼×¼ÊÕÒæÊ¹ÓÃµÄ»¦Éî300ÊÕÒæ
+#æ³¨æ„åŠ›è¡°å‡
+# è®¡ç®—è·å¾—æƒŠæåº¦,å‡†å‡†æ”¶ç›Šä½¿ç”¨çš„æ²ªæ·±300æ”¶ç›Š
 sigma: pd.DataFrame = pct_chg.pipe(calc_sigma, bench=bench)
-# ¼ÓÈ¨¾ö²ß·Ö
+# åŠ æƒå†³ç­–åˆ†
 weighted: pd.DataFrame = sigma.mul(pct_chg)
-# ¼ÓÈ¨¾ö²ß·Ö¾ùÖµ
+# åŠ æƒå†³ç­–åˆ†å‡å€¼
 avg_score: pd.DataFrame = weighted.rolling(20).mean()
 
 avg_score_ser: pd.Series = avg_score.stack()
 avg_score_ser.name = "avg_score"
 
-# ¼ÓÈ¨¾ö²ß·Ö±ê×¼²î
+# åŠ æƒå†³ç­–åˆ†æ ‡å‡†å·®
 std_score: pd.DataFrame = weighted.rolling(20).std()
 
 std_score_ser: pd.Series = std_score.stack()
 std_score_ser.name = "std_score"
 
-# µÈÈ¨ºÏ³É¾ª¿Ö¶ÈµÃ·Ö - ºóĞø¿ÉÒÔÓÃqlibµÄÄ£ĞÍºÏ³ÉÑ°ÕÒ×îÓÅ
+# ç­‰æƒåˆæˆæƒŠæåº¦å¾—åˆ† - åç»­å¯ä»¥ç”¨qlibçš„æ¨¡å‹åˆæˆå¯»æ‰¾æœ€ä¼˜
 terrified_score: pd.DataFrame = (avg_score + std_score) * 0.5
 
 terrified_score_ser: pd.Series = terrified_score.stack()
@@ -106,12 +106,12 @@ group_returns: pd.DataFrame = (terrified_df.pipe(pd.DataFrame.dropna)
 
 group_cum:pd.DataFrame = ep.cum_returns(group_returns)
 
-# »­Í¼
+# ç”»å›¾
 for factor_name, df in group_cum.groupby(level=0, axis=1):
     df.plot(title=factor_name, figsize=(12, 6))
     plt.axhline(0, ls="--", color="black")
     
-#Òò×Ó¸´ºÏ
+#å› å­å¤åˆ
 test_df:pd.DataFrame = terrified_df[['avg_score','std_score','next_ret']].copy()
 test_df.columns = pd.MultiIndex.from_tuples([("feature",'avg_score'),('feature','std_score'),('label',"next_ret")])
 

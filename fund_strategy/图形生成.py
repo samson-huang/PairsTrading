@@ -1,3 +1,4 @@
+﻿#-*- coding : utf-8-*-
 import sys
 sys.path.append("c://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//")
 from send_mail_tool import *
@@ -56,14 +57,13 @@ def mkdir(path):
 
 if __name__ == '__main__':
 
-   # list_sh     上证380   上证180       上证50      沪深300     科创50
-   list_sh = ( '000009.SH','000010.SH', '000016.SH', '000300.SH', '000688.SH',
-              # 中证1000     中证100   中证500	   中证800
-                 '000852.SH', '000903.SH', '000905.SH', '000906.SH')
-   # 深圳指数   深证成指    中小板指	   创业板指     深证100
-   list_sz = ('399001.SZ', '399005.SZ', '399006.SZ', '399330.SZ')
-
-   list_1 = list_sh + list_sz
+   # 黄金etf     中国互联网30 中概互联50    纳指100     标普500
+   list_etf = ('518880.SH', '159605.SZ', '513050.SH', '159941.SZ', '513500.SH')
+   # list_sh   上证50      沪深300     科创50
+   list_index = ('000016.SH', '000300.SH', '000688.SH',
+                 # 中证1000      中证500  创业板指
+                 '000852.SH', '000905.SH', '399006.SZ')
+   list_1 = list_index+list_etf
    #list_1 = ('000300.SH',)
    list_1 = list(list_1)
    local_datetime = datetime.datetime.now().strftime('%Y%m%d')
@@ -86,7 +86,7 @@ if __name__ == '__main__':
       data1.index = pd.to_datetime(data1.index)
       data1.sort_index(inplace=True)
       ###为了提前生成图形，生成t+1天模拟数据，跟T价格指数相同
-      data1.loc[data1.index[-1] + datetime.timedelta(days=1)] = data1.iloc[-1, :]+1
+      data1.loc[data1.index[-1] + datetime.timedelta(days=1)] = data1.iloc[-1, :]+data1.iloc[-1, :]*0.001
 
 
       #############图形判断###############
@@ -103,7 +103,7 @@ if __name__ == '__main__':
       ####################################
 
    ######################### 邮件发送#####################################
-   local_url_mail = 'C://temp//upload//'+ local_datetime + '_pattern_graph//' + local_datetime
-   recer = ["tianfangfang1105@126.com","huangtuo02@163.com", ]
-   send_fundmail=send_mail_tool(_recer=recer,local_url=local_url_mail).action_send()
+   #local_url_mail = 'C://temp//upload//'+ local_datetime + '_pattern_graph//' + local_datetime
+   #recer = ["tianfangfang1105@126.com","huangtuo02@163.com", ]
+   #send_fundmail=send_mail_tool(_recer=recer,local_url=local_url_mail).action_send()
 

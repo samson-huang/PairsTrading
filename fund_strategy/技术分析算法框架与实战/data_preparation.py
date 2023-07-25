@@ -1,8 +1,8 @@
-﻿#-*- coding : utf-8  -*-
-
+#-*- coding : gbk  -*-
+# coding:unicode_escape
 #coding=utf-8
 #coding=gbk
-
+#r = r.decode('utf-8', 'ignore')
 import datetime
 import json
 import os
@@ -69,19 +69,12 @@ class DataDownloader:
         #stk_set = DataReader.read_E_fund()
         #筛选特定几个数据
         #list_sh     上证380   上证180       上证50      沪深300     科创50
-        #list_sh =('000009.SH','000010.SH','000016.SH','000300.SH','000688.SH',
+        list_sh =('000009.SH','000010.SH','000016.SH','000300.SH','000688.SH',
                    # 中证1000     中证100   中证500	   中证800
-        #          '000852.SH','000903.SH','000905.SH','000906.SH')
-
-        # list_sh   上证50      沪深300     科创50
-        list_index =('000016.SH','000300.SH','000688.SH',
-                  # 中证1000      中证500  创业板指
-                  '000852.SH','000905.SH','399006.SZ')
+                  '000852.SH','000903.SH','000905.SH','000906.SH')
         #深圳指数   深证成指    中小板指	   创业板指     深证100
-        #list_sz =('399001.SZ','399005.SZ','399006.SZ','399330.SZ')
-                   #黄金etf     中国互联网30 中概互联50    纳指100     标普500     港股互联网ETF
-        list_etf =('518880.SH','159605.SZ','513050.SH','159941.SZ','513500.SH','510900.SH')
-        list_1 = list_index+list_etf
+        list_sz =('399001.SZ','399005.SZ','399006.SZ','399330.SZ')
+        list_1 = list_sh+list_sz
         list_1 = list(list_1)
         #stk_set = stk_set[stk_set[['ts_code']].apply(lambda x : x.str.contains('|'.join(list_1))).any(1)]
         ###########
@@ -259,15 +252,11 @@ class DataDownloader:
 
         try:
             # 偶尔会因为网络问题请求失败，报错重新请求
-            if ts_code in ('000016.SH','000300.SH','000688.SH', '000852.SH','000905.SH','399006.SZ'):
-                df = pro.index_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
-            if ts_code in ('518880.SH','159605.SZ','513050.SH','159941.SZ','513500.SH','510900.SH'):
-                df = pro.fund_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
+            df = pro.index_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
             m_ls.append(df)
         except:
-            #df = pro.index_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
-            #m_ls.append(df)
-            print(f'---------{ts_code}导出日期异常')
+            df = pro.index_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
+            m_ls.append(df)
 class DataWriter:
     @staticmethod
     def commonFunc(data_path, getFunc, cover, *args, **kwds):
