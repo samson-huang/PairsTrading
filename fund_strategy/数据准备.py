@@ -86,7 +86,9 @@ class DataDownloader:
         #stk_set = stk_set[stk_set[['ts_code']].apply(lambda x : x.str.contains('|'.join(list_1))).any(1)]
         ###########
         #stk_set = stk_set['ts_code'].to_list()
-        stk_set = list_1
+        with open('C://temp//upload//codefundsecname.json') as file:
+            code2secname = json.loads(file.read())
+        stk_set =  list(code2secname.keys())
         return sorted(list(stk_set))
 
 

@@ -21,13 +21,14 @@ _pwd = setting['qq']
 _recer=["tuo.huang@zdzq.com.cn","huangtuo02@163.com",]
 
 class send_mail_tool:
-    def __init__(self, _user=_user, _pwd=_pwd, _recer=_recer ,fund_code=None ,fund_name=None, local_url=None):
+    def __init__(self, _user=_user, _pwd=_pwd, _recer=_recer ,fund_code=None ,fund_name=None, local_url=None,name_list=None):
         self._user = _user
         self._pwd = _pwd
         self._recer = _recer
         self.fund_code = fund_code
         self.fund_name = fund_name
         self.local_url = local_url
+        self.name_list = name_list
 
     def action_send(self):
         """
@@ -51,9 +52,9 @@ class send_mail_tool:
         att1['Content-Disposition']='attachment;filename="message.gif"' #filename 填什么，邮件里边展示什么
         msg.attach(att1)
 
-        list_1 = np.load('C://temp//upload//index_list.npy')
-        list_1 = list_1.tolist()
-
+        #list_1 = np.load('C://temp//upload//index_list.npy')
+        #list_1 = list_1.tolist()
+        list_1 = self.name_list
         with open('C://temp//upload//codefundsecname.json') as file:
             code2secname = json.loads(file.read())
         for index_code in list_1:

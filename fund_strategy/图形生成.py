@@ -70,6 +70,7 @@ if __name__ == '__main__':
    mkdir('C://temp//upload//' + local_datetime + '_pattern_graph//')
    with open('C://temp//upload//codefundsecname.json') as file:
       code2secname = json.loads(file.read())
+      list_1=list(code2secname.keys())
    #########################生成图片#####################################
 
    for index_code in list_1:
@@ -103,7 +104,7 @@ if __name__ == '__main__':
       ####################################
 
    ######################### 邮件发送#####################################
-   #local_url_mail = 'C://temp//upload//'+ local_datetime + '_pattern_graph//' + local_datetime
-   #recer = ["tianfangfang1105@126.com","huangtuo02@163.com", ]
-   #send_fundmail=send_mail_tool(_recer=recer,local_url=local_url_mail).action_send()
+   local_url_mail = 'C://temp//upload//'+ local_datetime + '_pattern_graph//' + local_datetime
+   recer = ["tianfangfang1105@126.com","huangtuo02@163.com", ]
+   send_fundmail=send_mail_tool(_recer=recer,local_url=local_url_mail,name_list=list_1).action_send()
 
