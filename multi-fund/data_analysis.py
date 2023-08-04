@@ -29,10 +29,10 @@ benchmark = "000300.SH"
 # train model
 ###################################
 data_handler_config = {
-    "start_time": "2021-01-01",
-    "end_time": "2023-07-31",
-    "fit_start_time": "2021-01-01",
-    "fit_end_time": "2021-12-31",
+    "start_time": train_period[0],
+    "end_time": test_period[1],
+    "fit_start_time": train_period[0],
+    "fit_end_time": train_period[1],
     "instruments": market,
 }
 
@@ -62,13 +62,14 @@ task = {
                 "kwargs": data_handler_config,
             },
             "segments": {
-                "train": ("2021-01-01", "2021-12-31"),
-                "valid": ("2022-01-01", "2022-12-31"),
-                "test": ("2023-01-01", "2023-07-31"),
+                "train": train_period,
+                "valid": valid_period,
+                "test": test_period,
             },
         },
     },
 }
+
 
 # model initiaiton
 model = init_instance_by_config(task["model"])
@@ -104,8 +105,8 @@ port_analysis_config = {
         },
     },
     "backtest": {
-        "start_time": "2023-01-01",
-        "end_time": "2023-07-31",
+        "start_time": test_period[0],
+        "end_time": test_period[1],
         "account": 100000000,
         "benchmark": benchmark,
         "exchange_kwargs": {
