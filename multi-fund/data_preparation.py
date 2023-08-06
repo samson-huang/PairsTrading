@@ -6,7 +6,7 @@ import pickle
 import sys
 import warnings
 from multiprocessing import Manager, Pool
-
+import time
 import numpy as np
 import pandas as pd
 import tushare as ts
@@ -20,7 +20,7 @@ pro = ts.pro_api()
 
 
 stock_list = ['518880.SH'] #假设这里面都是港股股票
-start = '20210101'
+start = '20050101'
 end = '20230731'
 dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/csv'
 
@@ -30,7 +30,7 @@ with open('C://temp//upload//codefundsecname.json') as file:
 fields = ['ts_code', 'trade_date','open','high','low','close','pre_close','pct_chg','vol','amount']
 
 
-stk_set =  list(code2secname.keys())
+#stk_set =  list(code2secname.keys())
 
 def make_dataset(stock_pool:list, start:str, end:str):
     for index_code in stock_pool:
@@ -44,21 +44,37 @@ def make_dataset(stock_pool:list, start:str, end:str):
         df['factor']=1
         df['vwap'] = df['amount'] / df['vol']
         df = df.rename(columns={'pct_chg': 'change', 'vol': 'volume'})
-        file_name = dir_name + '/' + index_code + '.csv'
+        df['ts_code'] = df['ts_code'].apply(lambda x: x.split('.')[1] + x.split('.')[0])
+        #df['trade_date'] = df['trade_date'].astype('datetime64[ns]')
+        file_name = dir_name + '/' + index_code.split('.')[1] + index_code.split('.')[0] + '.csv'
         df.to_csv(file_name,header = True, index = False)
 make_dataset(stk_set, start, end)
 
 
+def make_fund_dataset(stock_pool:list, start:str, end:str):
+    for index_code in stock_pool:
+        df = pro.fund_daily(ts_code=index_code, start_date=start,end_date=end, fields=fields)
+        df['factor']=1
+        df['vwap'] = df['amount'] / df['vol']
+        df = df.rename(columns={'pct_chg': 'change', 'vol': 'volume'})
+        df['ts_code'] = df['ts_code'].apply(lambda x: x.split('.')[1] + x.split('.')[0])
+        #df['trade_date'] = df['trade_date'].astype('datetime64[ns]')
+        file_name = dir_name + '/' + index_code.split('.')[1] + index_code.split('.')[0] + '.csv'
+        df.to_csv(file_name,header = True, index = False)
+        time.sleep(0.2)#tushare每分钟500次取数
+
         #df['ts_code'] = df['ts_code'].apply(lambda x: x.split('.')[1] + x.split('.')[0])
         #file_name = dir_name + '/' + code.split('.')[1] + code.split('.')[0] + '.csv'
-
+fund_basic = pro.fund_basic(market='E')
+stk_set=list(df.loc[:, 'ts_code'])
+make_fund_dataset(stk_set, start, end)
 #全量替换数据
 C:\qlib-main\scripts
 python dump_bin.py dump_all --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name ts_code  --date_field_name trade_date  --include_fields open,high,low,close,pre_close,change,volume,amount,factor,vwap
 
 #增量更新数据
 
-python dump_bin.py dump_update --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name ts_code  --date_field_name trade_date  --include_fields open,high,low,close,pre_close,change,pct_chg,vol,amount
+python dump_bin.py dump_update --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name ts_code  --date_field_name trade_date  --include_fields open,high,low,close,pre_close,change,volume,amount,factor,vwap
 
 
 
