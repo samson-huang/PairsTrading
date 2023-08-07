@@ -11,19 +11,20 @@ from qlib.contrib.model.pytorch_alstm_ts import ALSTM
 from qlib.workflow import R
 from qlib.utils import flatten_dict
 from qlib.workflow.record_temp import SignalRecord, PortAnaRecord
+import pandas as pd
 provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
 qlib.init(provider_uri=provider_uri, region=REG_CN)
 
 
 # 配置数据
-train_period = ("2017-01-01", "2017-12-31")
-valid_period = ("2018-01-01", "2018-12-31")
-test_period = ("2019-01-01", "2019-07-31")
+train_period = ("2005-01-01", "2018-12-31")
+valid_period = ("2019-01-01", "2022-12-31")
+test_period = ("2023-01-01", "2023-08-04")
 
 
 
-market = "index"
-benchmark = "000300.SH"
+market = "all_fund"
+benchmark = "SH000300"
 
 ###################################
 # train model
@@ -62,9 +63,9 @@ task = {
                 "kwargs": data_handler_config,
             },
             "segments": {
-                "train": train_period,
-                "valid": valid_period,
-                "test": test_period,
+                "train": ("2005-01-01", "2018-12-31"),
+                "valid": ("2019-01-01", "2022-12-31"),
+                "test": ("2023-01-01", "2023-08-04"),
             },
         },
     },
@@ -100,8 +101,8 @@ port_analysis_config = {
         "kwargs": {
             "model": model,
             "dataset": dataset,
-            "topk": 3,
-            "n_drop": 1,
+            "topk": 10,
+            "n_drop": 5,
         },
     },
     "backtest": {
