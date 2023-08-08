@@ -1,7 +1,4 @@
-﻿#-*- coding : utf-8  -*-
-
-#coding=utf-8
-#coding=gbk
+﻿
 
 import datetime
 import json

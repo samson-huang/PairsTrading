@@ -11,19 +11,15 @@ from qlib.contrib.model.pytorch_alstm_ts import ALSTM
 from qlib.workflow import R
 from qlib.utils import flatten_dict
 from qlib.workflow.record_temp import SignalRecord, PortAnaRecord
-import pandas as pd
 provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
 qlib.init(provider_uri=provider_uri, region=REG_CN)
-
 
 # 配置数据
 train_period = ("2005-01-01", "2018-12-31")
 valid_period = ("2019-01-01", "2022-12-31")
 test_period = ("2023-01-01", "2023-08-04")
 
-
-
-market = "all_fund"
+market = "pond_fund"
 benchmark = "SH000300"
 
 ###################################
@@ -63,17 +59,16 @@ task = {
                 "kwargs": data_handler_config,
             },
             "segments": {
-                "train": ("2005-01-01", "2018-12-31"),
-                "valid": ("2019-01-01", "2022-12-31"),
-                "test": ("2023-01-01", "2023-08-04"),
+                "train": train_period,
+                "valid": valid_period,
+                "test": test_period,
             },
         },
     },
 }
-
-
 # model initiaiton
 model = init_instance_by_config(task["model"])
+
 dataset = init_instance_by_config(task["dataset"])
 
 # start exp to train model
@@ -102,12 +97,12 @@ port_analysis_config = {
             "model": model,
             "dataset": dataset,
             "topk": 10,
-            "n_drop": 5,
+            "n_drop": 2,
         },
     },
     "backtest": {
-        "start_time": test_period[0],
-        "end_time": test_period[1],
+        "start_time": "2023-01-01",
+        "end_time": "2023-08-04",
         "account": 100000000,
         "benchmark": benchmark,
         "exchange_kwargs": {
@@ -136,6 +131,8 @@ with R.start(experiment_name="backtest_analysis"):
     par = PortAnaRecord(recorder, port_analysis_config, "day")
     par.generate()
 
+
+
 from qlib.contrib.report import analysis_model, analysis_position
 from qlib.data import D
 
@@ -144,7 +141,6 @@ print(recorder)
 pred_df = recorder.load_object("pred.pkl")
 report_normal_df = recorder.load_object("portfolio_analysis/report_normal_1day.pkl")
 positions = recorder.load_object("portfolio_analysis/positions_normal_1day.pkl")
+analysis_df = recorder.load_object("portfolio_analysis/port_analysis_1day.pkl")
 
-
-
-
+analysis_position.report_graph(report_normal_df)
