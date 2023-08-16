@@ -23,7 +23,7 @@ test_period = ("2023-01-01", "2023-08-04")
 
 
 
-market = "all_fund"
+market = "filter_fund"
 benchmark = "SH000300"
 
 ###################################
@@ -145,6 +145,38 @@ pred_df = recorder.load_object("pred.pkl")
 report_normal_df = recorder.load_object("portfolio_analysis/report_normal_1day.pkl")
 positions = recorder.load_object("portfolio_analysis/positions_normal_1day.pkl")
 
+#analysis position
+#report
+analysis_position.report_graph(report_normal_df)
 
+#analysis model
+label_df = dataset.prepare("test", col_set="label")
+label_df.columns = ["label"]
+
+
+
+
+
+pred_label = pd.concat([label_df, pred_df], axis=1, sort=True).reindex(label_df.index)
+analysis_position.score_ic_graph(pred_label)
+
+#model performance
+analysis_model.model_performance_graph(pred_label)
+
+# 回测报告（净值，交易成本等）
+recorder.load_object('portfolio_analysis/report_normal_1day.pkl')
+
+#当我们看TopKDropout的源码时，我们发现TopKDropout是继承自BaseSignalStrategy。BaseSignalStrategy也是BaseStrategy的一个子类，
+# 它与BaseStrategy最大的区别是属性中增加了signal，signal就是某个时间对某个股票的预测，
+# 一般是机器学习模型在测试集上的预测结果。比如上面预测结果pred就是signal：
+df_signal = recorder.load_object('pred.pkl')
+df_signal.tail()
+df_signal.loc[['2023-08-04'], :].sort_values(by='score', ascending=False)
+
+# 准备训练数据
+dataset.prepare('train')
+
+# 准备测试数据
+dataset.prepare('test')
 
 
