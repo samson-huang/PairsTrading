@@ -15,15 +15,6 @@ import pandas as pd
 provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
 qlib.init(provider_uri=provider_uri, region=REG_CN)
 
-
-import numpy as np
-import scipy.stats as st
-import statsmodels.api as sm
-from scipy.optimize import minimize
-
-from tqdm import tqdm_notebook
-from dateutil.parser import parse
-
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -54,90 +45,49 @@ ma_names = ['change']
 qdl_ma = QlibDataLoader(config=(close_ma, ma_names))
 total_fund = qdl_ma.load(instruments=market, start_time='20190101', end_time='20211231')
 
+from qlib.data.dataset.processor import Fillna
+
+# 数据处理
+fillna_processor = Fillna()
+total_fund = fillna_processor(total_fund)
+
 df = total_fund.reset_index()
 df = df.set_index('datetime')
 df = df.pivot(columns='instrument', values='change')
+df = fillna_processor(df)
 
-#3.1缺失值处理
-# step1:构建缺失值处理函数
-def factors_null_process(data: pd.DataFrame) -> pd.DataFrame:
-    # 删除行业缺失值
-    data = data[data['INDUSTRY_CODE'].notnull()]
+# 绘制因子正交前的相关性的热力图
+fig = plt.figure(figsize=(26, 18))
+# 计算对称正交之前的相关系数矩阵
+relations = df.corr()
+sns.heatmap(relations, annot=True, linewidths=0.05,
+            linecolor='white', annot_kws={'size': 8, 'weight': 'bold'})
 
-    # 变化索引，以行业为第一索引，股票代码为第二索引
-    data_ = data.reset_index().set_index(
-        ['INDUSTRY_CODE', 'code']).sort_index()
-    # 用行业中位数填充
-    data_ = data_.groupby(level=0).apply(
-        lambda factor: factor.fillna(factor.median()))
+corr_df = df.corr()
+# 求每一列的和
+df_sum = corr_df.sum()
 
-    # 有些行业可能只有一两个个股却都为nan此时使用0值填充
-    data_ = data_.fillna(0)
-    # 将索引换回
-    data_ = data_.reset_index().set_index('code').sort_index()
-    return data_.drop('date', axis=1)
+# 对求和后的Series排序
+df_sorted = df_sum.sort_values(ascending=False)
 
-#3.2去极值
-# step2:构建绝对中位数处理法函数
-def extreme_process_MAD(data: pd.DataFrame, num: int = 3) -> pd.DataFrame:
-    ''' data为输入的数据集，如果数值超过num个判断标准则使其等于num个标准'''
+df_sorted_new = df_sorted.to_frame()
+df_sorted_new = df_sorted_new.reset_index()
+df_sorted_new = df_sorted_new.rename(columns={'instrument': 'ts_code',0: 'score'})
 
-    # 为不破坏原始数据，先对其进行拷贝
-    data_ = data.copy()
 
-    # 获取数据集中需测试的因子名
-    feature_names = [i for i in data_.columns.tolist() if i not in [
-        'INDUSTRY_CODE','market_cap']]
+fund_basic_e=pd.read_csv("d:\\data\\temp\\fund_basic_e.csv")
+fund_basic_e.drop(columns=['Unnamed: 0'], inplace=True)
+fund_basic_e['ts_code'] = fund_basic_e['ts_code'].apply(lambda x: x.split('.')[1] + x.split('.')[0])
+df_merge = pd.merge(df_sorted_new, fund_basic_e, on='ts_code')
 
-    # 获取中位数
-    median = data_[feature_names].median(axis=0)
-    # 按列索引匹配，并在行中广播
-    MAD = abs(data_[feature_names].sub(median, axis=1)
-              ).median(axis=0)
-    # 利用clip()函数，将因子取值限定在上下限范围内，即用上下限来代替异常值
-    data_.loc[:, feature_names] = data_.loc[:, feature_names].clip(
-        lower=median-num * 1.4826 * MAD, upper=median + num * 1.4826 * MAD, axis=1)
-    return data_
 
-#3.3标准化
-##step3:构建标准化处理函数
-def data_scale_Z_Score(data: pd.DataFrame) -> pd.DataFrame:
 
-    # 为不破坏原始数据，先对其进行拷贝
-    data_ = data.copy()
-    # 获取数据集中需测试的因子名
-    feature_names = [i for i in data_.columns.tolist() if i not in [
-        'INDUSTRY_CODE','market_cap']]
-    data_.loc[:, feature_names] = (
-        data_.loc[:, feature_names] - data_.loc[:, feature_names].mean()) / data_.loc[:, feature_names].std()
-    return data_
+#将相关系数矩阵换成名字显示
+# 构建一个映射词典
+mapping = dict(zip(fund_basic_e.ts_code, fund_basic_e.name))
 
-#3.4市值和行业中性化
-# step4:因子中性化处理函数
-def neutralization(data: pd.DataFrame) -> pd.DataFrame:
-    '''按市值、行业进行中性化处理 ps:处理后无行业市值信息'''
+# 使用map方法应用映射替换index
+corr_df.index = corr_df.index.map(mapping)
 
-    factor_name = [i for i in data.columns.tolist() if i not in [
-        'INDUSTRY_CODE', 'market_cap']]
-
-    # 回归取残差
-    def _calc_resid(x: pd.DataFrame, y: pd.Series) -> float:
-        result = sm.OLS(y, x).fit()
-
-        return result.resid
-
-    X = pd.get_dummies(data['INDUSTRY_CODE'])
-    # 总市值单位为亿元
-    X['market_cap'] = np.log(data['market_cap'] * 100000000)
-
-    df = pd.concat([_calc_resid(X.fillna(0), data[i])
-                    for i in factor_name], axis=1)
-
-    df.columns = factor_name
-
-    df['INDUSTRY_CODE'] = data['INDUSTRY_CODE']
-    df['market_cap'] = data['market_cap']
-
-    return df
-
-#
+# 使用map方法应用映射替换columns
+corr_df.columns = corr_df.columns.map(mapping)

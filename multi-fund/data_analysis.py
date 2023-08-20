@@ -2,12 +2,7 @@ import qlib
 from qlib.constant import REG_CN
 
 from qlib.utils import init_instance_by_config
-# 实现一个自定义的特征集，MACD、RSI
 
-from qlib.data.dataset.handler import DataHandlerLP
-from qlib.contrib.data.handler import Alpha158
-from qlib.data.dataset import TSDatasetH
-from qlib.contrib.model.pytorch_alstm_ts import ALSTM
 from qlib.workflow import R
 from qlib.utils import flatten_dict
 from qlib.workflow.record_temp import SignalRecord, PortAnaRecord
@@ -17,8 +12,8 @@ qlib.init(provider_uri=provider_uri, region=REG_CN)
 
 
 # 配置数据
-train_period = ("2005-01-01", "2018-12-31")
-valid_period = ("2019-01-01", "2022-12-31")
+train_period = ("2019-01-01", "2021-12-31")
+valid_period = ("2022-01-01", "2022-12-31")
 test_period = ("2023-01-01", "2023-08-04")
 
 
@@ -63,9 +58,9 @@ task = {
                 "kwargs": data_handler_config,
             },
             "segments": {
-                "train": ("2005-01-01", "2018-12-31"),
-                "valid": ("2019-01-01", "2022-12-31"),
-                "test": ("2023-01-01", "2023-08-04"),
+                "train": train_period,
+                "valid": valid_period,
+                "test": test_period,
             },
         },
     },
@@ -137,7 +132,6 @@ with R.start(experiment_name="backtest_analysis"):
     par.generate()
 
 from qlib.contrib.report import analysis_model, analysis_position
-from qlib.data import D
 
 recorder = R.get_recorder(recorder_id=ba_rid, experiment_name="backtest_analysis")
 print(recorder)

@@ -1,3 +1,10 @@
+import qlib
+from qlib.constant import REG_CN
+import pandas as pd
+provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
+qlib.init(provider_uri=provider_uri, region=REG_CN)
+from qlib.data import D
+
 instruments = D.instruments(market='all_fund')
 data = D.list_instruments(instruments=instruments)
 
