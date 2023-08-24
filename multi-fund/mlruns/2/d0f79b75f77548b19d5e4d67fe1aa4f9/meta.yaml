@@ -1,0 +1,15 @@
+artifact_uri: file:C:\Users\huangtuo\Documents\GitHub\PairsTrading\multi-fund\mlruns/2/d0f79b75f77548b19d5e4d67fe1aa4f9/artifacts
+end_time: 1692760116083
+entry_point_name: ''
+experiment_id: '2'
+lifecycle_stage: active
+run_id: d0f79b75f77548b19d5e4d67fe1aa4f9
+run_name: mlflow_recorder
+run_uuid: d0f79b75f77548b19d5e4d67fe1aa4f9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692760099194
+status: 3
+tags: []
+user_id: huangtuo

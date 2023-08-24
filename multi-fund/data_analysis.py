@@ -173,4 +173,41 @@ dataset.prepare('train')
 # 准备测试数据
 dataset.prepare('test')
 
+#使用Backtrader根据预测值回测
+import sys
+from qlib.data import D # 基础行情数据服务的对象
+sys.path.append("C:/Local_library/")
 
+def get_backtest_data(
+    pred_df: pd.DataFrame, start_time: str, end_time: str,market='market'):
+
+    # 定义股票池
+    stockpool: List = D.instruments(market=market)
+    # 获取test时段的行情原始数据
+    raw_data: pd.DataFrame = D.features(
+        stockpool,
+        fields=["$open", "$high", "$low", "$close", "$volume"],
+        start_time=start_time,
+        end_time=end_time,
+    )
+    raw_data: pd.DataFrame = raw_data.swaplevel().sort_index()
+    data: pd.DataFrame = pd.merge(
+        raw_data, pred_df, how="inner", left_index=True, right_index=True
+    ).sort_index()
+    data.columns = data.columns.str.replace("$", "", regex=False)
+    data: pd.DataFrame = data.reset_index(level=1).rename(
+        columns={"instrument": "code"}
+    )
+
+    benchmark: pd.DataFrame = D.features(
+        ["SH000300"],
+        fields=["$close"],
+        start_time=start_time,
+        end_time=end_time,
+    ).reset_index(level=0, drop=True)
+
+    return data, benchmark
+
+data,benchmark = get_backtest_data(pred_df,test_period[0],test_period[1],market = "20230820_fund")
+
+benchmark_ret:pd.Series = benchmark['$close'].pct_change()

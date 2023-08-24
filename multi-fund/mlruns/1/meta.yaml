@@ -1,0 +1,6 @@
+artifact_location: file:C:\Users\huangtuo\Documents\GitHub\PairsTrading\multi-fund\mlruns/1
+creation_time: 1692760080368
+experiment_id: '1'
+last_update_time: 1692760080368
+lifecycle_stage: active
+name: train_model

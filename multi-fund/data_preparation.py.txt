@@ -1,4 +1,4 @@
-
+﻿
 import datetime
 import json
 import os
@@ -22,7 +22,7 @@ pro = ts.pro_api()
 stock_list = ['518880.SH'] #假设这里面都是港股股票
 start = '20230807'
 end = '20230824'
-#dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/csv'
+dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/csv'
 dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/change_csv'
 
 with open('C://temp//upload//codefundsecname.json') as file:
@@ -43,7 +43,7 @@ def make_dataset(stock_pool:list, start:str, end:str):
         #df['trade_date'] = df['trade_date'].astype('datetime64[ns]')
         file_name = dir_name + '/' + index_code.split('.')[1] + index_code.split('.')[0] + '.csv'
         df.to_csv(file_name,header = True, index = False)
-#make_dataset(index, start, end)
+make_dataset(index, start, end)
 
 
 def make_fund_dataset(stock_pool:list, start:str, end:str):
@@ -65,6 +65,16 @@ stk_set=list(fund_basic.loc[:, 'ts_code'])
 make_fund_dataset(stk_set, start, end)
 
 '''
+#全量替换数据
+C:\qlib-main\scripts
+python dump_bin.py dump_all --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name ts_code  --date_field_name trade_date  --include_fields open,high,low,close,pre_close,change,volume,amount,factor,vwap
+
+#增量更新数据
+
+python dump_bin.py dump_update --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name ts_code  --date_field_name trade_date  --include_fields open,high,low,close,pre_close,change,volume,amount,factor,vwap
+
+
+
 from qlib.data import D
 instruments = D.instruments(market='test')
 data = D.list_instruments(instruments=instruments)

@@ -1,0 +1,8 @@
+#全量替换数据
+C:\qlib-main\scripts
+python dump_bin.py dump_all --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name ts_code  --date_field_name trade_date  --include_fields open,high,low,close,pre_close,change,volume,amount,factor,vwap
+
+#增量更新数据
+
+python dump_bin.py dump_update --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\change_csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name ts_code  --date_field_name trade_date  --include_fields open,high,low,close,pre_close,change,volume,amount,factor,vwap
+
