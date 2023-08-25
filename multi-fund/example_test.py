@@ -150,7 +150,7 @@ if __name__ == '__main__':
 
     #analysis position
     #report
-    analysis_position.report_graph(report_normal_df)
+    #analysis_position.report_graph(report_normal_df)
     #from qlib.contrib.strategy import TopkDropoutStrategy 写一个TopkDropoutStrategy的子类
     #使得交易策略没有的持仓100%,现金cash为0
-
+    report_normal.head()

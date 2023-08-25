@@ -36,8 +36,10 @@ if __name__ == '__main__':
     }
 
     strategy_obj = NewTopkDropoutStrategy(**STRATEGY_CONFIG)
+    account_obj = 1000000
     report_normal, positions_normal = backtest_daily(
-        start_time="2023-01-01", end_time="2023-08-04", strategy=strategy_obj
+        start_time="2023-01-01", end_time="2023-08-04", strategy=strategy_obj,
+        account=account_obj
     )
     analysis = dict()
     # default frequency will be daily (i.e. "day")
@@ -46,3 +48,7 @@ if __name__ == '__main__':
 
     analysis_df = pd.concat(analysis)  # type: pd.DataFrame
     pprint(analysis_df)
+
+    #df_signal = recorder.load_object('pred.pkl')
+    #df_signal.tail()
+    #df_signal.loc[['2023-01-03'], :].sort_values(by='score', ascending=False)
