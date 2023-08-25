@@ -52,3 +52,51 @@ ax2.legend(['Close', 'Score'])
 plt.tight_layout()
 plt.show()
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 创建图形
+fig = plt.figure(figsize=(16,8))
+
+# 在图形上创建2个子图
+ax1 = fig.add_subplot(211)
+ax2 = fig.add_subplot(212)
+# 绘制蜡烛图
+df = df.reset_index(level=0, drop=True)
+ax1.plot(df.index, df['Close'], color='g')
+plt.gca().get_yaxis().get_major_formatter().set_scientific(False)
+plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
+plt.title('SH512690 蜡烛图')
+plt.xticks(rotation=90)
+plt.grid(linestyle="--")
+
+for index, row in df.iterrows():
+    if row['Open'] > row['Close']:
+        plt.bar(index, row['High']-row['Low'], bottom=row['Close'], color='r')
+    else:
+        plt.bar(index, row['High']-row['Low'], bottom=row['Open'], color='g')
+
+
+scores = df_instrument[df_instrument['instrument'] == 'SH512690']['score'].tolist()
+
+# 在图中绘制score数据
+ax2.plot(df_instrument['datetime'], scores, color='r', linestyle='--', marker='o')
+# 设置图例
+ax2.legend(['Close', 'Score'])
+
+plt.tight_layout()
+plt.show()
+
