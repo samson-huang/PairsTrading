@@ -10,13 +10,13 @@ from qlib.contrib.evaluate import backtest_daily
 import pandas as pd
 provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
 qlib.init(provider_uri=provider_uri, region=REG_CN)
-import sys
-sys.path.append('C://Users//huangtuo//mlruns')
-
+#import sys
+#sys.path.append('C://Users//huangtuo//mlruns')
+from qlib.contrib.report import analysis_model, analysis_position
 # 配置数据
 train_period = ("2019-01-01", "2021-12-31")
 valid_period = ("2022-01-01", "2022-12-31")
-test_period = ("2023-01-01", "2023-08-04")
+test_period = ("2023-01-01", "2023-08-24")
 
 
 
@@ -103,12 +103,12 @@ if __name__ == '__main__':
                 "model": model,
                 "dataset": dataset,
                 "topk": 5,
-                "n_drop": 0,
+                "n_drop": 5,
             },
         },
         "backtest": {
             "start_time": "2023-01-01",
-            "end_time": "2023-08-04",
+            "end_time": "2023-08-24",
             "account": 100000,
             "benchmark": benchmark,
             "exchange_kwargs": {
@@ -150,6 +150,7 @@ if __name__ == '__main__':
 
     #analysis position
     #report
+
     #analysis_position.report_graph(report_normal_df)
     #from qlib.contrib.strategy import TopkDropoutStrategy 写一个TopkDropoutStrategy的子类
     #使得交易策略没有的持仓100%,现金cash为0
