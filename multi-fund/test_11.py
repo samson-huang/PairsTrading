@@ -55,3 +55,6 @@ if __name__ == '__main__':
 
     # 对每个datatime分组,排序取前5名
     top5 = pred_df.groupby(level=0)['score'].nlargest(5)
+    top5.to_csv("c:\\temp\\top5_20230829.csv")
+    top5_20230829 = pd.read_csv("c:\\temp\\top5_20230829.csv")
+    fund_basic_filter = pd.read_csv("c:\\temp\\fund_basic_filter.csv")

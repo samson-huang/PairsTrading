@@ -14,7 +14,7 @@ qlib.init(provider_uri=provider_uri, region=REG_CN)
 # 配置数据
 train_period = ("2019-01-01", "2021-12-31")
 valid_period = ("2022-01-01", "2022-12-31")
-test_period = ("2023-01-01", "2023-08-04")
+test_period = ("2023-01-01", "2023-08-24")
 
 
 
