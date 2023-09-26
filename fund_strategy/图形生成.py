@@ -58,14 +58,14 @@ def mkdir(path):
 if __name__ == '__main__':
 
    # 黄金etf     中国互联网30 中概互联50    纳指100     标普500
-   list_etf = ('518880.SH', '159605.SZ', '513050.SH', '159941.SZ', '513500.SH')
+   #list_etf = ('518880.SH', '159605.SZ', '513050.SH', '159941.SZ', '513500.SH')
    # list_sh   上证50      沪深300     科创50
-   list_index = ('000016.SH', '000300.SH', '000688.SH',
+   #list_index = ('000016.SH', '000300.SH', '000688.SH',
                  # 中证1000      中证500  创业板指
-                 '000852.SH', '000905.SH', '399006.SZ')
-   list_1 = list_index+list_etf
+   #              '000852.SH', '000905.SH', '399006.SZ')
+   #list_1 = list_index+list_etf
    #list_1 = ('000300.SH',)
-   list_1 = list(list_1)
+   #list_1 = list(list_1)
    local_datetime = datetime.datetime.now().strftime('%Y%m%d')
    mkdir('C://temp//upload//' + local_datetime + '_pattern_graph//')
    with open('C://temp//upload//codefundsecname.json') as file:

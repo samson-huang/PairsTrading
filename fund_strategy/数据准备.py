@@ -242,9 +242,11 @@ class DataDownloader:
 
         try:
             # 偶尔会因为网络问题请求失败，报错重新请求
-            if ts_code in ('000016.SH','000300.SH','000688.SH', '000852.SH','000905.SH','399006.SZ'):
+            #if ts_code in ('000016.SH','000300.SH','000688.SH', '000852.SH','000905.SH','399006.SZ'):
+            if ts_code[0] in ('0','3'):
                 df = pro.index_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
-            if ts_code in ('518880.SH','159605.SZ','513050.SH','159941.SZ','513500.SH','510900.SH'):
+            #if ts_code in ('518880.SH','159605.SZ','513050.SH','159941.SZ','513500.SH','510900.SH'):
+            if ts_code[0] in ('5', '1'):
                 df = pro.fund_daily(ts_code=ts_code, start_date=self.start_date, end_date=self.end_date)
             m_ls.append(df)
         except:
