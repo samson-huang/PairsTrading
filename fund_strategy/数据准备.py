@@ -37,7 +37,7 @@ def update_pickle(text, path):
 
 
 class DataDownloader:
-    def __init__(self, start_date='20050101', end_date=None):
+    def __init__(self, start_date='20230101', end_date=None):
         self.start_date = start_date
         self.end_date = end_date
         self.trade_dates = self.get_trade_dates()
