@@ -117,6 +117,12 @@ port_analysis_config = {
         },
     },
 }
+#################确定rid的值#################
+#rid
+
+# R.get_recorder().id
+#R.get_recorder(recorder_id=rid, experiment_name="train_model").id
+
 
 # backtest and analysis
 with R.start(experiment_name="backtest_analysis"):
@@ -262,22 +268,86 @@ pred_label_df = pd.concat([pred_df, label_df], axis=1, sort=True).reindex(label_
 pred_label_df.head()
 
 #查看IC及分组收益情况
-from scr.plotting import plot_qlib_factor_dist
+#from scr.plotting import plot_qlib_factor_dist
 
 #pip install C:\20231108\TA_Lib-0.4.24-cp39-cp39-win_amd64.whl
-plot_qlib_factor_dist(pred_label_df,no_raise=True)
+#plot_qlib_factor_dist(pred_label_df,no_raise=True)
 
 #需要先调用train_model.py生成模型
-with R.start():
-    recorder_158 = R.get_recorder(experiment_id='429618400927874750', recorder_id='be8bd353a9524bbb83d659e3b050bde7')
-    model_158 = recorder_158.load_object("trained_model")
+#with R.start():
+#    recorder_158 = R.get_recorder(experiment_id='429618400927874750', recorder_id='be8bd353a9524bbb83d659e3b050bde7')
+#    model_158 = recorder_158.load_object("trained_model")
+
+
+
+
+
+#cointeam_pred_df: pd.DataFrame = all_data.loc[
+#    TEST_PERIODS[0] : TEST_PERIODS[1], ["coin_team", "next_ret"]
+#].rename(columns={"coin_team": "score", "next_ret": "label"})
+
+#pred_label_df 为前面生成的图片
+from scr.plotting import model_performance_graph, report_graph
+
+
+report_normal_1day_df: pd.DataFrame = predict_recorder.load_object(
+    "portfolio_analysis/report_normal_1day.pkl")
+report_graph(report_normal_1day_df)
 
 
 #使用Backtrader根据预测值回测
-from hugos_toolkit.BackTestTemplate import StockSelectStrategy,get_backtesting,AddSignalData
-from hugos_toolkit.BackTestReport.tear import analysis_rets
-from hugos_toolkit.BackTestReport.tear import analysis_rets
-#使用Backtrader根据预测值回测
+sys.path.append("C:/Local_library/")
+from hugos_toolkit_old.BackTestTemplate import get_backtesting,AddSignalData
+from hugos_toolkit_old.BackTestReport.tear import analysis_rets
+
+from qlib.data import D
+
+def get_backtest_data(
+    pred_df: pd.DataFrame, start_time: str, end_time: str,market='market'
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+
+    # 定义股票池
+    stockpool: List = D.instruments(market=market)
+    # 获取test时段的行情原始数据
+    raw_data: pd.DataFrame = D.features(
+        stockpool,
+        fields=["$open", "$high", "$low", "$close", "$volume"],
+        start_time=start_time,
+        end_time=end_time,
+    )
+    raw_data: pd.DataFrame = raw_data.swaplevel().sort_index()
+    data: pd.DataFrame = pd.merge(
+        raw_data, pred_df, how="inner", left_index=True, right_index=True
+    ).sort_index()
+    data.columns = data.columns.str.replace("$", "", regex=False)
+    data: pd.DataFrame = data.reset_index(level=1).rename(
+        columns={"instrument": "code"}
+    )
+
+    benchmark: pd.DataFrame = D.features(
+        ["SH000300"],
+        fields=["$close"],
+        start_time=start_time,
+        end_time=end_time,
+    ).reset_index(level=0, drop=True)
+
+    return data, benchmark
+
+test_period = ("2023-01-01", "2023-08-24")
+market = "filter_fund"
+data,benchmark = get_backtest_data(pred_df,test_period[0],test_period[1],market=market)
+
+benchmark_ret:pd.Series = benchmark['$close'].pct_change()
+
+#自己实现StockSelectStrategy策略
+#from qlib.contrib.strategy.strategy import StockSelectStrategy
+bt_result = get_backtesting(
+    data,
+    strategy=Top5Strategy,
+    mulit_add_data=True,
+    feedsfunc=AddSignalData,
+    strategy_params={"selnum": 5, "pre": 0.05,'ascending':False,'show_log':False},
+)
 
 
 

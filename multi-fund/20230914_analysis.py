@@ -22,7 +22,7 @@ test_period = ("2023-01-01", "2023-08-24")
 
 
 market = "filter_fund"
-benchmark = "SH000300"
+benchmark = "SZ160706"
 
 dh = Alpha158(instruments='filter_fund',
               start_time=test_period[0],
@@ -314,5 +314,114 @@ dh.get_feature_config()
 
 '''
 test1=dh.fetch()
+#取dataframe的columns的个数
+print(len(test1.columns))
+#取dataframe第一列数据
+test1.iloc[:, 0:1]
+
+from qlib.data import D
+from typing import List, Tuple, Dict
+POOLS: List = D.list_instruments(D.instruments(market), as_list=True)
 
 
+
+
+# 基准
+bench: pd.DataFrame = D.features(["SZ160706"], fields=["$close/Ref($close,1)-1"],start_time=test_period[0], end_time=test_period[1])
+bench: pd.Series = bench.droplevel(level=0).iloc[:, 0]
+
+#以KLEN参数为例子进行测算。
+KLEN = test1.iloc[:, 1]
+
+feature_df: pd.DataFrame = pd.concat((next_ret, KLEN), axis=1)
+feature_df.columns = pd.MultiIndex.from_tuples(
+    [("label", "next_ret"), ("feature", "KLEN")]
+)
+
+score_df:pd.DataFrame = feature_df.dropna().copy()
+score_df.columns = ['label','score']
+
+#-*- coding : utf-8-*-
+import sys
+sys.path.append("C://Users//huangtuo//QuantsPlaybook-master//B-因子构建类//凸显理论STR因子//")
+from scr.core import calc_sigma, calc_weight
+from scr.factor_analyze import clean_factor_data, get_factor_group_returns
+from scr.qlib_workflow import run_model
+from scr.plotting import model_performance_graph, report_graph
+model_performance_graph(score_df)
+
+def _get_score_ic_test(pred_label: pd.DataFrame):
+    """
+
+    :param pred_label:
+    :return:
+    """
+    concat_data = pred_label.copy()
+    concat_data.dropna(axis=0, how="any", inplace=True)
+    _ic = concat_data.groupby(level=['datetime']).apply(
+        lambda x: x["label"].corr(x["score"])
+    )
+    #_rank_ic = concat_data.groupby(level=['datetime']).apply(
+    #    lambda x: x["label"].corr(x["score"], method="spearman")
+    #)
+    #return pd.DataFrame({"ic": _ic, "rank_ic": _rank_ic})
+    return pd.DataFrame({"ic": _ic})
+get_score_ic=_get_score_ic_test(score_df)
+
+get_score_ic.head()
+
+
+
+#取dataframe的columns的个数
+columns_counts=len(fetch_factor.columns)
+
+for i in range(columns_counts-1):
+    # 以KLEN参数为例子进行测算。
+    fetch_factor_one = fetch_factor.iloc[:, i]
+    #取columns的名称
+    columns_names=fetch_factor.columns[i]
+    feature_df: pd.DataFrame = pd.concat((next_ret, fetch_factor_one), axis=1)
+    feature_df.columns = pd.MultiIndex.from_tuples(
+        [("label", "next_ret"), ("feature", columns_names)]
+    )
+
+    score_df: pd.DataFrame = feature_df.dropna().copy()
+    score_df.columns = ['label', 'score']
+    get_score_ic = _get_score_ic_test(score_df)
+    print(i)
+
+# 未来期收益
+next_ret: pd.DataFrame = D.features(POOLS, fields=["Ref($open,-2)/Ref($open,-1)-1"],start_time=test_period[0], end_time=test_period[1], freq='day')
+next_ret.columns = ["next_ret"]
+next_ret: pd.DataFrame = next_ret.swaplevel()
+next_ret.sort_index(inplace=True)
+
+fetch_factor=dh.fetch()
+def _get_score_ic_frame(fetch_factor: pd.DataFrame):
+    columns_counts = len(fetch_factor.columns)
+    # 取df第一个索引层级的'datetime'值
+    dates = bench.index.get_level_values(0)
+    # 新建df
+    score_ic_frame = pd.DataFrame(index=[])
+    # 赋值给df的索引
+    score_ic_frame.index = dates
+    for i in range(columns_counts - 1):
+        # 以KLEN参数为例子进行测算。
+        fetch_factor_one = fetch_factor.iloc[:, i]
+        # 取columns的名称
+        columns_names = fetch_factor.columns[i]
+        feature_df: pd.DataFrame = pd.concat((next_ret, fetch_factor_one), axis=1)
+        feature_df.columns = pd.MultiIndex.from_tuples(
+            [("label", "next_ret"), ("feature", columns_names)]
+        )
+
+        score_df: pd.DataFrame = feature_df.dropna().copy()
+        score_df.columns = ['label', 'score']
+        get_score_ic = _get_score_ic_test(score_df)
+        # 替换单个列名
+        get_score_ic = get_score_ic.rename(columns={'ic': columns_names})
+        score_ic_frame = pd.concat([score_ic_frame, get_score_ic], axis=1)
+    return score_ic_frame
+
+test2: pd.DataFrame = _get_score_ic_frame(fetch_factor)
+test2
