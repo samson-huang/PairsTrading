@@ -333,6 +333,12 @@ bench: pd.Series = bench.droplevel(level=0).iloc[:, 0]
 #以KLEN参数为例子进行测算。
 KLEN = test1.iloc[:, 1]
 
+# 未来期收益
+next_ret: pd.DataFrame = D.features(POOLS, fields=["Ref($open,-2)/Ref($open,-1)-1"],start_time=test_period[0], end_time=test_period[1], freq='day')
+next_ret.columns = ["next_ret"]
+next_ret: pd.DataFrame = next_ret.swaplevel()
+next_ret.sort_index(inplace=True)
+
 feature_df: pd.DataFrame = pd.concat((next_ret, KLEN), axis=1)
 feature_df.columns = pd.MultiIndex.from_tuples(
     [("label", "next_ret"), ("feature", "KLEN")]
