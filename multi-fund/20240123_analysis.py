@@ -32,20 +32,36 @@ dh = Alpha158(instruments='filter_fund',
 
 print(dh.get_cols())
 '''
-['KMID', 'KLEN', 'KMID2', 'KUP', 'KUP2', 'KLOW', 'KLOW2', 'KSFT', 'KSFT2', 'OPEN0', 'HIGH0', 'LOW0', 
- 'VWAP0', 'ROC5', 'ROC10', 'ROC20', 'ROC30', 'ROC60', 'MA5', 'MA10', 'MA20', 'MA30', 'MA60', 'STD5', 
- 'STD10', 'STD20', 'STD30', 'STD60', 'BETA5', 'BETA10', 'BETA20', 'BETA30', 'BETA60', 'RSQR5', 'RSQR10', 
- 'RSQR20', 'RSQR30', 'RSQR60', 'RESI5', 'RESI10', 'RESI20', 'RESI30', 'RESI60', 'MAX5', 'MAX10', 'MAX20', 
- 'MAX30', 'MAX60', 'MIN5', 'MIN10', 'MIN20', 'MIN30', 'MIN60', 'QTLU5', 'QTLU10', 'QTLU20', 'QTLU30', 'QTLU60', 
- 'QTLD5', 'QTLD10', 'QTLD20', 'QTLD30', 'QTLD60', 'RANK5', 'RANK10', 'RANK20', 'RANK30', 'RANK60', 'RSV5', 'RSV10', 
- 'RSV20', 'RSV30', 'RSV60', 'IMAX5', 'IMAX10', 'IMAX20', 'IMAX30', 'IMAX60', 'IMIN5', 'IMIN10', 'IMIN20', 'IMIN30', 
- 'IMIN60', 'IMXD5', 'IMXD10', 'IMXD20', 'IMXD30', 'IMXD60', 'CORR5', 'CORR10', 'CORR20', 'CORR30', 'CORR60', 'CORD5', 
- 'CORD10', 'CORD20', 'CORD30', 'CORD60', 'CNTP5', 'CNTP10', 'CNTP20', 'CNTP30', 'CNTP60', 'CNTN5', 'CNTN10', 'CNTN20', 
- 'CNTN30', 'CNTN60', 'CNTD5', 'CNTD10', 'CNTD20', 'CNTD30', 'CNTD60', 'SUMP5', 'SUMP10', 'SUMP20', 'SUMP30', 'SUMP60', 
- 'SUMN5', 'SUMN10', 'SUMN20', 'SUMN30', 'SUMN60', 'SUMD5', 'SUMD10', 'SUMD20', 'SUMD30', 'SUMD60', 'VMA5', 'VMA10', 
- 'VMA20', 'VMA30', 'VMA60', 'VSTD5', 'VSTD10', 'VSTD20', 'VSTD30', 'VSTD60', 'WVMA5', 'WVMA10', 'WVMA20', 'WVMA30', 
- 'WVMA60', 'VSUMP5', 'VSUMP10', 'VSUMP20', 'VSUMP30', 'VSUMP60', 'VSUMN5', 'VSUMN10', 'VSUMN20', 'VSUMN30', 'VSUMN60', 
- 'VSUMD5', 'VSUMD10', 'VSUMD20', 'VSUMD30', 'VSUMD60', 'LABEL0']
+['KMID', 'KLEN', 'KMID2', 'KUP', 'KUP2', 'KLOW', 'KLOW2', 'KSFT', 'KSFT2', 'OPEN0', 'HIGH0', 'LOW0', 'VWAP0', 
+'ROC5', 'ROC10', 'ROC20', 'ROC30', 'ROC60',
+'MA5', 'MA10', 'MA20', 'MA30', 'MA60', 
+'STD5', 'STD10', 'STD20', 'STD30', 'STD60', 
+'BETA5', 'BETA10', 'BETA20', 'BETA30', 'BETA60',
+'RSQR5', 'RSQR10', 'RSQR20', 'RSQR30', 'RSQR60',
+'RESI5', 'RESI10', 'RESI20', 'RESI30', 'RESI60',
+'MAX5', 'MAX10', 'MAX20', 'MAX30', 'MAX60',
+'MIN5', 'MIN10', 'MIN20', 'MIN30', 'MIN60', 
+'QTLU5', 'QTLU10', 'QTLU20', 'QTLU30', 'QTLU60', 
+'QTLD5', 'QTLD10', 'QTLD20', 'QTLD30', 'QTLD60', 
+'RANK5', 'RANK10', 'RANK20', 'RANK30', 'RANK60', 
+'RSV5', 'RSV10', 'RSV20', 'RSV30', 'RSV60', 
+'IMAX5', 'IMAX10', 'IMAX20', 'IMAX30', 'IMAX60', 
+'IMIN5', 'IMIN10', 'IMIN20', 'IMIN30', 'IMIN60', 
+'IMXD5', 'IMXD10', 'IMXD20', 'IMXD30', 'IMXD60', 
+'CORR5', 'CORR10', 'CORR20', 'CORR30', 'CORR60', 
+'CORD5', 'CORD10', 'CORD20', 'CORD30', 'CORD60', 
+'CNTP5', 'CNTP10', 'CNTP20', 'CNTP30', 'CNTP60', 
+'CNTN5', 'CNTN10', 'CNTN20', 'CNTN30', 'CNTN60', 
+'CNTD5', 'CNTD10', 'CNTD20', 'CNTD30', 'CNTD60', 
+'SUMP5', 'SUMP10', 'SUMP20', 'SUMP30', 'SUMP60', 
+'SUMN5', 'SUMN10', 'SUMN20', 'SUMN30', 'SUMN60', 
+'SUMD5', 'SUMD10', 'SUMD20', 'SUMD30', 'SUMD60', 
+'VMA5', 'VMA10', 'VMA20', 'VMA30', 'VMA60', 
+'VSTD5', 'VSTD10', 'VSTD20', 'VSTD30', 'VSTD60', 
+'WVMA5', 'WVMA10', 'WVMA20', 'WVMA30', 'WVMA60', 
+'VSUMP5', 'VSUMP10', 'VSUMP20', 'VSUMP30', 'VSUMP60', 
+'VSUMN5', 'VSUMN10', 'VSUMN20', 'VSUMN30', 'VSUMN60', 
+'VSUMD5', 'VSUMD10', 'VSUMD20', 'VSUMD30', 'VSUMD60', 'LABEL0']
  '''
 dh.get_feature_config()
 '''['($close-$open)/$open','($high-$low)/$open','($close-$open)/($high-$low+1e-12)','($high-Greater($open, $close))/$open',
@@ -333,8 +349,8 @@ bench: pd.Series = bench.droplevel(level=0).iloc[:, 0]
 #以KLEN参数为例子进行测算。
 KLEN = test1.iloc[:, 1]
 
-# 未来期收益
-next_ret: pd.DataFrame = D.features(POOLS, fields=["Ref($open,-2)/Ref($open,-1)-1"],start_time=test_period[0], end_time=test_period[1], freq='day')
+# 未来期T+1日收益
+next_ret: pd.DataFrame = D.features(POOLS, fields=["Ref($close,-1)/$close-1"],start_time=test_period[0], end_time=test_period[1], freq='day')
 next_ret.columns = ["next_ret"]
 next_ret: pd.DataFrame = next_ret.swaplevel()
 next_ret.sort_index(inplace=True)
@@ -431,3 +447,68 @@ def _get_score_ic_frame(fetch_factor: pd.DataFrame):
 
 test2: pd.DataFrame = _get_score_ic_frame(fetch_factor)
 test2
+
+#查看某一天的数据，并排序
+dates = ['2023-01-03']
+df_0301 = test2.loc[dates]
+
+# 选取2023-01-03数据
+
+columns = df_0301.columns
+
+# 获取所有列名
+
+sorted_columns = sorted(columns, key=lambda x: min(df_0301[x]),reverse=True)
+
+# 根据列最小值排序列名
+
+df_sorted = df_0301[sorted_columns]
+
+# 使用DataFrame模式显示排序结果
+
+df_sorted
+
+# 所有绩效指标
+print("list_metrics", predict_recorder.list_metrics())
+# IC均值：每日IC的均值，一般认为|IC|>0.03说明因子有效，注意 -0.05也认为有预测效能，说明负相关显著
+print("IC", predict_recorder.list_metrics()["IC"])
+# IC信息率：平均IC/每日IC标准差,也就是方差标准化后的ic均值，一般而言，认为|ICIR|>0.6,因子的稳定性合格
+print("ICIR", predict_recorder.list_metrics()["ICIR"])
+# 排序IC均值，作用类似IC
+print("Rank IC", predict_recorder.list_metrics()["Rank IC"])
+# 排序IC信息率，作用类似ICIR# 此图用于评价因子单调性，组1是因子值最高的一组，组5是因子值最低的一组。
+print("Rank ICIR", predict_recorder.list_metrics()["Rank ICIR"])
+
+
+#探索某日单个指标的IC值排名最高的BETA60对于选股的影响
+dates = ['2023-01-03']
+df_0301 = test2.loc[dates]
+# 选取2023-01-03数据
+columns = df_0301.columns
+# 获取所有列名
+sorted_columns = sorted(columns, key=lambda x: min(df_0301[x]),reverse=True)
+# 根据列最小值排序列名
+df_sorted = df_0301[sorted_columns]
+# 使用DataFrame模式显示排序结果
+df_sorted
+
+#获取BETA60为IC值最高的因子，然后进行比较
+col_name = 'BETA60'
+BETA60 = test1.loc[:, col_name]
+
+feature_df: pd.DataFrame = pd.concat((next_ret, BETA60), axis=1)
+feature_df.columns = pd.MultiIndex.from_tuples(
+    [("label", "next_ret"), ("feature", "BETA60")]
+)
+
+feature_df.head()
+
+test2:pd.DataFrame = pd.concat((next_ret, BETA60), axis=1)
+#取20230103日，BETA60值前10的值
+rows = test2.loc['2023-01-03'].nlargest(10, 'BETA60')
+#取20230103日，next_ret值前10的值
+rows_ret = test2.loc['2023-01-03'].nlargest(10, 'next_ret')
+
+
+
+
