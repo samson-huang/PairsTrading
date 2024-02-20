@@ -71,6 +71,24 @@ model_performance_graph(score_df)
 
 #生成单日每个因子的IC数值
 fetch_factor=dh.fetch()
+
+def _get_score_ic_test(pred_label: pd.DataFrame):
+    """
+
+    :param pred_label:
+    :return:
+    """
+    concat_data = pred_label.copy()
+    concat_data.dropna(axis=0, how="any", inplace=True)
+    _ic = concat_data.groupby(level=['datetime']).apply(
+        lambda x: x["label"].corr(x["score"])
+    )
+    #_rank_ic = concat_data.groupby(level=['datetime']).apply(
+    #    lambda x: x["label"].corr(x["score"], method="spearman")
+    #)
+    #return pd.DataFrame({"ic": _ic, "rank_ic": _rank_ic})
+    return pd.DataFrame({"ic": _ic})
+
 def _get_score_ic_frame(fetch_factor: pd.DataFrame):
     columns_counts = len(fetch_factor.columns)
     # 取df第一个索引层级的'datetime'值
@@ -101,22 +119,24 @@ test2: pd.DataFrame = _get_score_ic_frame(fetch_factor)
 
 
 #按某日所有因子的IC值排序
-def sort_by_icol(df, date):
-    df_date = df.loc[date]
+dates = ['2023-01-03']
+df_0301 = test2.loc[dates]
 
-    columns = df_date.columns
+# 选取2023-01-03数据
 
-    sorted_columns = sorted(columns, key=lambda x: min(df_date[x]), reverse=True)
+columns = df_0301.columns
 
-    df_sorted = df_date[sorted_columns]
+# 获取所有列名
 
-    return df_sorted
+sorted_columns = sorted(columns, key=lambda x: min(df_0301[x]),reverse=True)
+
+# 根据列最小值排序列名
+
+df_sorted = df_0301[sorted_columns]
 
 # 使用DataFrame模式显示排序结果
 
-dates = ['2023-01-03']
-df_0301 = test2.loc[dates]
-df_sorted = sort_by_icol(df_0301, dates[0])
+df_sorted
 
 #查看单个因子BETA60的排名，及next_ret的排名
 BETA60_ret:pd.DataFrame = pd.concat((next_ret, BETA60), axis=1)
@@ -173,7 +193,7 @@ top_10_1ast_10_ret.nlargest(5, 'next_ret')
 
 ############################backtrader数据准备#############################################
 def get_backtest_data(
-    pred_df: pd.DataFrame, start_time: str, end_time: str,market='market',benchmark:str
+    pred_df: pd.DataFrame, start_time: str, end_time: str,market='market',benchmark_old='all_fund'
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     # 定义股票池
@@ -195,7 +215,7 @@ def get_backtest_data(
     )
 
     benchmark: pd.DataFrame = D.features(
-        [benchmark],
+        [benchmark_old],
         fields=["$close"],
         start_time=start_time,
         end_time=end_time,
@@ -206,9 +226,24 @@ def get_backtest_data(
 
 data,benchmark = get_backtest_data(top_10_1ast_10_ret[['score']],test_period[0],test_period[1],market)
 benchmark_ret:pd.Series = benchmark['$close'].pct_change()
+
+
+# 排名按日期分组生成rank列
+def rank_by_date(data):
+    # 复制一个工作 DataFrame
+    df = data.copy()
+
+    # 分组并对score列排名
+    df = df.sort_values(['datetime', 'score'], ascending=[True, False])
+    df['rank'] = df.groupby('datetime')['score'].rank(method='dense')
+
+    return df
+
 ##################调用改写的backtrader回测函数##########################
 #导入hugos_toolkit库需要指定目录
-from hugos_toolkit.BackTestTemplate import StockSelectStrategy,get_backtesting,AddSignalData
+import sys
+sys.path.append('C://Local_library')
+from hugos_toolkit.BackTestTemplate import TopicStrategy,get_backtesting,AddSignalData
 from hugos_toolkit.BackTestReport.tear import analysis_rets
 bt_result = get_backtesting(
     data,
@@ -217,3 +252,10 @@ bt_result = get_backtesting(
     feedsfunc=AddSignalData,
     strategy_params={"selnum": 5, "pre": 0.05,'ascending':False,'show_log':False},
 )
+
+##############重新SignalStrategy函数##########
+###self.signal = self.data.score  score数字改为排名
+#修改next函数 直接判断self.signal[0]是否在排名前10的待选股票里
+
+#self.signal[0] <= self.params.close_threshold
+#and self.signal[-1] <= self.params.close_threshold
