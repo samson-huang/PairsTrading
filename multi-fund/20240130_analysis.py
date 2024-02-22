@@ -1,11 +1,5 @@
 import qlib
 from qlib.constant import REG_CN
-
-from qlib.utils import init_instance_by_config
-
-from qlib.workflow import R
-from qlib.utils import flatten_dict
-from qlib.workflow.record_temp import SignalRecord, PortAnaRecord,SigAnaRecord
 import pandas as pd
 provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
 qlib.init(provider_uri=provider_uri, region=REG_CN)
@@ -67,8 +61,6 @@ from scr.plotting import model_performance_graph, report_graph
 #生成因子分析图
 model_performance_graph(score_df)
 
-
-
 #生成单日每个因子的IC数值
 fetch_factor=dh.fetch()
 
@@ -117,13 +109,11 @@ def _get_score_ic_frame(fetch_factor: pd.DataFrame):
 
 test2: pd.DataFrame = _get_score_ic_frame(fetch_factor)
 
-
 #按某日所有因子的IC值排序
 dates = ['2023-01-03']
 df_0301 = test2.loc[dates]
 
 # 选取2023-01-03数据
-
 columns = df_0301.columns
 
 # 获取所有列名
@@ -215,7 +205,7 @@ def get_backtest_data(
     )
 
     benchmark: pd.DataFrame = D.features(
-        [benchmark_old],
+        benchmark_old,
         fields=["$close"],
         start_time=start_time,
         end_time=end_time,
@@ -226,7 +216,6 @@ def get_backtest_data(
 
 data,benchmark = get_backtest_data(top_10_1ast_10_ret[['score']],test_period[0],test_period[1],market)
 benchmark_ret:pd.Series = benchmark['$close'].pct_change()
-
 
 # 排名按日期分组生成rank列
 def rank_by_date(data):
@@ -239,23 +228,71 @@ def rank_by_date(data):
 
     return df
 
+
+# 排名
+ranked_data = rank_by_date(data)
+
+ranked_data.head()
+#ranked_data.to_csv("c:\\temp\\ranked_data_20240221.csv")
+#ranked_data = pd.read_csv('c:\\temp\\ranked_data_20240221.csv', index_col=0)
 ##################调用改写的backtrader回测函数##########################
 #导入hugos_toolkit库需要指定目录
 import sys
 sys.path.append('C://Local_library')
 from hugos_toolkit.BackTestTemplate import TopicStrategy,get_backtesting,AddSignalData
 from hugos_toolkit.BackTestReport.tear import analysis_rets
-bt_result = get_backtesting(
-    data,
-    strategy=StockSelectStrategy,
-    mulit_add_data=True,
-    feedsfunc=AddSignalData,
-    strategy_params={"selnum": 5, "pre": 0.05,'ascending':False,'show_log':False},
-)
-
 ##############重新SignalStrategy函数##########
 ###self.signal = self.data.score  score数字改为排名
 #修改next函数 直接判断self.signal[0]是否在排名前10的待选股票里
 
 #self.signal[0] <= self.params.close_threshold
 #and self.signal[-1] <= self.params.close_threshold
+bt_result = get_backtesting(
+    ranked_data,
+    strategy=TopicStrategy,
+    mulit_add_data=True,
+    feedsfunc=AddSignalData,
+    strategy_params={"selnum": 5, "pre": 0.05,'ascending':False,'show_log':False},
+)
+
+
+
+
+######################所有因子数据###############################
+#按因子IC值*因子实际值生成一个数据
+fetch_factor_exp = fetch_factor
+
+#fetch_factor_exp = fetch_factor_exp.apply(lambda x: x * 100, axis=1)
+test20240130_1=fetch_factor_exp*test2
+test20240130_1 = test20240130_1.abs()
+totel_exp=test20240130_1.agg('sum', axis=1)
+
+totel_exp = totel_exp.to_frame()
+totel_exp.columns = ['score']
+
+benchmark_old = ["SZ160706"]
+data,benchmark = get_backtest_data(totel_exp,test_period[0],test_period[1],market,benchmark_old)
+benchmark_ret:pd.Series = benchmark['$close'].pct_change()
+
+ranked_data = rank_by_date(data)
+
+bt_result = get_backtesting(
+    ranked_data,
+    strategy=TopicStrategy,
+    mulit_add_data=True,
+    feedsfunc=AddSignalData,
+    strategy_params={"selnum": 5, "pre": 0.05,'ascending':False,'show_log':False},
+)
+
+algorithm_returns: pd.Series = pd.Series(
+    bt_result.result[0].analyzers._TimeReturn.get_analysis()
+)
+
+report = analysis_rets(algorithm_returns,bt_result.result,benchmark['$close'].pct_change(),use_widgets=True)
+
+from plotly.offline import iplot
+from plotly.offline import init_notebook_mode
+init_notebook_mode()
+for chart in report:
+    iplot(chart)
+
