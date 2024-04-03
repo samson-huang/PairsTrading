@@ -233,8 +233,12 @@ def rank_by_date(data):
 ranked_data = rank_by_date(data)
 
 ranked_data.head()
-#ranked_data.to_csv("c:\\temp\\ranked_data_20240221.csv")
+
+########保存ranked_data数据后可以不用运行上面代码方便调试##################
+#from datetime import datetime
+#ranked_data.to_csv("c:\\temp\\ranked_data_20240221.csv", index=True)
 #ranked_data = pd.read_csv('c:\\temp\\ranked_data_20240221.csv', index_col=0)
+#ranked_data = pd.read_csv('c:\\temp\\ranked_data_all.csv', parse_dates=['datetime'], index_col='datetime')
 ##################调用改写的backtrader回测函数##########################
 #导入hugos_toolkit库需要指定目录
 import sys

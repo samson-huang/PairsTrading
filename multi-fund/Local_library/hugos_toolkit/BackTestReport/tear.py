@@ -230,63 +230,10 @@ def analysis_trade(
     return report(trade_report, pnl_chart, orders_chart, position_chart)
 
 
-# def analysis_rets(price: pd.Series, result: List) -> List:
-#     """净值表现情况
-
-#     Args:
-#         price (pd.Series): idnex-date values
-#         result (List): 回测结果
-#     """
-#     ret: pd.Series = pd.Series(result[0].analyzers._TimeReturn.get_analysis())
-#     benchmark = price.pct_change()
-#     benchmark, ret = benchmark.align(ret, join="right", axis=0)
-
-#     returns: pd.DataFrame = pd.concat((ret, benchmark), axis=1)
-#     returns.columns = ["策略", "基准"]
-
-#     report_df: pd.DataFrame = strategy_performance(returns)
-
-#     bt_risk_table = plotly_table(
-#         report_df.T.applymap(lambda x: "{:.2%}".format(x)), "指标"
-#     )
-
-#     cumulative_chart = plot_cumulative(ret, benchmark)
-#     maxdrawdowns_chart = plot_drawdowns(ret)
-#     underwater_chart = plot_underwater(ret)
-#     annual_returns_chart = plot_annual_returns(result)
-#     monthly_return_heatmap_chart = plot_monthly_returns_heatmap(ret)
-#     monthly_return_dist_chart = plot_monthly_returns_dist(ret)
-
-#     return (
-#         bt_risk_table,
-#         cumulative_chart,
-#         maxdrawdowns_chart,
-#         underwater_chart,
-#         annual_returns_chart,
-#         monthly_return_heatmap_chart,
-#         monthly_return_dist_chart,
-#     )
 
 
-# def analysis_trade(price: pd.DataFrame, result: List) -> List:
-#     """交易情况
 
-#     Args:
-#         price (pd.DataFrame): index-date OHLCV数据
-#         result (_type_): _description_
-#     """
 
-#     traderecord: pd.DataFrame = get_trade_flag(result)
-#     trader_analyzer: Dict = result[0].analyzers._TradeAnalyzer.get_analysis()
-#     trade_res: pd.DataFrame = create_trade_report_table(trader_analyzer)
 
-#     trade_report = plotly_table(trade_res)
-#     orders_chart = plotl_order_on_ohlc(price, traderecord)
 
-#     trade_list: pd.DataFrame = pd.DataFrame(
-#         result[0].analyzers._TradeRecord.get_analysis()
-#     )
 
-#     pnl_chart = plot_trade_pnl(trade_list)
-
-#     return trade_report, orders_chart, pnl_chart
