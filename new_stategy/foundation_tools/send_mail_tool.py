@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 #-*-coding:utf-8-*-
-
+'''
+功能:邮件发送
+创建人:
+邮箱:
+创建日期:2024年4月9日
+版本:1.0
+'''
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart

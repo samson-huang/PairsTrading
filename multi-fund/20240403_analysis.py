@@ -11,7 +11,6 @@ import sys
 sys.path.append('C://Local_library')
 from hugos_toolkit.BackTestTemplate import TopicStrategy,get_backtesting,AddSignalData
 from hugos_toolkit.BackTestReport.tear import analysis_rets
-from hugos_toolkit.BackTestTemplate import TopPerformersStrategy
 
 
 
@@ -37,10 +36,11 @@ if __name__ == '__main__':
     # 打印 DataFrame
     #print(OrderAnalyzer)
     # 将订单信息列表转换为 DataFrame
-    orders_df = pd.DataFrame(OrderAnalyzer)
-
+    trader_df = pd.DataFrame(OrderAnalyzer)
+    orders_df = pd.DataFrame(trade_logger)
     # 设置列名
-    orders_df.columns = ['ref', 'status', 'size', 'price', 'value', 'reason', 'date', 'data', 'type']
+    #orders_df.columns = ['ref', 'status', 'size', 'price', 'value', 'reason', 'date', 'data', 'type']
 
     # 打印 DataFrame
+    print(trader_df)
     print(orders_df)
