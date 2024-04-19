@@ -56,7 +56,7 @@ class TradeAnalyzer_1(bt.analyzers.Analyzer):
             'buy_price': trade.price,  # 买入价格
             'buy_size': trade.size,  # 买入数量
             'sell_date': bt.num2date(trade.dtclose),  # 卖出日期
-            'sell_price': trade.priceclosed,  # 卖出价格
+            #'sell_price': trade.priceclosed,  # 卖出价格
             'sell_size': trade.sizeclosed,  # 卖出数量
             'pnl': trade.pnl,  # 盈亏金额
         }
@@ -319,11 +319,18 @@ class AddSignalData(bt.feeds.PandasData):
 
     添加信号数据
     """
-
     lines = ("rank",)
 
     params = (("rank", -1),)
 
+# Create a custom PandasData subclass
+class AddData(bt.feeds.PandasData):
+    """
+    Used to load backtesting data.
+    Adds the "rank" signal data.
+    """
+    lines = ("rank",)
+    params = (("rank", -1),)
 def get_backtesting(
     data: pd.DataFrame,
     name: str = None,
@@ -363,17 +370,22 @@ def get_backtesting(
 
             df = df.reindex(idx)
             df.sort_index(inplace=True)
-            df = df[["open", "high", "low", "close", "volume","rank"]]
+            df = df[["open", "high", "low", "close", "volume"]]
             df.loc[:, "volume"] = df.loc[:, "volume"].fillna(0)
             df.loc[:, ["open", "high", "low", "close"]] = df.loc[
                 :, ["open", "high", "low", "close"]
             ].fillna(method="pad")
 
-            datafeed = btfeeds.PandasData(dataname=df, fromdate=begin_dt, todate=end_dt)
+            datafeed = AddSignalData(dataname=df, fromdate=begin_dt, todate=end_dt)
             cerebro.adddata(datafeed, name=code)
 
+    # Create a dictionary to map the stock codes to their corresponding data
+
+
+    '''
+    '''
     cerebro = bt.Cerebro()
-    cerebro.broker.setcash(1e9)
+    cerebro.broker.setcash(10000)
     if (begin_dt is None) or (end_dt is None):
         begin_dt = data.index.min()
         end_dt = data.index.max()
@@ -381,8 +393,9 @@ def get_backtesting(
         begin_dt = pd.to_datetime(begin_dt)
         end_dt = pd.to_datetime(end_dt)
     #直接添加数据
-    datafeed = AddSignalData(dataname=data, fromdate=begin_dt, todate=end_dt)
-    cerebro.adddata(datafeed, name=name)
+    LoadPandasFrame(data)
+    #datafeed = AddSignalData(dataname=data, fromdate=begin_dt, todate=end_dt)
+    #cerebro.adddata(datafeed, name=code)
     #datafeed = datafeed = AddSignalData(dataname=data, fromdate=begin_dt, todate=end_dt,)
     #cerebro.adddata(datafeed, name='rank')
     #if mulit_add_data:
@@ -433,7 +446,7 @@ def get_backtesting(
     cerebro.addanalyzer(TradeListAnalyzer, _name="_TradeListAnalyzer")
     # 添加自定义的 TradeLogger 分析器
     cerebro.addanalyzer(TradeLogger, _name='_trade_logger')
-    cerebro.addanalyzer(TradeAnalyzer_1, _name='_TradeAnalyzer_1')
+    #cerebro.addanalyzer(TradeAnalyzer_1, _name='_TradeAnalyzer_1')
     cerebro.addanalyzer(OrderAnalyzer, _name='_OrderAnalyzer')
 
 

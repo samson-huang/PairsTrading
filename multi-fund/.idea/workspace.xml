@@ -6,10 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="b2be071f-6bc6-4bbd-8bf9-357f65853097" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../fund_strategy/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../fund_strategy/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/20240403_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/20240403_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../new_stategy/foundation_tools/send_mail_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../new_stategy/foundation_tools/send_mail_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/backtest_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/backtest_engine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -356,17 +357,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/20240403_analysis.py</url>
-          <line>28</line>
-          <option name="timeStamp" value="90" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/20240403_analysis.py</url>
-          <line>38</line>
+          <line>43</line>
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/20240403_analysis.py</url>
-          <line>39</line>
+          <line>44</line>
           <option name="timeStamp" value="98" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -378,6 +374,56 @@
           <url>file://$PROJECT_DIR$/../../../../../../Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
           <line>171</line>
           <option name="timeStamp" value="104" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/20240403_analysis.py</url>
+          <line>33</line>
+          <option name="timeStamp" value="106" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>118</line>
+          <option name="timeStamp" value="107" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>127</line>
+          <option name="timeStamp" value="108" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>128</line>
+          <option name="timeStamp" value="109" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>112</line>
+          <option name="timeStamp" value="112" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>218</line>
+          <option name="timeStamp" value="119" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>198</line>
+          <option name="timeStamp" value="138" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>215</line>
+          <option name="timeStamp" value="141" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>213</line>
+          <option name="timeStamp" value="142" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
+          <line>211</line>
+          <option name="timeStamp" value="143" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

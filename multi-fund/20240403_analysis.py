@@ -6,11 +6,15 @@ qlib.init(provider_uri=provider_uri, region=REG_CN)
 from datetime import datetime
 #ranked_data.to_csv("c:\\temp\\ranked_data_20240221.csv")
 ranked_data = pd.read_csv('c:\\temp\\ranked_data_all.csv', parse_dates=['datetime'], index_col='datetime')
+#ranked_data['codename'] = ranked_data['code'].copy()
 #导入hugos_toolkit库需要指定目录
 import sys
-sys.path.append('C://Local_library')
+import os
+local_path = os.getcwd()
+sys.path.append(local_path+'\\Local_library\\')
 from hugos_toolkit.BackTestTemplate import TopicStrategy,get_backtesting,AddSignalData
 from hugos_toolkit.BackTestReport.tear import analysis_rets
+from hugos_toolkit.BackTestTemplate import LowRankStrategy
 
 
 
@@ -18,7 +22,8 @@ from hugos_toolkit.BackTestReport.tear import analysis_rets
 if __name__ == '__main__':
     bt_result = get_backtesting(
         ranked_data,
-        strategy=TopicStrategy,
+        name="code",
+        strategy=LowRankStrategy,
         mulit_add_data=True,
         feedsfunc=AddSignalData,
         strategy_params={"selnum": 5, "pre": 0.05, 'ascending': False, 'show_log': False},
@@ -42,5 +47,5 @@ if __name__ == '__main__':
     #orders_df.columns = ['ref', 'status', 'size', 'price', 'value', 'reason', 'date', 'data', 'type']
 
     # 打印 DataFrame
-    print(trader_df)
+    #print(trader_df)
     print(orders_df)
