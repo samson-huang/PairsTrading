@@ -19,18 +19,27 @@ from .bt_strategy import SignalStrategy
 class OrderAnalyzer(bt.analyzers.Analyzer):
     def __init__(self):
         self.orders = []
+        self.cash_start = self.strategy.broker.getcash()  # 保存回测开始时的现金
+        self.value_start = self.strategy.broker.getvalue()  # 保存回测开始时的投资组合价值
+        self.cash = self.cash_start  # 用于跟踪现金变化
+        self.value = self.value_start  # 用于跟踪投资组合价值变化
+    def notify_cashvalue(self, cash, value):
+        # 更新现金和投资组合价值
+        self.cash = cash
+        self.value = value
 
     def notify_order(self, order):
         # 记录订单信息
         order_info = {
-            'ref': order.ref,  # 订单参考编号
-            'status': order.getstatusname(),  # 订单状态
-            'size': order.size,  # 订单数量
-            'price': order.price,  # 订单价格
-            'value': order.executed.value,  # 订单金额
+            'order_ref': order.ref,  # 订单参考编号
+            'order_status': order.getstatusname(),  # 订单状态
+            'order_date': bt.num2date(order.data.datetime[0]),  # 订单日期
+            'order_data': order.data._name,  # 相关代码名称
+            'order_size': order.size,  # 订单数量
+            'order_price': order.price,  # 订单价格
+            'order_value': order.executed.value,  # 订单金额
+            'order_cash':self.cash,#剩余现金
             'reason': order.info.reason,  # 订单原因
-            'date': bt.num2date(order.data.datetime[0]),  # 订单日期
-            'data': order.data._name,  # 相关数据源名称
             'type': 'Buy' if order.isbuy() else 'Sell',  # 订单类型
         }
         self.orders.append(order_info)
@@ -81,13 +90,19 @@ class TradeLogger(bt.Analyzer):
         # 当交易发生时调用
         self.trades.append({
             'ref': trade.ref,  # 交易参考编号
-            'buy_date': bt.num2date(trade.dtopen),  # 买入日期
+            #'buy_date': bt.num2date(trade.dtopen),  # 买入日期
+            'buy_date':  bt.num2date(trade.dtopen), # 买入日期
+            'buy_name': trade.data._name,  # 买入股票名称
             'buy_price': trade.price,  # 买入价格
             'buy_size': trade.size,  # 买入数量
+            'buy_value': trade.value,  # 买入价值
+            'buy_day_close': trade.data.close[0],  # 当前收盘价格
+            'buy_rank_1': trade.data.rank[-1],  # 排名
+            'buy_rank': trade.data.rank[0],  # 当前排名
             #'sell_date': bt.num2date(trade.dtclose),  # 卖出日期
             #'sell_price': trade.priceclosed,  # 卖出价格
             #'sell_size': trade.sizeclosed,  # 卖出数量
-            'pnl': trade.pnl,  # 盈亏金额
+            #'pnl': trade.pnl,  # 盈亏金额
         })
 
     def get_analysis(self):
@@ -359,7 +374,7 @@ def get_backtesting(
     slippage_perc: float = kw.get("slippage_perc", 0.0001)
     # 费用设置
     commission: float = kw.get("commission", 0.0002)
-    stamp_duty: float = kw.get("stamp_duty", 0.001)
+    stamp_duty: float = kw.get("stamp_duty", 0)
     # 是否显示log
     show_log: bool = kw.get("show_log", True)
 
@@ -370,10 +385,10 @@ def get_backtesting(
 
             df = df.reindex(idx)
             df.sort_index(inplace=True)
-            df = df[["open", "high", "low", "close", "volume"]]
+            df = df[["open", "high", "low", "close", "volume","rank"]]
             df.loc[:, "volume"] = df.loc[:, "volume"].fillna(0)
             df.loc[:, ["open", "high", "low", "close"]] = df.loc[
-                :, ["open", "high", "low", "close"]
+                :, ["open", "high", "low", "close","rank"]
             ].fillna(method="pad")
 
             datafeed = AddSignalData(dataname=df, fromdate=begin_dt, todate=end_dt)

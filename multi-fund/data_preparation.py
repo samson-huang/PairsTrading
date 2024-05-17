@@ -20,8 +20,8 @@ pro = ts.pro_api()
 
 
 stock_list = ['518880.SH'] #假设这里面都是港股股票
-start = '20230807'
-end = '20230824'
+start = '20230825'
+end = '20240516'
 #dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/csv'
 dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/change_csv'
 

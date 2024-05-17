@@ -5,9 +5,9 @@ provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
 qlib.init(provider_uri=provider_uri, region=REG_CN)
 
 # 配置数据
-train_period = ("2019-01-01", "2021-12-31")
-valid_period = ("2022-01-01", "2022-12-31")
-test_period = ("2023-01-01", "2023-08-24")
+#train_period = ("2019-01-01", "2021-12-31")
+#valid_period = ("2022-01-01", "2022-12-31")
+test_period = ("2019-01-01", "2024-05-15")
 
 market = "filter_fund"
 benchmark = "SZ160706"
@@ -130,8 +130,8 @@ totel_exp=test20240130_1.agg('sum', axis=1)
 totel_exp = totel_exp.to_frame()
 totel_exp.columns = ['score']
 
-#benchmark_old = ["SZ160706"]
-benchmark_old = ["SH000300"]
+benchmark_old = ["SZ160706"]
+#benchmark_old = ["SH000300"]
 data,benchmark = get_backtest_data(totel_exp,test_period[0],test_period[1],market,benchmark_old)
 benchmark_ret:pd.Series = benchmark['$close'].pct_change()
 

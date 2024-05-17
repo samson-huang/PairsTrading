@@ -198,7 +198,7 @@ class TopicStrategy345(bt.Strategy):
 class LowRankStrategy(bt.Strategy):
     params = (
         ('buy_threshold', 5),  # 买入阈值
-        ('stake', 0.2),  # 每只股票的仓位比例
+        ('stake', 0.1),  # 每只股票的仓位比例
         ("show_log", True),
     )
 
@@ -206,24 +206,26 @@ class LowRankStrategy(bt.Strategy):
         self.inds = {}  # 存储每只股票的指标数据
         for d in self.datas:
             self.inds[d] = {}
-            self.inds[d]['prev_rank'] = d.rank(-1)  # 前一个交易日的收盘价
+            self.inds[d]['prev_rank'] = d.rank(0)  # 交易日排名
 
     def next(self):
         for d, ind in self.inds.items():
             pos = self.getposition(d).size
-            if pos == 0:
-                # 当前无头寸
-                if ind['prev_rank'][0] <= self.params.buy_threshold:
-                    # 买入信号
-                    #size = int(self.broker.get_cash() * self.params.stake / d.close[0])
-                    self.order = self.order_target_percent(data=d, target=0.2)
-                    print(f'Buy {d._name}, Size: 0.2, Prev Close: {ind["prev_rank"][0]:.2f}')
-            else:
+            if pos > 0:
                 # 当前有头寸
-                if ind['prev_rank'][0] > self.params.buy_threshold:
+                if ind["prev_rank"][0]  > self.params.buy_threshold:
                     # 卖出信号
                     self.order = self.order_target_percent(data=d, target=0.0)
-                    print(f'Sell {d._name}, Size: {pos}, Prev Close: {ind["prev_rank"][0]:.2f}')
+                    print(f'Sell {d._name}, Size: {pos}, Prev Close: {ind["prev_rank"][0]:.2f}, date: {d.datetime.date(0):.2f}')
+
+
+            else:
+                # 当前无头寸
+                if ind["prev_rank"][0] <= self.params.buy_threshold:
+                    # 买入信号
+                    # size = int(self.broker.get_cash() * self.params.stake / d.close[0])
+                    self.order = self.order_target_percent(data=d, target=self.params.stake)
+                    print(f'Buy {d._name}, Size: 0.1, Prev rank: {ind["prev_rank"][0]:.2f}, date: {d.datetime.date(0)}')
 
     def stop(self):
         print('Strategy completed')
