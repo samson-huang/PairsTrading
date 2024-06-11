@@ -4,6 +4,8 @@ import pandas as pd
 provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
 qlib.init(provider_uri=provider_uri, region=REG_CN)
 
+from qlib.data import D
+from typing import List, Tuple, Dict
 # 配置数据
 #train_period = ("2019-01-01", "2021-12-31")
 #valid_period = ("2022-01-01", "2022-12-31")
@@ -11,6 +13,7 @@ test_period = ("2021-01-01", "2024-05-14")
 
 market = "filter_fund"
 benchmark = "SZ160706"
+'''
 from qlib.contrib.data.handler import Alpha158
 dh = Alpha158(instruments='filter_fund',
               start_time=test_period[0],
@@ -21,9 +24,6 @@ dh = Alpha158(instruments='filter_fund',
 test1=dh.fetch()
 test1.head(2)
 
-
-from qlib.data import D
-from typing import List, Tuple, Dict
 POOLS: List = D.list_instruments(D.instruments(market), as_list=True)
 
 # 未来期收益
@@ -35,7 +35,7 @@ next_ret.sort_index(inplace=True)
 # 基准
 bench: pd.DataFrame = D.features([benchmark], fields=["$close/Ref($close,1)-1"],start_time=test_period[0], end_time=test_period[1])
 bench: pd.Series = bench.droplevel(level=0).iloc[:, 0]
-
+'''
 ##自己计算技术指标#######
 ##########################################
 # 获取test时段的行情原始数据
