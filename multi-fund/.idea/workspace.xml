@@ -6,8 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="b2be071f-6bc6-4bbd-8bf9-357f65853097" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../fund_strategy/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../fund_strategy/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tlib_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/tlib_analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tlib_new.py" beforeDir="false" afterPath="$PROJECT_DIR$/tlib_new.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
