@@ -25,25 +25,27 @@ raw_data: pd.DataFrame = D.features(
     end_time=test_period[1],
 )
 
-#for col in ['$open', '$high', '$low', '$close', '$volume']:
-#    raw_data[col] = raw_data[col].fillna(method='ffill')
 raw_data = raw_data.dropna(how='all', axis=0)
-##################################################
+
 # 获取所有唯一的日期和instrument
 all_dates = raw_data.index.get_level_values('datetime').unique()
 all_instruments = raw_data.index.get_level_values('instrument').unique()
 
 # 创建一个新的MultiIndex,包含所有日期和instrument的组合
-new_index = raw_data.MultiIndex.from_product([all_dates, all_instruments], names=['datetime', 'instrument'])
+new_index = pd.MultiIndex.from_product([all_instruments,all_dates,], names=['instrument','datetime'])
 
 # 使用reindex方法重新索引DataFrame,并用0填充缺失值
 new_df = raw_data.reindex(new_index, fill_value=0)
 
+#new_df.xs('SZ160218', level='instrument') 核对数据
 
-
+raw_data=new_df
 # 替换列名中的特殊字符
 raw_data.columns = [col.replace('$', '') for col in raw_data.columns]
 df=raw_data
+
+#############################################################################
+############################################################################
 
 # 计算 RSI 指标
 def calculate_rsi(series, period=14):
@@ -175,8 +177,10 @@ df.loc[df['PVI'] == df['PVI'].rolling(window=len(df), min_periods=1).min(), 'PVI
 
 
 
-##################################################################
 
+
+#####################################################################
+######################################################################
 
 ####################################################################
 signal_cols = [col for col in df.columns if '_signal' in col]
@@ -206,49 +210,45 @@ sys.path.append(local_path+'\\Local_library\\')
 from hugos_toolkit.BackTestTemplate import TopicStrategy,get_backtesting,AddSignalData
 from hugos_toolkit.BackTestReport.tear import analysis_rets
 from hugos_toolkit.BackTestTemplate import LowRankStrategy_new
-from typing import List, Tuple
 
+bt_result = get_backtesting(
+    ranked_data,
+    name="code",
+    strategy=LowRankStrategy_new,
+    mulit_add_data=True,
+    feedsfunc=AddSignalData,
+    strategy_params={"selnum": 5, "pre": 0.05, 'ascending': False, 'show_log': False},
+    begin_dt=test_period[0],
+    end_dt=test_period[1],
+)
 
-###################################################
-    bt_result = get_backtesting(
-        ranked_data,
-        name="code",
-        strategy=LowRankStrategy_new,
-        mulit_add_data=True,
-        feedsfunc=AddSignalData,
-        strategy_params={"selnum": 5, "pre": 0.05, 'ascending': False, 'show_log': False},
-        begin_dt=test_period[0],
-        end_dt=test_period[1],
-    )
-    trade_logger = bt_result.result[0].analyzers._trade_logger.get_analysis()
-    TradeListAnalyzer = bt_result.result[0].analyzers._TradeListAnalyzer.get_analysis()
+trade_logger = bt_result.result[0].analyzers._trade_logger.get_analysis()
+TradeListAnalyzer = bt_result.result[0].analyzers._TradeListAnalyzer.get_analysis()
 
-    OrderAnalyzer = bt_result.result[0].analyzers._OrderAnalyzer.get_analysis()
+OrderAnalyzer = bt_result.result[0].analyzers._OrderAnalyzer.get_analysis()
 
-###########################
-    trader_df = pd.DataFrame(trade_logger)
-    orders_df = pd.DataFrame(OrderAnalyzer)
-##############################
-    benchmark_old = ["SH000300"]
-    #data, benchmark = get_backtest_data(ranked_data, test_period[0], test_period[1], market, benchmark_old)
-    benchmark: pd.DataFrame = D.features(
-        benchmark_old,
-        fields=["$close"],
-        start_time=test_period[0],
-        end_time=test_period[1],
-    ).reset_index(level=0, drop=True)
-    benchmark_ret: pd.Series = benchmark['$close'].pct_change()
+trader_df = pd.DataFrame(trade_logger)
+orders_df = pd.DataFrame(OrderAnalyzer)
 
-    algorithm_returns: pd.Series = pd.Series(
-        bt_result.result[0].analyzers._TimeReturn.get_analysis()
-    )
-    report = analysis_rets(algorithm_returns, bt_result.result, benchmark['$close'].pct_change(), use_widgets=True)
+benchmark_old = ["SH000300"]
+# data, benchmark = get_backtest_data(ranked_data, test_period[0], test_period[1], market, benchmark_old)
+benchmark: pd.DataFrame = D.features(
+    benchmark_old,
+    fields=["$close"],
+    start_time=test_period[0],
+    end_time=test_period[1],
+).reset_index(level=0, drop=True)
+benchmark_ret: pd.Series = benchmark['$close'].pct_change()
 
-    from plotly.offline import iplot
-    from plotly.offline import init_notebook_mode
+algorithm_returns: pd.Series = pd.Series(
+    bt_result.result[0].analyzers._TimeReturn.get_analysis()
+)
+report = analysis_rets(algorithm_returns, bt_result.result, benchmark['$close'].pct_change(), use_widgets=True)
 
-    init_notebook_mode()
-    for chart in report:
-        iplot(chart)
+from plotly.offline import iplot
+from plotly.offline import init_notebook_mode
 
+init_notebook_mode()
+for chart in report:
+    iplot(chart)
 

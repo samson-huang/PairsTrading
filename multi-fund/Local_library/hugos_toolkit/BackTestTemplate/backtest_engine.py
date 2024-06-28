@@ -165,7 +165,11 @@ class TradeListAnalyzer(bt.Analyzer):
                 datein = datein.date()
                 dateout = dateout.date()
 
-            pcntchange = 100 * priceout / pricein - 100
+            if pricein >0:
+                pcntchange = 100 * priceout / pricein - 100
+            else:
+                pcntchange = 0
+
             pnl = trade.history[len(trade.history) - 1].status.pnlcomm
             pnlpcnt = 100 * pnl / total_value
             barlen = trade.history[len(trade.history) - 1].status.barlen
@@ -180,8 +184,12 @@ class TradeListAnalyzer(bt.Analyzer):
 
             highest_in_trade = max(trade.data.high.get(ago=0, size=barlen + 1))
             lowest_in_trade = min(trade.data.low.get(ago=0, size=barlen + 1))
-            hp = 100 * (highest_in_trade - pricein) / pricein
-            lp = 100 * (lowest_in_trade - pricein) / pricein
+            if pricein>0:
+               hp = 100 * (highest_in_trade - pricein) / pricein
+               lp = 100 * (lowest_in_trade - pricein) / pricein
+            else:
+                hp=0
+                lp=0
             if dir == 'long':
                 mfe = hp
                 mae = lp
@@ -250,8 +258,12 @@ class TradeRecord(bt.Analyzer):
             priceout = trade.history[size - 1].event.price
             highest_in_trade = max(trade.data.high.get(ago=0, size=barlen + 1))
             lowest_in_trade = min(trade.data.low.get(ago=0, size=barlen + 1))
-            hp = 100 * (highest_in_trade - pricein) / pricein
-            lp = 100 * (lowest_in_trade - pricein) / pricein
+            if pricein>0:
+               hp = 100 * (highest_in_trade - pricein) / pricein
+               lp = 100 * (lowest_in_trade - pricein) / pricein
+            else:
+                hp=0
+                lp=0
 
         else:
             # 交易没有闭合
@@ -265,7 +277,10 @@ class TradeRecord(bt.Analyzer):
             datein = datein.date()
             dateout = dateout.date()
 
-        pcntchange = 100 * priceout / pricein - 100
+        if pricein > 0:
+            pcntchange = 100 * priceout / pricein - 100
+        else:
+            pcntchange = 0
         pnl = trade.history[size - 1].status.pnlcomm
         pnlpcnt = 100 * pnl / brokervalue
 

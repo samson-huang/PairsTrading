@@ -207,19 +207,20 @@ class LowRankStrategy(bt.Strategy):
         for d in self.datas:
             self.inds[d] = {}
             self.inds[d]['prev_rank'] = d.rank(0)  # 交易日排名
+            self.inds[d]['close'] = d.close(0)  # 交易日排名
 
     def next(self):
         for d, ind in self.inds.items():
             pos = self.getposition(d).size
             if pos > 0:
                 # 当前有头寸
-                if ind["prev_rank"][0]  > self.params.buy_threshold:
+                if ind["prev_rank"][0]  > self.params.buy_threshold and ind["close"][0]>0:
                     # 卖出信号
                     self.order = self.order_target_percent(data=d, target=0.0)
                     print(f'Sell {d._name}, Size: {pos}, Prev Close: {ind["prev_rank"][0]:.2f}, date: {d.datetime.date(0):.2f}')
             else:
                 # 当前无头寸
-                if ind["prev_rank"][0] <= self.params.buy_threshold:
+                if ind["prev_rank"][0] <= self.params.buy_threshold and ind["close"][0]>0:
                     # 买入信号
                     # size = int(self.broker.get_cash() * self.params.stake / d.close[0])
                     self.order = self.order_target_percent(data=d, target=self.params.stake)
@@ -240,25 +241,27 @@ class LowRankStrategy_new(bt.Strategy):
         for d in self.datas:
             self.inds[d] = {}
             self.inds[d]['prev_rank'] = d.rank(0)  # 交易日信号
+            self.inds[d]['close'] = d.close(0)  # 交易日信号
 
     def next(self):
         # 计算当前可用资金
         cash = self.broker.get_cash()
 
         # 统计满足买入条件的股票数量
-        buy_count = sum(1 for d, ind in self.inds.items() if ind["prev_rank"][0] >= self.params.buy_threshold and self.getposition(d).size == 0)
+        buy_count = sum(1 for d, ind in self.inds.items() if ind["prev_rank"][0] >= self.params.buy_threshold
+                        and self.getposition(d).size == 0 and  ind["close"][1]>0)
 
-        if buy_count > 0
+        if buy_count >0 :
             # 计算每只股票的买入金额
             buy_amount = cash * self.params.max_exposure / buy_count
 
             for d, ind in self.inds.items():
                 pos = self.getposition(d).size
-                if pos == 0 and ind["prev_rank"][0] >= self.params.buy_threshold:
+                if pos == 0 and ind["prev_rank"][0] >= self.params.buy_threshold and ind["close"][1]>0:
                     # 买入信号
                     self.order = self.order_target_value(data=d, target=buy_amount)
                     print(f'Buy {d._name}, Amount: {buy_amount:.2f}, Prev rank: {ind["prev_rank"][0]:.2f}, date: {d.datetime.date(0)}')
-                elif pos > 0 and ind["prev_rank"][0] < 0:
+                elif pos > 0 and ind["prev_rank"][0] < 0  and ind["close"][1]>0:
                     # 卖出信号
                     self.order = self.order_target_percent(data=d, target=0.0)
                     print(f'Sell {d._name}, Size: {pos}, Prev rank: {ind["prev_rank"][0]:.2f}, date: {d.datetime.date(0)}')

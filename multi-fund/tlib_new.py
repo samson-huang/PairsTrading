@@ -191,14 +191,35 @@ df.loc[df['RSI'] > 70, 'RSI_signal'] = -1  # 卖出信号
 signal_cols = [col for col in df.columns if '_signal' in col]
 new_df = df[signal_cols]
 totel_exp=new_df.agg('sum', axis=1)
+basically_cols=['open','high','low','close','volume']
 totel_exp = totel_exp.to_frame()
 totel_exp.columns = ['score']
-
-basically_cols=['open','high','low','close','volume']
 data_1: pd.DataFrame = pd.merge(
     df[basically_cols], totel_exp, how="inner", left_index=True, right_index=True
 )
-data_1['rank'] =data_1['score']
 
 # 将列名a改为A
-data_1 = data_1.rename(columns={'instrument':'code'})
+data_1.index = data_1.index.rename({'instrument':'code'})
+data_1 = data_1.reset_index('code')
+data_1['rank'] = data_1['score']
+ranked_data = data_1
+
+import sys
+import os
+local_path = os.getcwd()
+local_path = "C:/Users/huangtuo/Documents\\GitHub\\PairsTrading\\multi-fund\\"
+sys.path.append(local_path+'\\Local_library\\')
+from hugos_toolkit.BackTestTemplate import TopicStrategy,get_backtesting,AddSignalData
+from hugos_toolkit.BackTestReport.tear import analysis_rets
+from hugos_toolkit.BackTestTemplate import LowRankStrategy_new
+
+bt_result = get_backtesting(
+    ranked_data,
+    name="code",
+    strategy=LowRankStrategy_new,
+    mulit_add_data=True,
+    feedsfunc=AddSignalData,
+    strategy_params={"selnum": 5, "pre": 0.05, 'ascending': False, 'show_log': False},
+    begin_dt=test_period[0],
+    end_dt=test_period[1],
+)
