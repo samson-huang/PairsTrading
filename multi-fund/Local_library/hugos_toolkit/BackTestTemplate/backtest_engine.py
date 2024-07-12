@@ -389,7 +389,7 @@ def get_backtesting(
     slippage_perc: float = kw.get("slippage_perc", 0.0001)
     # 费用设置
     commission: float = kw.get("commission", 0.0002)
-    stamp_duty: float = kw.get("stamp_duty", 0)
+    stamp_duty: float = kw.get("stamp_duty", 0.001)
     # 是否显示log
     show_log: bool = kw.get("show_log", True)
 
@@ -415,7 +415,7 @@ def get_backtesting(
     '''
     '''
     cerebro = bt.Cerebro()
-    cerebro.broker.setcash(10000)
+    cerebro.broker.setcash(1e9)
     if (begin_dt is None) or (end_dt is None):
         begin_dt = data.index.min()
         end_dt = data.index.max()

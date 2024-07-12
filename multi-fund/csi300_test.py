@@ -99,3 +99,80 @@ def knn_stock_prediction(df, n_neighbors=5, split_percentage=0.95):
 raw_data.columns = [col.replace('$', '') for col in raw_data.columns]
 test=knn_stock_prediction(raw_data)
 
+test.index = test.index.rename({'instrument':'code'})
+test = test.rename(columns={'Predicted_Signal': 'rank'})
+test = test.reset_index('code')
+
+
+benchmark_old = ["SH000300"]
+# data, benchmark = get_backtest_data(ranked_data, test_period[0], test_period[1], market, benchmark_old)
+benchmark: pd.DataFrame = D.features(
+    benchmark_old,
+    fields=["$close"],
+    start_time=test_period[0],
+    end_time=test_period[1],
+).reset_index(level=0, drop=True)
+benchmark_ret: pd.Series = benchmark['$close'].pct_change()
+
+split = int(0.95 * len(benchmark))
+
+benchmark[split:].head()
+#2023-05-23
+
+start_date = '2023-05-23'
+end_date = '2024-05-15'
+
+mask = (test.index.get_level_values('datetime') >= start_date) & (test.index.get_level_values('datetime') <= end_date)
+result = test.loc[mask]
+
+# 将列名a改为A
+result = result.rename(columns={'Predicted_Signal': 'rank'})
+result.index = result.index.rename({'instrument':'code'})
+result = result.reset_index('code')
+
+
+import sys
+import os
+local_path = os.getcwd()
+local_path = "C:/Users/huangtuo/Documents\\GitHub\\PairsTrading\\multi-fund\\"
+sys.path.append(local_path+'\\Local_library\\')
+from hugos_toolkit.BackTestTemplate import TopicStrategy,get_backtesting,AddSignalData
+from hugos_toolkit.BackTestReport.tear import analysis_rets
+from hugos_toolkit.BackTestTemplate import LowRankStrategy_new
+
+
+bt_result = get_backtesting(
+    result,
+    name="code",
+    strategy=LowRankStrategy_new,
+    mulit_add_data=True,
+    feedsfunc=AddSignalData,
+    strategy_params={"selnum": 5, "pre": 0.05, 'ascending': False, 'show_log': False},
+    begin_dt='2023-05-23',
+    end_dt=test_period[1],
+)
+
+trade_logger = bt_result.result[0].analyzers._trade_logger.get_analysis()
+TradeListAnalyzer = bt_result.result[0].analyzers._TradeListAnalyzer.get_analysis()
+
+OrderAnalyzer = bt_result.result[0].analyzers._OrderAnalyzer.get_analysis()
+
+trader_df = pd.DataFrame(trade_logger)
+orders_df = pd.DataFrame(OrderAnalyzer)
+
+algorithm_returns: pd.Series = pd.Series(
+    bt_result.result[0].analyzers._TimeReturn.get_analysis()
+)
+benchmark_new = benchmark[split:]
+report = analysis_rets(algorithm_returns, bt_result.result, benchmark_new['$close'].pct_change(), use_widgets=True)
+
+from plotly.offline import iplot
+from plotly.offline import init_notebook_mode
+
+init_notebook_mode()
+for chart in report:
+    iplot(chart)
+
+
+
+mask = (test.index.get_level_values('datetime') >= start_date)

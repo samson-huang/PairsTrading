@@ -8,10 +8,10 @@
       <change beforePath="$PROJECT_DIR$/../fund_strategy/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../fund_strategy/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/backtest_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/backtest_engine.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/score_2_analysis_20240613.py" beforeDir="false" afterPath="$PROJECT_DIR$/score_2_analysis_20240613.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tlib_new.py" beforeDir="false" afterPath="$PROJECT_DIR$/tlib_new.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/csi300_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/csi300_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -448,6 +448,11 @@
           <url>file://$PROJECT_DIR$/test_12.py</url>
           <line>18</line>
           <option name="timeStamp" value="172" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/csi300_test.py</url>
+          <line>165</line>
+          <option name="timeStamp" value="173" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

@@ -231,7 +231,7 @@ class LowRankStrategy(bt.Strategy):
 
 class LowRankStrategy_new(bt.Strategy):
     params = (
-        ('buy_threshold', 2),  # 买入阈值
+        ('buy_threshold', 1),  # 买入阈值
         ('max_exposure', 0.8),  # 最大仓位敞口
         ("show_log", True),
     )
@@ -249,7 +249,7 @@ class LowRankStrategy_new(bt.Strategy):
 
         # 统计满足买入条件的股票数量
         buy_count = sum(1 for d, ind in self.inds.items() if ind["prev_rank"][0] >= self.params.buy_threshold
-                        and self.getposition(d).size == 0 and  ind["close"][1]>0)
+                        and self.getposition(d).size == 0 )
 
         if buy_count >0 :
             # 计算每只股票的买入金额
@@ -257,11 +257,11 @@ class LowRankStrategy_new(bt.Strategy):
 
             for d, ind in self.inds.items():
                 pos = self.getposition(d).size
-                if pos == 0 and ind["prev_rank"][0] >= self.params.buy_threshold and ind["close"][1]>0:
+                if pos == 0 and ind["prev_rank"][0] >= self.params.buy_threshold :
                     # 买入信号
                     self.order = self.order_target_value(data=d, target=buy_amount)
                     print(f'Buy {d._name}, Amount: {buy_amount:.2f}, Prev rank: {ind["prev_rank"][0]:.2f}, date: {d.datetime.date(0)}')
-                elif pos > 0 and ind["prev_rank"][0] < 0  and ind["close"][1]>0:
+                elif pos > 0 and ind["prev_rank"][0] < 0  :
                     # 卖出信号
                     self.order = self.order_target_percent(data=d, target=0.0)
                     print(f'Sell {d._name}, Size: {pos}, Prev rank: {ind["prev_rank"][0]:.2f}, date: {d.datetime.date(0)}')
