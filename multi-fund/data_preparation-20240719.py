@@ -1,10 +1,22 @@
-import json
-import warnings
-import time
-import akshare as ak
-import pandas as pd
-import numpy as np
 
+import datetime
+import json
+import os
+import pickle
+import sys
+import warnings
+from multiprocessing import Manager, Pool
+import time
+import numpy as np
+import pandas as pd
+import tushare as ts
+
+warnings.filterwarnings('ignore')
+# 请根据自己的情况填写ts的token
+setting = json.load(open('C://config//config.json'))
+# pro  = foundation_tushare.TuShare(setting['token'], max_retry=60)
+ts.set_token(setting['token'])
+pro = ts.pro_api()
 
 
 stock_list = ['518880.SH'] #假设这里面都是港股股票
@@ -16,18 +28,18 @@ dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/change_csv'
 with open('C://temp//upload//codefundsecname.json') as file:
     code2secname = json.loads(file.read())
 
-#fields = ['ts_code', 'trade_date','open','high','low','close','pre_close','pct_chg','vol','amount']
-#fields = ['ts_code', 'trade_date','open','high','low','close','pre_close','pct_chg','vol','amount']
+fields = ['ts_code', 'trade_date','open','high','low','close','pre_close','pct_chg','vol','amount']
 
-stk_set =  list(code2secname.keys())
+
+#stk_set =  list(code2secname.keys())
+
 def make_dataset(stock_pool:list, start:str, end:str):
     for index_code in stock_pool:
-        #df = pro.index_daily(ts_code=index_code, start_date=start,end_date=end, fields=fields)
-        df = ak.stock_zh_index_daily_em(symbol=index_code)
+        df = pro.index_daily(ts_code=index_code, start_date=start,end_date=end, fields=fields)
         df['factor']=1
-        df['vwap'] = np.where(df['volume'] != 0, df['amount'] / df['volume'], 0)
-        #df = df.rename(columns={'pct_chg': 'change', 'vol': 'volume'})
-        df['code'] = index_code
+        df['vwap'] = df['amount'] / df['vol']
+        df = df.rename(columns={'pct_chg': 'change', 'vol': 'volume'})
+        df['ts_code'] = df['ts_code'].apply(lambda x: x.split('.')[1] + x.split('.')[0])
         #df['trade_date'] = df['trade_date'].astype('datetime64[ns]')
         file_name = dir_name + '/' + index_code.split('.')[1] + index_code.split('.')[0] + '.csv'
         df.to_csv(file_name,header = True, index = False)
@@ -41,7 +53,7 @@ def make_fund_dataset(stock_pool:list, start:str, end:str):
         df['vwap'] = df['amount'] / df['vol']
         df = df.rename(columns={'pct_chg': 'change', 'vol': 'volume'})
         df['ts_code'] = df['ts_code'].apply(lambda x: x.split('.')[1] + x.split('.')[0])
-        df['date'] = df['date'].astype('datetime64[ns]')
+        #df['trade_date'] = df['trade_date'].astype('datetime64[ns]')
         file_name = dir_name + '/' + index_code.split('.')[1] + index_code.split('.')[0] + '.csv'
         df.to_csv(file_name,header = True, index = False)
         time.sleep(0.2)#tushare每分钟500次取数
