@@ -15,6 +15,7 @@ import json
 import warnings
 import datetime
 import numpy as np
+import pandas as pd
 
 warnings.filterwarnings('ignore')
 # 请根据自己的情况填写ts的token
@@ -61,17 +62,22 @@ class send_mail_tool:
         #list_1 = np.load('C://temp//upload//index_list.npy')
         #list_1 = list_1.tolist()
         list_1 = self.name_list
-        with open('C://temp//upload//codefundsecname.json') as file:
-            code2secname = json.loads(file.read())
+        #with open('C://temp//upload//codefundsecname.json') as file:
+            #code2secname = json.loads(file.read())
+        dir_name = 'c:\\temp\\upload\\codefundsecname.csv'
+        codefundsecname = pd.read_csv(dir_name)
+
         for index_code in list_1:
             #构造附件2，传输当前目录下的图片.jpg文件
-            local_url_new=self.local_url+'_'+code2secname[index_code]+'_detail.jpg'
+            code_name = codefundsecname[codefundsecname['code'] == index_code]['name'].str.strip()
+            code_name_new = code_name.astype(str).values[0]
+            local_url_new=self.local_url+'_'+code_name_new+'_detail.jpg'
             att2=MIMEText(open(local_url_new,'rb').read(),'base64','utf-8')
             att2['Content-Type']='application/octet-stream'
             att2['Content-Disposition']='attachment;filename="'+index_code.replace('.', '')+'.jpg''"' #filename填什么，邮件里边展示什么
             msg.attach(att2)
 
-            local_url_new=self.local_url+'_'+code2secname[index_code]+'_overall.jpg'
+            local_url_new=self.local_url+'_'+code_name_new+'_overall.jpg'
             att3=MIMEText(open(local_url_new,'rb').read(),'base64','utf-8')
             att3['Content-Type']='application/octet-stream'
             att3['Content-Disposition']='attachment;filename="'+index_code.replace('.', '')+'.jpg''"' #filename填什么，邮件里边展示什么

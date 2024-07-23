@@ -7,50 +7,91 @@ import numpy as np
 
 
 
-stock_list = ['518880.SH'] #假设这里面都是港股股票
-start = '20230825'
-end = '20240516'
+
 #dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/csv'
 dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/change_csv'
 
-with open('C://temp//upload//codefundsecname.json') as file:
-    code2secname = json.loads(file.read())
+import pandas as pd
+import akshare as ak
 
-#fields = ['ts_code', 'trade_date','open','high','low','close','pre_close','pct_chg','vol','amount']
-#fields = ['ts_code', 'trade_date','open','high','low','close','pre_close','pct_chg','vol','amount']
+def fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date):
+    codefundsecname = pd.read_csv(codefundsecname_file)
+    lof_code = codefundsecname[codefundsecname['type'] == 'lof']['code']
+    etf_code = codefundsecname[codefundsecname['type'] == 'etf']['code']
+    index_code = codefundsecname[codefundsecname['type'] == 'index']['code']
 
-stk_set =  list(code2secname.keys())
-def make_dataset(stock_pool:list, start:str, end:str):
-    for index_code in stock_pool:
-        #df = pro.index_daily(ts_code=index_code, start_date=start,end_date=end, fields=fields)
-        df = ak.stock_zh_index_daily_em(symbol=index_code)
-        df['factor']=1
-        df['vwap'] = np.where(df['volume'] != 0, df['amount'] / df['volume'], 0)
-        #df = df.rename(columns={'pct_chg': 'change', 'vol': 'volume'})
-        df['code'] = index_code
-        #df['trade_date'] = df['trade_date'].astype('datetime64[ns]')
-        file_name = dir_name + '/' + index_code.split('.')[1] + index_code.split('.')[0] + '.csv'
-        df.to_csv(file_name,header = True, index = False)
-#make_dataset(index, start, end)
+    for original_str in lof_code:
+        fund_lof_hist_em_df = ak.fund_lof_hist_em(symbol=original_str[2:], period="daily", start_date=start_date, end_date=end_date, adjust="")
+        fund_lof_hist_em_df = fund_lof_hist_em_df.rename(columns={
+            '日期': 'date',
+            '开盘': 'open',
+            '收盘': 'close',
+            '最高': 'high',
+            '最低': 'low',
+            '成交量': 'volume'
+        })
+        fund_lof_hist_em_df = fund_lof_hist_em_df[['date', 'open', 'close', 'high', 'low', 'volume']]
+
+        #fund_lof_hist_em_df['date'] = pd.to_datetime(fund_lof_hist_em_df['date'], format='%Y-%m-%d', errors='coerce')
+        #fund_lof_hist_em_df['date'] = fund_lof_hist_em_df['date'].astype('datetime64[ns]')
+        fund_lof_hist_em_df['date'] = pd.to_datetime(fund_lof_hist_em_df['date']).dt.strftime('%Y-%m-%d')
+        fund_lof_hist_em_df['date'] = fund_lof_hist_em_df['date'].astype('datetime64[ns]')
+        fund_lof_hist_em_df['code'] = original_str
+        file_name = f"{dir_name}/{original_str}.csv"
+        fund_lof_hist_em_df.to_csv(file_name, header=True, index=False)
+
+    for original_str in etf_code:
+        fund_etf_hist_em_df = ak.fund_etf_hist_em(symbol=original_str[2:], period="daily", start_date=start_date, end_date=end_date, adjust="")
+        fund_etf_hist_em_df = fund_etf_hist_em_df.rename(columns={
+            '日期': 'date',
+            '开盘': 'open',
+            '收盘': 'close',
+            '最高': 'high',
+            '最低': 'low',
+            '成交量': 'volume'
+        })
+        fund_etf_hist_em_df = fund_etf_hist_em_df[['date', 'open', 'close', 'high', 'low', 'volume']]
+        #fund_etf_hist_em_df['date'] = pd.to_datetime(fund_etf_hist_em_df['date'], format='%Y-%m-%d', errors='coerce')
+        fund_etf_hist_em_df['date'] = pd.to_datetime(fund_etf_hist_em_df['date']).dt.strftime('%Y-%m-%d')
+        fund_etf_hist_em_df['date'] = fund_etf_hist_em_df['date'].astype('datetime64[ns]')
+        fund_etf_hist_em_df['code'] = original_str
+        file_name = f"{dir_name}/{original_str}.csv"
+        fund_etf_hist_em_df.to_csv(file_name, header=True, index=False)
+
+    for original_str in index_code:
+        fund_index_hist_em_df = ak.stock_zh_index_daily_em(symbol=original_str, start_date=start_date, end_date=end_date)
+        fund_index_hist_em_df = fund_index_hist_em_df[['date', 'open', 'close', 'high', 'low', 'volume']]
+        #fund_index_hist_em_df['date'] = pd.to_datetime(fund_index_hist_em_df['date'], format='%Y-%m-%d', errors='coerce')
+        fund_index_hist_em_df['date'] = pd.to_datetime(fund_index_hist_em_df['date']).dt.strftime('%Y-%m-%d')
+        fund_index_hist_em_df['date'] = fund_index_hist_em_df['date'].astype('datetime64[ns]')
+        fund_index_hist_em_df['code'] = original_str
+        file_name = f"{dir_name}/{original_str}.csv"
+        fund_index_hist_em_df.to_csv(file_name, header=True, index=False)
 
 
-def make_fund_dataset(stock_pool:list, start:str, end:str):
-    for index_code in stock_pool:
-        df = pro.fund_daily(ts_code=index_code, start_date=start,end_date=end, fields=fields)
-        df['factor']=1
-        df['vwap'] = df['amount'] / df['vol']
-        df = df.rename(columns={'pct_chg': 'change', 'vol': 'volume'})
-        df['ts_code'] = df['ts_code'].apply(lambda x: x.split('.')[1] + x.split('.')[0])
-        df['date'] = df['date'].astype('datetime64[ns]')
-        file_name = dir_name + '/' + index_code.split('.')[1] + index_code.split('.')[0] + '.csv'
-        df.to_csv(file_name,header = True, index = False)
-        time.sleep(0.2)#tushare每分钟500次取数
 
-        #df['ts_code'] = df['ts_code'].apply(lambda x: x.split('.')[1] + x.split('.')[0])
-        #file_name = dir_name + '/' + code.split('.')[1] + code.split('.')[0] + '.csv'
-fund_basic = pro.fund_basic(market='E')
-stk_set=list(fund_basic.loc[:, 'ts_code'])
-make_fund_dataset(stk_set, start, end)
+codefundsecname_file = 'c:\\temp\\upload\\codefundsecname.csv'
+#dir_name = 'c:/temp/20240722'
+start_date = '20050101'
+end_date = '20240723'
+
+fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date)
+
+#全量替换数据
+#C:\qlib-main\scripts
+#python dump_bin.py dump_all --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\change_csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name code  --date_field_name date  --include_fields open,high,low,close,volume
+
+#增量更新数据
+
+#python dump_bin.py dump_update --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name code  --date_field_name date  --include_fields open,high,low,close,volume
+
+
+
+
+
+#fund_basic = pro.fund_basic(market='E')
+#stk_set=list(fund_basic.loc[:, 'ts_code'])
+#make_fund_dataset(stk_set, start, end)
 
 '''
 from qlib.data import D

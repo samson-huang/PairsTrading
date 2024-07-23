@@ -2,7 +2,7 @@
 import sys
 sys.path.append("c://Users//huangtuo//Documents//GitHub//PairsTrading//new_stategy//foundation_tools//")
 from send_mail_tool import *
-from technical_analysis_patterns import (rolling_patterns2pool,plot_patterns_chart,rolling_patterns)
+from technical_analysis_patterns import (rolling_patterns2pool,plot_patterns_chart,rolling_patterns,plot_patterns_chart1)
 from typing import (List, Tuple, Dict, Callable, Union)
 from tqdm.notebook import tqdm
 import json
@@ -17,12 +17,14 @@ import datetime
 import os
 
 
-test_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//close.pkl')
-test_pre_close = pd.read_pickle('C://temp//fund_data//base_data//mkt//pre_close.pkl')
-test_high = pd.read_pickle('C://temp//fund_data//base_data//mkt//high.pkl')
-test_low = pd.read_pickle('C://temp//fund_data//base_data//mkt//low.pkl')
-test_amount = pd.read_pickle('C://temp//fund_data//base_data//mkt//amount.pkl')
-test_open = pd.read_pickle('C://temp//fund_data//base_data//mkt//open.pkl')
+import qlib
+from qlib.data import D
+from qlib.constant import REG_CN
+import pandas as pd
+provider_uri = "C:/Users/huangtuo/.qlib/qlib_data/fund_data/"  # target_dir
+qlib.init(provider_uri=provider_uri, region=REG_CN)
+
+from datetime import  timedelta
 
 
 def mkdir(path):
@@ -66,36 +68,66 @@ if __name__ == '__main__':
    #list_1 = list_index+list_etf
    #list_1 = ('000300.SH',)
    #list_1 = list(list_1)
+   # 获取当前日期
+   current_date = datetime.datetime.now().date()   #-timedelta(days=32)
+   # 减去60天
+   past_date = current_date - timedelta(days=60)
+
+   # 将日期格式化为 '20230723'
+   start_time = past_date.strftime('%Y%m%d')
+   # 将日期格式化为 '20230723'
+   end_time = current_date.strftime('%Y%m%d')
+
    local_datetime = datetime.datetime.now().strftime('%Y%m%d')
    mkdir('C://temp//upload//' + local_datetime + '_pattern_graph//')
+   '''
    with open('C://temp//upload//codefundsecname.json') as file:
       code2secname = json.loads(file.read())
       list_1=list(code2secname.keys())
+   '''
+   dir_name = 'c:\\temp\\upload\\codefundsecname.csv'
+   codefundsecname = pd.read_csv(dir_name)
+   list_1=codefundsecname['code']
+
    #########################生成图片#####################################
-
    for index_code in list_1:
-
-      local_url='C://temp//upload//'+ local_datetime + '_pattern_graph//'+local_datetime+'_'+code2secname[index_code]+'_detail.jpg'
+      code_name = codefundsecname[codefundsecname['code'] == index_code]['name'].str.strip()
+      code_name_new = code_name.astype(str).values[0]
+      local_url='C://temp//upload//'+ local_datetime + '_pattern_graph//'+local_datetime+'_'+code_name_new+'_detail.jpg'
       #'close,pre_close,high,low,amount'
       #fields=['trade_date','open', 'close', 'low', 'high']
 
-      dfs = [test_open[index_code],test_close[index_code],test_low[index_code],test_high[index_code]]
-      result = pd.concat(dfs,axis=1)
-      result.columns = ['open', 'close', 'low', 'high']
+      #dfs = [test_open[index_code],test_close[index_code],test_low[index_code],test_high[index_code]]
+      #result = pd.concat(dfs,axis=1)
+      #result.columns = ['open', 'close', 'low', 'high']
+
+      result: pd.DataFrame = D.features(
+         index_code.split(),
+         fields=["$open", "$close", "$low","$high" ],
+         start_time=start_time,
+         end_time=end_time,
+      ).reset_index(level=0, drop=True)
+      result.columns = result.columns.str.replace('$', '')
+
       
       data1=result[-40:]
+      #data1.index.rename('trade_date', inplace=True)
       data1.index = pd.to_datetime(data1.index)
       data1.sort_index(inplace=True)
+      data1.index.name = 'trade_date'
       ###为了提前生成图形，生成t+1天模拟数据，跟T价格指数相同
       data1.loc[data1.index[-1] + datetime.timedelta(days=1)] = data1.iloc[-1, :]+data1.iloc[-1, :]*0.001
+      data1 = data1.astype('float64')
 
 
       #############图形判断###############
       #patterns_record1 = rolling_patterns2pool(data1['close'],n=15)
       patterns_record1 = rolling_patterns(data1['close'], n=12)
-      plot_patterns_chart(data1,patterns_record1,True,False,code2secname[index_code],local_url.replace('detail', 'overall'))
-      plt.title(code2secname[index_code])
-      plot_patterns_chart(data1,patterns_record1,True,True,code2secname[index_code],local_url);
+      plot_patterns_chart(data1, patterns_record1, True, False,code_name_new,
+                          local_url.replace('detail', 'overall'))
+
+      plt.title(code_name_new)
+      plot_patterns_chart(data1,patterns_record1,True,True,code_name_new,local_url);
       plt.close()
       ####################################
 
@@ -103,8 +135,10 @@ if __name__ == '__main__':
 
       ####################################
 
-   ######################### 邮件发送#####################################
-   local_url_mail = 'C://temp//upload//'+ local_datetime + '_pattern_graph//' + local_datetime
-   recer = ["tianfangfang1105@126.com","huangtuo02@163.com", ]
-   send_fundmail=send_mail_tool(_recer=recer,local_url=local_url_mail,name_list=list_1).action_send()
+     ######################## 邮件发送#####################################
+
+   
+   local_url_mail = 'C://temp//upload//' + local_datetime + '_pattern_graph//' + local_datetime
+   recer = ["tianfangfang1105@126.com", "huangtuo02@163.com", ]
+   send_fundmail = send_mail_tool(_recer=recer, local_url=local_url_mail, name_list=list_1).action_send()
 

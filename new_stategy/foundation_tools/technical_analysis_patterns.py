@@ -521,8 +521,131 @@ def rolling_patterns(price: pd.Series, *, bw: Union[str, np.ndarray] = 'cv_ls', 
 
     return record
 
+################################
 
-def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, slice_range: bool = False, subplots: bool = False, fund_name: str = None,local_url: str = None, ax=None):
+def plot_patterns_chart(ohlc_data: pd.DataFrame, record_patterns: namedtuple, slice_range: bool = False,
+                        subplots: bool = False, fund_name: str = None, local_url: str = None, ax=None):
+    """标记识别出来的形态
+
+    Args:
+        ohlc_data (pd.DataFrame): 完整的行情数据OHLC
+        record_patterns (namedtuple): 形态标记数据
+        slice_range (bool, optional): True划分区间,False全行情展示. Defaults to False.
+        subplots (bool, optional): 按形态名称子图划分. Defaults to False.
+
+    Returns:
+        [type]: [description]
+    """
+    warnings.simplefilter(action='ignore', category=FutureWarning)
+
+    COLORS = ['Crimson', 'DarkGoldenRod', 'DarkOliveGreen', 'DeepSkyBlue']
+
+    # 检查模式和点是否存在
+    if not record_patterns.patterns or not record_patterns.points:
+        plt.figure(figsize=(10, 6))
+        plt.title(f"No patterns found for {fund_name}")
+        plt.savefig(local_url)
+        plt.close()
+        return ''
+
+    # 设置蜡烛图风格
+    mc = mpf.make_marketcolors(up='r', down='g',
+                               wick='i',
+                               edge='i',
+                               ohlc='i')
+
+    s = mpf.make_mpf_style(marketcolors=mc)
+
+    def _get_slice_price(tline: Union[Dict, np.array], slice_end: bool = True) -> pd.DataFrame:
+        """划分区间"""
+        if isinstance(tline, dict):
+            start_idx = ohlc_data.index.get_loc(tline['tlines'][0][0])
+            end_idx = ohlc_data.index.get_loc(tline['tlines'][-1][-1])
+            start = max(0, start_idx - 25)
+            if slice_end:
+                end = min(len(ohlc_data), end_idx + 30)
+            else:
+                end = max(len(ohlc_data), end_idx + 30)
+            return ohlc_data.iloc[start:end]
+        else:
+            start_idx = ohlc_data.index.get_loc(tline[0])
+            end_idx = ohlc_data.index.get_loc(tline[-1])
+            start = max(0, start_idx - 25)
+            end = min(len(ohlc_data), end_idx + 30)
+            return ohlc_data.iloc[start:end]
+
+    # 线段划分标记
+    datepairs: List = []
+    titles: List = []
+    for title, dates in record_patterns.points.items():
+        for d in dates:
+            d = pd.to_datetime(d)
+            datepair = [(d1, d2) for d1, d2 in zip(d, d[1:])]
+            datepairs.append(datepair)
+            titles.append(title)
+
+    max_date = max(max(sum(datepairs, []))).strftime('%Y-%m-%d')
+    tlines = [dict(tlines=datepair, tline_use='close', colors=color, alpha=0.5, linewidths=5)
+              for datepair, color in zip(datepairs, itertools.cycle(COLORS)) if datepair]
+
+    # 是否拆分画图
+    if subplots:
+        length = len(tlines)
+        rows = int(np.ceil(length * 0.5))
+
+        if ax is None:
+            fig, axes = plt.subplots(rows, 2, figsize=(18, 3 * length))
+        else:
+            axes = ax
+
+        axes = axes.flatten()
+
+        for ax_i, (title, tline, ax) in enumerate(itertools.zip_longest(titles, tlines, axes)):
+            if (ax_i == len(axes) - 1) and (length % 2 != 0):
+                ax.axis('off')
+                break
+
+            ax.set_title(fund_name + '_' + title)
+
+            if slice_range:
+                mpf.plot(_get_slice_price(tline), style=s, tlines=[tline],
+                         type='candle', datetime_format='%Y-%m-%d', ax=ax)
+            else:
+                mpf.plot(ohlc_data, style=s, tlines=[tline],
+                         type='candle', datetime_format='%Y-%m-%d', ax=ax)
+
+        plt.subplots_adjust(hspace=0.5)
+        plt.savefig(local_url)
+        plt.close()
+        return axes
+
+    else:
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(18, 6))
+
+        if slice_range:
+            all_dates: np.ndarray = np.array(
+                [x for i in record_patterns.points.values() for x in i])
+            all_dates = np.sort(np.unique(all_dates.flatten()))
+            all_dates = pd.to_datetime(all_dates)
+
+            plot_data = _get_slice_price(all_dates, False)
+            mpf.plot(plot_data, style=s, tlines=tlines,
+                     type='candle', datetime_format='%Y-%m-%d', ax=ax)
+            plt.title(fund_name + ' 最后标记日 ' + max_date)
+        else:
+            mpf.plot(ohlc_data, style=s, tlines=tlines,
+                     type='candle', datetime_format='%Y-%m-%d', ax=ax)
+
+        plt.savefig(local_url)
+        plt.close()
+        return ax
+
+
+"""使用Multiprocessing"""
+##################################
+
+def plot_patterns_chart1(ohlc_data: pd.DataFrame, record_patterns: namedtuple, slice_range: bool = False, subplots: bool = False, fund_name: str = None,local_url: str = None, ax=None):
     """标记识别出来的形态
 
     Args:
