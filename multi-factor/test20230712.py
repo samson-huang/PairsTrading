@@ -60,8 +60,8 @@ def get_weighs(symbol: str, start: str, end: str, method: str = 'cons') -> pd.Da
         mehtod:ind 输出 行业权重
                cons 输出 成份股权重
     '''
-    periods = GetTradePeriod(start, end, 'ME')
-
+    #periods = GetTradePeriod(start, end, 'ME')
+    periods = pd.Index(pd.to_datetime(['2023-07-03']))
     ser_dic = {}
 
     if method == 'ind':
@@ -80,7 +80,7 @@ def get_weighs(symbol: str, start: str, end: str, method: str = 'cons') -> pd.Da
         ser['date'] = pd.to_datetime(ser['date'])
         return ser.set_index(['date', 'industry'])
         '''
-        elif method == 'cons':
+    elif method == 'cons':
 
         # df = pd.concat([get_index_weights(symbol, date=d) for d in periods])
         # 查询到对应日期，且有权重数据，返回
@@ -123,8 +123,11 @@ def GetTradePeriod(start_date: str, end_date: str, freq: str = 'ME') -> list:
 
     #days = pd.Index(pd.to_datetime(get_trade_days(start_date, end_date)))
 
-    trade_cal = pro.trade_cal(exchange='SSE', start_date=start_date, end_date=end_date, is_open='1')
-    trade_cal = trade_cal['cal_date']
+    #20240911
+    #trade_cal = pro.trade_cal(exchange='SSE', start_date=start_date, end_date=end_date, is_open='1')
+    #trade_cal = trade_cal['cal_date']
+
+    trade_cal = ['2023-07-03']
     days = pd.Index(pd.to_datetime(trade_cal))
     #获取指定日期范围内的所有交易日, 返回 [numpy.ndarray], 包含指定的 start_date
     # 和 end_date, 默认返回至 datatime.date.today() 的所有交易日
