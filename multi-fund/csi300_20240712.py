@@ -101,6 +101,7 @@ benchmark_ret: pd.Series = benchmark['$close'].pct_change()
 
 
 trade_logger = bt_result.result[0].analyzers._trade_logger.get_analysis()
+trade_logger_df = pd.DataFrame(trade_logger)
 TradeListAnalyzer = bt_result.result[0].analyzers._TradeListAnalyzer.get_analysis()
 
 OrderAnalyzer = bt_result.result[0].analyzers._OrderAnalyzer.get_analysis()

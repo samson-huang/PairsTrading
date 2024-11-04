@@ -13,6 +13,7 @@ dir_name = 'C:/Users/huangtuo/.qlib/qlib_data/fund_data/change_csv'
 
 import pandas as pd
 import akshare as ak
+import random
 
 def fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date):
     codefundsecname = pd.read_csv(codefundsecname_file)
@@ -20,60 +21,52 @@ def fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date):
     etf_code = codefundsecname[codefundsecname['type'] == 'etf']['code']
     index_code = codefundsecname[codefundsecname['type'] == 'index']['code']
 
-    for original_str in lof_code:
-        fund_lof_hist_em_df = ak.fund_lof_hist_em(symbol=original_str[2:], period="daily", start_date=start_date, end_date=end_date, adjust="")
-        fund_lof_hist_em_df = fund_lof_hist_em_df.rename(columns={
-            '日期': 'date',
-            '开盘': 'open',
-            '收盘': 'close',
-            '最高': 'high',
-            '最低': 'low',
-            '成交量': 'volume'
-        })
-        fund_lof_hist_em_df = fund_lof_hist_em_df[['date', 'open', 'close', 'high', 'low', 'volume']]
+    data_codes = {
+        'lof_code': lof_code,
+        'etf_code': etf_code,
+        'index_code': index_code
+    }
 
-        #fund_lof_hist_em_df['date'] = pd.to_datetime(fund_lof_hist_em_df['date'], format='%Y-%m-%d', errors='coerce')
-        #fund_lof_hist_em_df['date'] = fund_lof_hist_em_df['date'].astype('datetime64[ns]')
-        fund_lof_hist_em_df['date'] = pd.to_datetime(fund_lof_hist_em_df['date']).dt.strftime('%Y-%m-%d')
-        fund_lof_hist_em_df['date'] = fund_lof_hist_em_df['date'].astype('datetime64[ns]')
-        fund_lof_hist_em_df['code'] = original_str
-        file_name = f"{dir_name}/{original_str}.csv"
-        fund_lof_hist_em_df.to_csv(file_name, header=True, index=False)
+    for code_type, codes in data_codes.items():
+        for original_str in codes:
+            try:
+                if code_type == 'lof_code':
+                    fund_df = ak.fund_lof_hist_em(symbol=original_str[2:], period="daily", start_date=start_date, end_date=end_date, adjust="")
+                elif code_type == 'etf_code':
+                    fund_df = ak.fund_etf_hist_em(symbol=original_str[2:], period="daily", start_date=start_date, end_date=end_date, adjust="")
+                elif code_type == 'index_code':
+                    fund_df = ak.stock_zh_index_daily_em(symbol=original_str, start_date=start_date, end_date=end_date)
 
-    for original_str in etf_code:
-        fund_etf_hist_em_df = ak.fund_etf_hist_em(symbol=original_str[2:], period="daily", start_date=start_date, end_date=end_date, adjust="")
-        fund_etf_hist_em_df = fund_etf_hist_em_df.rename(columns={
-            '日期': 'date',
-            '开盘': 'open',
-            '收盘': 'close',
-            '最高': 'high',
-            '最低': 'low',
-            '成交量': 'volume'
-        })
-        fund_etf_hist_em_df = fund_etf_hist_em_df[['date', 'open', 'close', 'high', 'low', 'volume']]
-        #fund_etf_hist_em_df['date'] = pd.to_datetime(fund_etf_hist_em_df['date'], format='%Y-%m-%d', errors='coerce')
-        fund_etf_hist_em_df['date'] = pd.to_datetime(fund_etf_hist_em_df['date']).dt.strftime('%Y-%m-%d')
-        fund_etf_hist_em_df['date'] = fund_etf_hist_em_df['date'].astype('datetime64[ns]')
-        fund_etf_hist_em_df['code'] = original_str
-        file_name = f"{dir_name}/{original_str}.csv"
-        fund_etf_hist_em_df.to_csv(file_name, header=True, index=False)
+                if fund_df.empty:
+                    raise ValueError(f"No data retrieved for {original_str}")
 
-    for original_str in index_code:
-        fund_index_hist_em_df = ak.stock_zh_index_daily_em(symbol=original_str, start_date=start_date, end_date=end_date)
-        fund_index_hist_em_df = fund_index_hist_em_df[['date', 'open', 'close', 'high', 'low', 'volume']]
-        #fund_index_hist_em_df['date'] = pd.to_datetime(fund_index_hist_em_df['date'], format='%Y-%m-%d', errors='coerce')
-        fund_index_hist_em_df['date'] = pd.to_datetime(fund_index_hist_em_df['date']).dt.strftime('%Y-%m-%d')
-        fund_index_hist_em_df['date'] = fund_index_hist_em_df['date'].astype('datetime64[ns]')
-        fund_index_hist_em_df['code'] = original_str
-        file_name = f"{dir_name}/{original_str}.csv"
-        fund_index_hist_em_df.to_csv(file_name, header=True, index=False)
+                fund_df = fund_df.rename(columns={
+                    '日期': 'date',
+                    '开盘': 'open',
+                    '收盘': 'close',
+                    '最高': 'high',
+                    '最低': 'low',
+                    '成交量': 'volume'
+                })
+                fund_df = fund_df[['date', 'open', 'close', 'high', 'low', 'volume']]
+                fund_df['date'] = pd.to_datetime(fund_df['date']).dt.strftime('%Y-%m-%d')
+                fund_df['date'] = fund_df['date'].astype('datetime64[ns]')
+                fund_df['code'] = original_str
+                file_name = f"{dir_name}/{original_str}.csv"
+                fund_df.to_csv(file_name, header=True, index=False)
+            except Exception as e:
+                print(f"Error for {original_str}: {e}")
+            finally:
+                # 随机暂停 5 到 15 秒
+                random_delay = random.randint(1, 10)
+                time.sleep(random_delay)
 
 
 
 codefundsecname_file = 'c:\\temp\\upload\\codefundsecname.csv'
 #dir_name = 'c:/temp/20240722'
 start_date = '20050101'
-end_date = '20241101'
+end_date = '20241104'
 
 fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date)
 

@@ -1,20 +1,45 @@
-﻿code,name,type
-sh000016,上证50       ,index
-sh000300,沪深300      ,index
-sh000688,科创50       ,index
-sh000852,中证1000     ,index
-sh000905,中证500      ,index
-sz399006,创业板指     ,index
-sh518880,黄金etf      ,etf
-sz159605,中国互联网30 ,etf
-sh513050,中概互联50   ,etf
-sz159941,纳指100      ,etf
-sh513500,标普500      ,etf
+code,name,type
+sh000016,上证50,index
+sh000300,沪深300,index
+sh000688,科创50,index
+sh000852,中证1000,index
+sh000905,中证500,index
+sz399006,创业板指,index
+sh518880,华安黄金etf,etf
+sz159605,中国互联网30,etf
+sh513050,易方达中概互联50,etf
+sz159941,广发纳指100,etf
+sh513500,博时标普500,etf
 sh510900,港股互联网ETF,etf
-sz159985,豆粕ETF      ,etf
-sh515220,煤炭ETF      ,etf
-sh513520,日经ETF      ,etf
-sh513030,德国ETF      ,etf
-sh511010,国债ETF      ,etf
-sz162411,华宝油气LOF  ,lof
-sz161226,国投白银LOF  ,lof
+sz159985,豆粕ETF,etf
+sh515220,煤炭ETF,etf
+sh513520,日经ETF,etf
+sh513030,德国ETF,etf
+sh511010,国债ETF,etf
+sz162411,华宝油气LOF,lof
+sz161226,国投白银LOF,lof
+sz159967,创成长ETF,etf
+sh510300,华泰沪深300ETF,etf
+sh510050,华夏上证50ETF,etf
+sh510500,南方中证500ETF,etf
+sh588000,华夏科创50ETF,etf
+sz159915,易方达创业板ETF,etf
+sh512100,南方中证1000ETF,etf
+sh511380,博时可转债ETF,etf
+sh512880,国泰证券ETF,etf
+sh512170,华宝医疗ETF,etf
+sz159792,富国港股通互联网ETF,etf
+sz159338,中证A500ETF,etf
+sh510880,华泰红利ETF,etf
+sh512690,鹏华酒ETF,etf
+sh512660,国泰军工ETF,etf
+sh512800,华宝银行ETF,etf
+sh512200,南方房地产ETF,etf
+sh513980,景顺港股科技50ETF,etf
+sz159636,工银港股通科技30ETF ,etf
+sh512400,南方有色金属ETF,etf
+sz159865,国泰养殖ETF,etf
+sh501018,南方原油LOF,lof
+sh515210,国泰钢铁ETF,etf
+sh516020,华宝化工ETF,etf
+sz164824,工银印度基金LOF,lof
