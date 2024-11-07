@@ -118,7 +118,41 @@ from plotly.offline import init_notebook_mode
 init_notebook_mode()
 for chart in report:
     iplot(chart)
+#######################################################
+#######################################################
 
+i = 1
+for element in TradeListAnalyzer:
+    # 将整数i转换为字符串，并与路径字符串连接
+    filename = f'c:\\temp\\mixed_output_{i}.csv'
+
+    if isinstance(element, pd.DataFrame):
+        # 如果元素是DataFrame，直接导出到CSV文件
+        element.to_csv(filename, index=False)
+        print(f"元素是DataFrame，已导出到: {filename}")
+    elif isinstance(element, dict):
+        # 如果元素是字典，转换为DataFrame后再导出到CSV文件
+        df = pd.DataFrame([element])
+        df.to_csv(filename, index=False)
+        print(f"元素是字典，已转换为DataFrame并导出到: {filename}")
+    else:
+        print(f"元素类型为: {type(element)}, 不支持导出到CSV")
+
+    print("/n  ---------------------------/n")
+
+    i += 1  # 确保每次循环i的值都会增加
+
+
+test1=pd.read_csv("c:\\temp\\mixed_output_1.csv")
+test1 = test1.rename(columns={ '股票': 'code'})
+test1['code'] = test1['code'].str.lower()
+codefundsecname = pd.read_csv('c:\\temp\\upload\\codefundsecname.csv')
+merged_df = pd.merge( codefundsecname,test1, on='code', how='outer')
+merged_df.to_csv("c:\\temp\\merged_df_20241107.csv")
+################################
+###########################
+
+'''
 #############################################
 #############################################
 trader_df = pd.DataFrame(trade_logger)
@@ -165,6 +199,15 @@ for element in TradeListAnalyzer:
 
     i += 1  # 确保每次循环i的值都会增加
 
+
+
+test1=pd.read_csv("c:\\temp\\mixed_output_1.csv")
+test1 = test1.rename(columns={ '股票': 'code'})
+test1['code'] = test1['code'].str.lower()
+codefundsecname = pd.read_csv('c:\\temp\\upload\\codefundsecname.csv')
+merged_df = pd.merge(test1, codefundsecname,on='code', how='outer')
+
+'''
 
 
 
