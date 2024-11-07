@@ -68,32 +68,37 @@ class send_mail_tool:
         codefundsecname = pd.read_csv(dir_name)
 
         for index_code in list_1:
-            #构造附件2，传输当前目录下的图片.jpg文件
+            # 构造附件2，传输当前目录下的图片.jpg文件
             code_name = codefundsecname[codefundsecname['code'] == index_code]['name'].str.strip()
             code_name_new = code_name.astype(str).values[0]
-            local_url_new=self.local_url+'_'+code_name_new+'_detail.jpg'
-            att2=MIMEText(open(local_url_new,'rb').read(),'base64','utf-8')
-            att2['Content-Type']='application/octet-stream'
-            att2['Content-Disposition']='attachment;filename="'+index_code.replace('.', '')+'.jpg''"' #filename填什么，邮件里边展示什么
-            msg.attach(att2)
+            local_url_new = self.local_url + '_' + code_name_new + '_detail.jpg'
+            try:
+                with open(local_url_new, 'rb') as f:
+                    att2 = MIMEText(f.read(), 'base64', 'utf-8')
+                    att2['Content-Type'] = 'application/octet-stream'
+                    att2['Content-Disposition'] = 'attachment;filename="' + index_code.replace('.', '') + '.jpg' + '"'
+                    msg.attach(att2)
+            except FileNotFoundError:
+                print(f"File not found: {local_url_new}. Skipping attachment.")
 
-            local_url_new=self.local_url+'_'+code_name_new+'_overall.jpg'
-            att3=MIMEText(open(local_url_new,'rb').read(),'base64','utf-8')
-            att3['Content-Type']='application/octet-stream'
-            att3['Content-Disposition']='attachment;filename="'+index_code.replace('.', '')+'.jpg''"' #filename填什么，邮件里边展示什么
-            msg.attach(att3)
-        #msg.attach(att1)
-
-        #msg.attach(att3)
+            local_url_new = self.local_url + '_' + code_name_new + '_overall.jpg'
+            try:
+                with open(local_url_new, 'rb') as f:
+                    att3 = MIMEText(f.read(), 'base64', 'utf-8')
+                    att3['Content-Type'] = 'application/octet-stream'
+                    att3['Content-Disposition'] = 'attachment;filename="' + index_code.replace('.', '') + '.jpg' + '"'
+                    msg.attach(att3)
+            except FileNotFoundError:
+                print(f"File not found: {local_url_new}. Skipping attachment.")
 
         try:
-            s=smtplib.SMTP_SSL("smtp.qq.com",465)
-            s.login(self._user,self._pwd)
-            s.sendmail(self._user,self._recer,msg.as_string())
+            s = smtplib.SMTP_SSL("smtp.qq.com", 465)
+            s.login(self._user, self._pwd)
+            s.sendmail(self._user, self._recer, msg.as_string())
             s.quit()
             print("Success!")
         except smtplib.SMTPException as e:
-            print("Failed,%s"%e)
+            print("Failed, %s" % e)
 
 
 

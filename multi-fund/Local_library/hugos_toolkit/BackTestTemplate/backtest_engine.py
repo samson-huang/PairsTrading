@@ -34,7 +34,7 @@ class OrderAnalyzer(bt.analyzers.Analyzer):
             'order_ref': order.ref,  # 订单参考编号
             'order_status': order.getstatusname(),  # 订单状态
             'order_date': bt.num2date(order.data.datetime[0]),  # 订单日期
-            'order_data': order.data._name,  # 相关代码名称
+            'order_name': order.data._name,  # 相关代码名称
             'order_size': order.size,  # 订单数量
             'order_price': order.price,  # 订单价格
             'order_value': order.executed.value,  # 订单金额
@@ -47,39 +47,30 @@ class OrderAnalyzer(bt.analyzers.Analyzer):
     def get_analysis(self):
         return self.orders
 
-class TradeAnalyzer_1(bt.analyzers.Analyzer):
+class SellDataLogger(bt.Analyzer):
     def __init__(self):
-        self.trades = []
-        self.cumprofit = 0.0
+        self.sell_trades = []
 
     def notify_trade(self, trade):
-        if not trade.isclosed:
-            return
-
-        self.cumprofit += trade.pnl
-
-        # 记录交易信息
-        trade_info = {
-            'ref': trade.ref,  # 交易参考编号
-            'buy_date': bt.num2date(trade.dtopen),  # 买入日期
-            'buy_price': trade.price,  # 买入价格
-            'buy_size': trade.size,  # 买入数量
-            'sell_date': bt.num2date(trade.dtclose),  # 卖出日期
-            #'sell_price': trade.priceclosed,  # 卖出价格
-            'sell_size': trade.sizeclosed,  # 卖出数量
-            'pnl': trade.pnl,  # 盈亏金额
-        }
-        self.trades.append(trade_info)
-
-    def get_analysis(self):
-        return {
-            'trades': self.trades,
-            'cumprofit': self.cumprofit,
-        }
+        if trade and trade.isclosed:
+            sell_date = bt.num2date(trade.dtclose)
+            self.sell_trades.append({
+                'ref': trade.ref,
+                'sell_date': sell_date,
+                'sell_name': trade.data._name,
+                'sell_price': trade.priceclosed,
+                'sell_size': trade.sizeclosed,
+                'sell_value': trade.valueclosed,
+                'sell_day_close': trade.data.close[0],
+                'sell_rank_1': trade.data.rank[-1],
+                'sell_rank': trade.data.rank[0],
+                'pnl': trade.pnl,
+            })
 ##############################################################
 class TradeLogger(bt.Analyzer):
     def __init__(self):
         self.trades = []
+        self.date_index = 0
 
     def notify_trade(self, trade):
         if not trade:
@@ -88,6 +79,14 @@ class TradeLogger(bt.Analyzer):
         #if not trade.isclosed:
             #return
         # 当交易发生时调用
+        # 获取当前日期
+        current_date = bt.num2date(trade.dtopen)
+
+        # 尝试获取下一日日期
+        next_date = None
+        if len(trade.data) > trade.dtopen + 1:
+            next_date = bt.num2date(trade.data.datetime[trade.dtopen + 1])
+
         self.trades.append({
             'ref': trade.ref,  # 交易参考编号
             #'buy_date': bt.num2date(trade.dtopen),  # 买入日期
@@ -99,11 +98,13 @@ class TradeLogger(bt.Analyzer):
             'buy_day_close': trade.data.close[0],  # 当前收盘价格
             'buy_rank_1': trade.data.rank[-1],  # 排名
             'buy_rank': trade.data.rank[0],  # 当前排名
+            'buy_after_close': trade.data.close[trade.dtopen + 1] if trade.dtopen + 1 < len(trade.data.close) else None,  # 后一日收盘价格
             #'sell_date': bt.num2date(trade.dtclose),  # 卖出日期
             #'sell_price': trade.priceclosed,  # 卖出价格
             #'sell_size': trade.sizeclosed,  # 卖出数量
             #'pnl': trade.pnl,  # 盈亏金额
         })
+        self.date_index += 1
 
     def get_analysis(self):
         return self.trades
@@ -386,10 +387,10 @@ def get_backtesting(
     # 如果是True则表示是多个标的 数据加载采用for加载多组数据
     mulit_add_data: bool = kw.get("mulit_add_data", False)
     # slippage_perc滑点设置
-    slippage_perc: float = kw.get("slippage_perc", 0.0001)
+    slippage_perc: float = kw.get("slippage_perc", 0.0000)
     # 费用设置
-    commission: float = kw.get("commission", 0.0002)
-    stamp_duty: float = kw.get("stamp_duty", 0.001)
+    commission: float = kw.get("commission", 0.0000)
+    stamp_duty: float = kw.get("stamp_duty", 0.000)
     # 是否显示log
     show_log: bool = kw.get("show_log", True)
 
@@ -476,8 +477,10 @@ def get_backtesting(
     cerebro.addanalyzer(TradeListAnalyzer, _name="_TradeListAnalyzer")
     # 添加自定义的 TradeLogger 分析器
     cerebro.addanalyzer(TradeLogger, _name='_trade_logger')
+
     #cerebro.addanalyzer(TradeAnalyzer_1, _name='_TradeAnalyzer_1')
     cerebro.addanalyzer(OrderAnalyzer, _name='_OrderAnalyzer')
+    cerebro.addanalyzer(SellDataLogger, _name='_SellDataLogger')
 
 
     result = cerebro.run(tradehistory=True)

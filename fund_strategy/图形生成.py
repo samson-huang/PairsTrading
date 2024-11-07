@@ -116,7 +116,15 @@ if __name__ == '__main__':
       data1.sort_index(inplace=True)
       data1.index.name = 'trade_date'
       ###为了提前生成图形，生成t+1天模拟数据，跟T价格指数相同
-      data1.loc[data1.index[-1] + datetime.timedelta(days=1)] = data1.iloc[-1, :]+data1.iloc[-1, :]*0.001
+      #data1.loc[data1.index[-1] + datetime.timedelta(days=1)] = data1.iloc[-1, :]+data1.iloc[-1, :]*0.001
+      try:
+         last_row = data1.iloc[-1, :]
+         new_row = last_row + last_row * 0.001
+         new_index = data1.index[-1] + datetime.timedelta(days=1)
+         data1.loc[new_index] = new_row
+      except IndexError as e:
+         print(f"An index error occurred. Skipping this operation. Error: {e}")
+         continue
       data1 = data1.astype('float64')
 
 

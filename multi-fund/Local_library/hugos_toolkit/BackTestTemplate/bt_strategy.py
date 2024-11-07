@@ -259,6 +259,7 @@ class LowRankStrategy_new(bt.Strategy):
                 pos = self.getposition(d).size
                 if pos == 0 and ind["prev_rank"][0] >= self.params.buy_threshold :
                     # 买入信号
+                    #limit_price = d.close[0]
                     self.order = self.order_target_value(data=d, target=buy_amount)
                     print(f'Buy {d._name}, Amount: {buy_amount:.2f}, Prev rank: {ind["prev_rank"][0]:.2f}, date: {d.datetime.date(0)}')
                 elif pos > 0 and ind["prev_rank"][0] < 0  :
