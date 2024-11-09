@@ -408,9 +408,10 @@ class LowRankStrategy_new(bt.Strategy):
                             self.sell_stock(d, pos, ind)
                         else:
                             logging.info(f'Hold {d._name}, Not enough holding period, date: {d.datetime.date(0)}')
-                    elif (current_price / ind['purchase_price'] - 1) <= -0.05:
+                    ##############强制止损在-5%到-10%之间
+                    elif (current_price / ind['purchase_price'] - 1) <= -0.8:
                         logging.info(
-                            f"Sell {d._name}, Purchase Price: {ind['purchase_price']:.2f}, Current Price: {current_price:.2f}, Loss exceeded 5%")
+                            f"Sell {d._name}, date: {d.datetime.date(0)}, Purchase Price: {ind['purchase_price']:.2f}, Current Price: {current_price:.2f}, Loss exceeded 5%")
                         self.sell_stock(d, pos, ind)
 
     def buy_stock(self, data, amount, ind):

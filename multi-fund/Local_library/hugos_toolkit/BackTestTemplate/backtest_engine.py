@@ -47,25 +47,46 @@ class OrderAnalyzer(bt.analyzers.Analyzer):
     def get_analysis(self):
         return self.orders
 
-class SellDataLogger(bt.Analyzer):
+class TradeStatisticsAnalyzer(bt.Analyzer):
     def __init__(self):
-        self.sell_trades = []
+        self.trades = []
+        self.win_trades = 0
+        self.loss_trades = 0
+        self.total_profit = 0
+        self.total_loss = 0
 
     def notify_trade(self, trade):
-        if trade and trade.isclosed:
-            sell_date = bt.num2date(trade.dtclose)
-            self.sell_trades.append({
-                'ref': trade.ref,
-                'sell_date': sell_date,
-                'sell_name': trade.data._name,
-                'sell_price': trade.priceclosed,
-                'sell_size': trade.sizeclosed,
-                'sell_value': trade.valueclosed,
-                'sell_day_close': trade.data.close[0],
-                'sell_rank_1': trade.data.rank[-1],
-                'sell_rank': trade.data.rank[0],
-                'pnl': trade.pnl,
-            })
+        if trade.isclosed:
+            self.trades.append(trade)
+            profit = trade.pnlcomm
+            if profit > 0:
+                self.win_trades += 1
+                self.total_profit += profit
+            else:
+                self.loss_trades += 1
+                self.total_loss += profit
+
+    def get_analysis(self):
+        total_trades = len(self.trades)
+        if total_trades > 0:
+            win_rate = self.win_trades / total_trades
+            average_profit = self.total_profit / self.win_trades if self.win_trades > 0 else 0
+            average_loss = self.total_loss / self.loss_trades if self.loss_trades > 0 else 0
+
+            # 盈利与亏损分布分析
+            profit_loss_distribution = {
+                'profits': [trade.pnlcomm for trade in self.trades if trade.pnlcomm > 0],
+                'losses': [trade.pnlcomm for trade in self.trades if trade.pnlcomm < 0]
+            }
+
+            return {
+                'total_trades': total_trades,
+                'win_rate': win_rate,
+                'average_profit': average_profit,
+                'average_loss': average_loss,
+                'profit_loss_distribution': profit_loss_distribution
+            }
+        return {}
 ##############################################################
 class TradeLogger(bt.Analyzer):
     def __init__(self):
@@ -480,7 +501,7 @@ def get_backtesting(
 
     #cerebro.addanalyzer(TradeAnalyzer_1, _name='_TradeAnalyzer_1')
     cerebro.addanalyzer(OrderAnalyzer, _name='_OrderAnalyzer')
-    cerebro.addanalyzer(SellDataLogger, _name='_SellDataLogger')
+    cerebro.addanalyzer(TradeStatisticsAnalyzer, _name='_TradeStatisticsAnalyzer')
 
 
     result = cerebro.run(tradehistory=True)

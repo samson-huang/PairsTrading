@@ -101,13 +101,12 @@ benchmark_ret: pd.Series = benchmark['$close'].pct_change()
 
 trade_logger = bt_result.result[0].analyzers._trade_logger.get_analysis()
 TradeListAnalyzer = bt_result.result[0].analyzers._TradeListAnalyzer.get_analysis()
-SellDataLogger = bt_result.result[0].analyzers._SellDataLogger.get_analysis()
+TradeStatisticsAnalyzer = bt_result.result[0].analyzers._TradeStatisticsAnalyzer.get_analysis()
 
 OrderAnalyzer = bt_result.result[0].analyzers._OrderAnalyzer.get_analysis()
 
 trader_df = pd.DataFrame(trade_logger)
 orders_df = pd.DataFrame(OrderAnalyzer)
-SellDataLogger_df  = pd.DataFrame(SellDataLogger)
 
 algorithm_returns: pd.Series = pd.Series(
     bt_result.result[0].analyzers._TimeReturn.get_analysis()
@@ -163,6 +162,44 @@ trader_df_new['code'] = trader_df_new['code'].str.lower()
 merged_df = pd.merge(trader_df_new, codefundsecname,on='code', how='outer')
 
 merged_df.to_csv('c:\\temp\\trader_df_20241108.csv')
+#print(TradeStatisticsAnalyzer)
+
+def save_trade_statistics_to_csv(analysis, csv_filename):
+    if analysis:
+        df = pd.DataFrame({
+            'total_trades': [analysis['total_trades']],
+            'win_rate': [analysis['win_rate']],
+            'average_profit': [analysis['average_profit']],
+            'average_loss': [analysis['average_loss']],
+            'num_profits': [len(analysis['profit_loss_distribution']['profits'])],
+            'num_losses': [len(analysis['profit_loss_distribution']['losses'])]
+        })
+
+        # 获取盈利和亏损列表的统计信息
+        if analysis['profit_loss_distribution']['profits']:
+            df['max_profit'] = [max(analysis['profit_loss_distribution']['profits'])]
+            df['min_profit'] = [min(analysis['profit_loss_distribution']['profits'])]
+            df['median_profit'] = [pd.Series(analysis['profit_loss_distribution']['profits']).median()]
+        else:
+            df['max_profit'] = [None]
+            df['min_profit'] = [None]
+            df['median_profit'] = [None]
+
+        if analysis['profit_loss_distribution']['losses']:
+            df['max_loss'] = [min(analysis['profit_loss_distribution']['losses'])]
+            df['min_loss'] = [max(analysis['profit_loss_distribution']['losses'])]
+            df['median_loss'] = [pd.Series(analysis['profit_loss_distribution']['losses']).median()]
+        else:
+            df['max_loss'] = [None]
+            df['min_loss'] = [None]
+            df['median_loss'] = [None]
+
+        df.to_csv(csv_filename, index=False)
+    else:
+        print("No analysis results available.")
+
+
+save_trade_statistics_to_csv(TradeStatisticsAnalyzer,'c:\\temp\\TradeStatisticsAnalyzer_20241109.csv')
 ################################
 ###########################
 
