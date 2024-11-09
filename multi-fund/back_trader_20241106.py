@@ -70,6 +70,10 @@ new_df = raw_data.reindex(new_index, fill_value=0)
 
 new_df = new_df.reset_index(level='code')
 
+#剔除不在白名单里的所有股票
+whitelist = pd.read_csv('C:\\temp\\important\\whitelist.csv')
+new_df = new_df[new_df['code'].isin(whitelist['code'])]
+##########################
 # 筛选出 datetime 大于 '2023-05-23' 的所有数据行
 #new_df.loc[(new_df.index.get_level_values('datetime') == '2023-05-23'), :].head(2)
 
@@ -146,9 +150,19 @@ for element in TradeListAnalyzer:
 test1=pd.read_csv("c:\\temp\\mixed_output_1.csv")
 test1 = test1.rename(columns={ '股票': 'code'})
 test1['code'] = test1['code'].str.lower()
-codefundsecname = pd.read_csv('c:\\temp\\upload\\codefundsecname.csv')
+codefundsecname = pd.read_csv('c:\\temp\\important\\codefundsecname.csv')
 merged_df = pd.merge( codefundsecname,test1, on='code', how='outer')
 merged_df.to_csv("c:\\temp\\merged_df_20241107.csv")
+
+
+trader_df = pd.DataFrame(trade_logger)
+# 使用字典修改列名
+codefundsecname = pd.read_csv('c:\\temp\\important\\codefundsecname.csv')
+trader_df_new = trader_df.rename(columns={'buy_date': 'datetime', 'buy_name': 'code'})
+trader_df_new['code'] = trader_df_new['code'].str.lower()
+merged_df = pd.merge(trader_df_new, codefundsecname,on='code', how='outer')
+
+merged_df.to_csv('c:\\temp\\trader_df_20241108.csv')
 ################################
 ###########################
 

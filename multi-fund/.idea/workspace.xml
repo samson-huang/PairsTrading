@@ -5,13 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b2be071f-6bc6-4bbd-8bf9-357f65853097" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../fund_strategy/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/../fund_strategy/.idea/.name" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fund_strategy/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../fund_strategy/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../fund_strategy/图形生成.py" beforeDir="false" afterPath="$PROJECT_DIR$/../fund_strategy/图形生成.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/backtest_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/backtest_engine.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../new_stategy/foundation_tools/send_mail_tool.py" beforeDir="false" afterPath="$PROJECT_DIR$/../new_stategy/foundation_tools/send_mail_tool.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back_trader_20241106.py" beforeDir="false" afterPath="$PROJECT_DIR$/back_trader_20241106.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -156,8 +154,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.back_trader_20241106" />
-        <item itemvalue="Python.backtest_engine" />
         <item itemvalue="Python.bt_strategy" />
+        <item itemvalue="Python.backtest_engine" />
         <item itemvalue="Python.fund_20241105" />
         <item itemvalue="Python.图形生成" />
       </list>
@@ -307,22 +305,22 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
-          <line>118</line>
+          <line>116</line>
           <option name="timeStamp" value="107" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
-          <line>127</line>
+          <line>125</line>
           <option name="timeStamp" value="108" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
-          <line>128</line>
+          <line>126</line>
           <option name="timeStamp" value="109" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py</url>
-          <line>112</line>
+          <line>110</line>
           <option name="timeStamp" value="112" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">

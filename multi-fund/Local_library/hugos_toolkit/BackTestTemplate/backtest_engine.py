@@ -330,7 +330,7 @@ class TradeRecord(bt.Analyzer):
 # 考虑佣金和印花税的股票百分比费用
 class StockCommission(bt.CommInfoBase):
     params = (
-        ("stamp_duty", 0.001),
+        ("stamp_duty", 0.000),
         ("stocklike", True),  # 指定为股票模式
         ("commtype", bt.CommInfoBase.COMM_PERC),  # 使用百分比费用模式
         ("percabs", True),
@@ -416,7 +416,7 @@ def get_backtesting(
     '''
     '''
     cerebro = bt.Cerebro()
-    cerebro.broker.setcash(1e9)
+    cerebro.broker.setcash(1000000)
     if (begin_dt is None) or (end_dt is None):
         begin_dt = data.index.min()
         end_dt = data.index.max()
