@@ -102,6 +102,7 @@ benchmark_ret: pd.Series = benchmark['$close'].pct_change()
 trade_logger = bt_result.result[0].analyzers._trade_logger.get_analysis()
 TradeListAnalyzer = bt_result.result[0].analyzers._TradeListAnalyzer.get_analysis()
 TradeStatisticsAnalyzer = bt_result.result[0].analyzers._TradeStatisticsAnalyzer.get_analysis()
+DailyPositionAnalyzer = bt_result.result[0].analyzers._DailyPositionAnalyzer.get_analysis()
 
 OrderAnalyzer = bt_result.result[0].analyzers._OrderAnalyzer.get_analysis()
 
@@ -200,6 +201,17 @@ def save_trade_statistics_to_csv(analysis, csv_filename):
 
 
 save_trade_statistics_to_csv(TradeStatisticsAnalyzer,'c:\\temp\\TradeStatisticsAnalyzer_20241109.csv')
+
+def save_analysis_to_csv(analysis, csv_filename):
+    if analysis:
+        df = pd.DataFrame([(date, data['total_value'], data['num_assets'], data['average_value'], data['concentration']) for date, data in analysis.items()],
+                          columns=['date', 'total_value', 'num_assets', 'average_value', 'concentration'])
+        df.to_csv(csv_filename, index=False)
+    else:
+        print("No analysis results available.")
+
+
+save_analysis_to_csv(DailyPositionAnalyzer, 'c:\\temp\\daily_position_analysis_20241109.csv')
 ################################
 ###########################
 

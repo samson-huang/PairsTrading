@@ -47,6 +47,47 @@ class OrderAnalyzer(bt.analyzers.Analyzer):
     def get_analysis(self):
         return self.orders
 
+class DailyPositionAnalyzer(bt.Analyzer):
+    def __init__(self):
+        self.daily_positions = []
+
+    def notify_trade(self, trade):
+        if trade.isclosed:
+            pass
+        elif trade.status == trade.Open:
+            data_name = trade.data._name
+            size = trade.size
+            value = size * trade.price
+            self.daily_positions.append({
+                'date': self.strategy.datetime.date(),
+                'data_name': data_name,
+                'size': size,
+                'value': value
+            })
+
+    def get_analysis(self):
+        positions_by_date = {}
+        for position in self.daily_positions:
+            date = position['date']
+            if date not in positions_by_date:
+                positions_by_date[date] = []
+            positions_by_date[date].append(position)
+
+        daily_analysis = {}
+        for date, positions in positions_by_date.items():
+            total_value = sum([pos['value'] for pos in positions])
+            num_assets = len(positions)
+            average_value = total_value / num_assets if num_assets > 0 else 0
+            concentration = max([pos['value'] / total_value for pos in positions]) if total_value > 0 else 0
+            daily_analysis[date] = {
+                'total_value': total_value,
+                'num_assets': num_assets,
+                'average_value': average_value,
+                'concentration': concentration
+            }
+
+        return daily_analysis
+
 class TradeStatisticsAnalyzer(bt.Analyzer):
     def __init__(self):
         self.trades = []
@@ -502,7 +543,7 @@ def get_backtesting(
     #cerebro.addanalyzer(TradeAnalyzer_1, _name='_TradeAnalyzer_1')
     cerebro.addanalyzer(OrderAnalyzer, _name='_OrderAnalyzer')
     cerebro.addanalyzer(TradeStatisticsAnalyzer, _name='_TradeStatisticsAnalyzer')
-
+    cerebro.addanalyzer(DailyPositionAnalyzer, _name='_DailyPositionAnalyzer')
 
     result = cerebro.run(tradehistory=True)
 

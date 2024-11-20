@@ -7,7 +7,6 @@
     <list default="true" id="b2be071f-6bc6-4bbd-8bf9-357f65853097" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/backtest_engine.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/backtest_engine.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" beforeDir="false" afterPath="$PROJECT_DIR$/Local_library/hugos_toolkit/BackTestTemplate/bt_strategy.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back_trader_20241106.py" beforeDir="false" afterPath="$PROJECT_DIR$/back_trader_20241106.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
