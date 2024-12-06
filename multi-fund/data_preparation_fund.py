@@ -73,12 +73,12 @@ def fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date):
 codefundsecname_file = 'c:\\temp\\upload\\codefundsecname.csv'
 #dir_name = 'c:/temp/20240722'
 start_date = '20050101'
-end_date = '20240726'
+end_date = '20241120'
 
 fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date)
 
 #全量替换数据
-#C:\qlib-main\scripts
+#C:\python\qlib-main\scripts
 #python dump_bin.py dump_all --csv_path C:\Users\huangtuo\.qlib\qlib_data\fund_data\change_csv --qlib_dir C:\Users\huangtuo\.qlib\qlib_data\fund_data --symbol_field_name code  --date_field_name date  --include_fields open,high,low,close,volume
 
 #增量更新数据

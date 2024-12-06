@@ -15,7 +15,7 @@ from typing import List, Tuple
 qlib.init(provider_uri=provider_uri, region=REG_CN)
 from datetime import datetime
 from typing import List, Tuple, Dict
-test_period = ("2024-07-01", "2024-11-04")
+test_period = ("2024-07-01", "2024-11-20")
 
 def get_backtest_data(
     pred_df: pd.DataFrame, start_time: str, end_time: str,market='market',benchmark_old='all_fund'
