@@ -66,7 +66,7 @@ def fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date):
 codefundsecname_file = 'c:\\temp\\upload\\codefundsecname.csv'
 #dir_name = 'c:/temp/20240722'
 start_date = '20050101'
-end_date = '20250110'
+end_date = '20250120'
 
 fetch_and_save_data(codefundsecname_file, dir_name, start_date, end_date)
 
