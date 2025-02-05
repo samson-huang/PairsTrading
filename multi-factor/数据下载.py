@@ -42,7 +42,10 @@ stock_all = pd.concat([stock_sh_a_spot_em_df, stock_sz_a_spot_em_df], ignore_ind
 # 计算总市值单价并取整数
 stock_all['总股本'] = (stock_all['总市值'] / stock_all['最新价']).astype(int)
 stock_all['流通股本'] = (stock_all['总市值'] / stock_all['最新价']).astype(int)
+
 stock_all.to_csv("c:\\temp\\stock_all_20250124.csv")
+#stock_all=pd.read_csv('c:\\temp\\20250122.csv')
+#stock_all = stock_all.drop(stock_all.columns[[0, 1]], axis=1)
 
 # 按代码列合并两个DataFrame，并添加一个指示列
 stock_all['代码'] = stock_all['代码'].astype(str)
@@ -77,6 +80,8 @@ def add_market_code(code):
 combined_df_new['代码'] = combined_df_new['代码'].apply(add_market_code)
 combined_df_new.to_csv('c:\\temp\\combined_df_new_20250124.csv')
 #############################
+#combined_df_new=pd.read_csv('c:\\temp\\combined_df_new_20250124.csv')
+#combined_df_new = combined_df_new.drop(combined_df_new.columns[[0]], axis=1)
 #invalid_codes = combined_df_new[~combined_df_new['代码'].str.contains('SH|SZ')]
 #############################
 ranked_data = pd.read_csv('c:\\temp\\ranked_data_20240704.csv',
@@ -88,8 +93,28 @@ ranked_data_1 = ranked_data.join(combined_df_new.set_index('代码'), on='code',
 
 #生成总市值
 ranked_data_1['market_cap']=ranked_data_1['close']*ranked_data_1['总股本']
+ranked_data_1 = ranked_data_1.rename(columns={
+    "板块名称": "INDUSTRY_CODE"})
+
+#取字段
+ranked_data_2=ranked_data_1[['rank','INDUSTRY_CODE','market_cap']]
+
+ranked_data_2 = ranked_data_2.rename_axis(index={'datetime': 'date'})
+
+#取字段
+ranked_data_2=ranked_data_1[['close','rank','INDUSTRY_CODE','market_cap']]
+#
+ranked_data_2['NEXT_RET'] = ranked_data_2['close'].pct_change().shift(-1)
 
 
 
+#获取指数6月底跟12月底的权重数据，取数方式见“同花顺数据采集.py”
+weights_df=pd.read_csv("c:\\temp\\weights_df_2005_2024.csv")
+weights_df = weights_df.drop(weights_df.columns[[0]], axis=1)
+
+weights_df.rename(columns={'p03563_f001':'日期',
+                                  'p03563_f002': '代码',
+                                  'p03563_f003': '名称',
+                                  'p03563_f004': '权重'}, inplace=True)
 
 
