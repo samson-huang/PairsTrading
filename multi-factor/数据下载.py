@@ -83,7 +83,65 @@ combined_df_new.to_csv('c:\\temp\\combined_df_new_20250124.csv')
 #combined_df_new=pd.read_csv('c:\\temp\\combined_df_new_20250124.csv')
 #combined_df_new = combined_df_new.drop(combined_df_new.columns[[0]], axis=1)
 #invalid_codes = combined_df_new[~combined_df_new['代码'].str.contains('SH|SZ')]
+#combined_df_new[combined_df_new['代码'] == 'SH600823']
+
 #############################
+
+
+
+
+
+########################################################
+#合并后发行有些退市股票没有行业标识，需要重新处理股票行业分类数据
+empty_sector_rows = weights_df_1[pd.isna(weights_df_1['板块名称'])]
+grouped_counts = empty_sector_rows.groupby(['名称', '代码']).size().reset_index(name='条数')
+
+#我手动处理一下退市股票行业
+########################################################
+grouped_counts=pd.read_csv("c:\\temp\\grouped_counts_20250206.csv")
+grouped_counts = grouped_counts.rename(columns={
+    "行业名称": "板块名称"})
+
+# 确保 grouped_counts 包含所有需要的列
+grouped_counts = grouped_counts[['名称', '代码', '板块名称']]
+grouped_counts['市盈率-动态'] = None  # 添加新列并填充空值
+grouped_counts['市净率'] = None
+grouped_counts['总股本'] = None
+grouped_counts['流通股本'] = None
+
+# 合并两个 DataFrame
+combined_df_new = pd.concat([combined_df_new, grouped_counts], ignore_index=True)
+
+#获取指数6月底跟12月底的权重数据，取数方式见“同花顺数据采集.py”
+#########################################################################
+weights_df=pd.read_csv("c:\\temp\\weights_df_20160616.csv")
+weights_df = weights_df.drop(weights_df.columns[[0]], axis=1)
+weights_df_1=pd.read_csv("c:\\temp\\weights_df_1_20160617.csv")
+weights_df_1 = weights_df_1.drop(weights_df_1.columns[[0]], axis=1)
+
+
+new_weights_df = pd.concat([weights_df, weights_df_1],axis=0)
+
+new_weights_df.rename(columns={'p03563_f001':'取值日期',
+                                  'p03563_f002': '代码',
+                                  'p03563_f003': '名称',
+                                  'p03563_f004': '权重'}, inplace=True)
+
+weights_df=new_weights_df
+weights_df['代码'] = weights_df['代码'].apply(lambda x: x[-2:] + x[:-3])
+#假设 combined_df_new 和 weights_df 是你的数据框
+# 首先确保两个数据框的“代码”列都是字符串格式，以确保正确匹配
+combined_df_new['代码'] = combined_df_new['代码'].astype(str)
+weights_df['代码'] = weights_df['代码'].astype(str)
+
+# 根据“代码”列进行合并，使用左连接（left join）以保留 weights_df 中的所有行
+weights_df_1 = pd.merge(weights_df, combined_df_new[['代码', '板块名称']], on='代码', how='left')
+
+
+
+########################################
+#取行情数据，直接取，其实可以重qlib里取
+########################################
 ranked_data = pd.read_csv('c:\\temp\\ranked_data_20240704.csv',
                           parse_dates=['datetime'],
                           index_col=['datetime', 'code'])
@@ -106,15 +164,47 @@ ranked_data_2=ranked_data_1[['close','rank','INDUSTRY_CODE','market_cap']]
 #
 ranked_data_2['NEXT_RET'] = ranked_data_2['close'].pct_change().shift(-1)
 
+ranked_data_2 = ranked_data_2.rename(columns={
+    "rank": "SCORE"})
+
+# 按 'datetime' 分组，并使用 'market_cap' 的中位数进行回填
+ranked_data_2['market_cap'] = ranked_data_2.groupby('datetime')['market_cap'].transform(lambda x: x.fillna(x.median()))
+
+#查看一下数据
+#ranked_data_2.xs('SH600001', level='code')
+
+ 查看多级索引的描述信息
+if isinstance(ranked_data_2.index, pd.MultiIndex):
+    for level_index, level in enumerate(ranked_data_2.index.levels):
+        print(f"Level {level_index}:")
+        print(f"- Unique values: {level.nunique()}")
+        print(f"- First value: {level[0]}")
+        print(f"- Last value: {level[-1]}")
+        print(f"- Size: {len(level)}\n")
+else:
+    print("Index is not a MultiIndex.")
 
 
-#获取指数6月底跟12月底的权重数据，取数方式见“同花顺数据采集.py”
-weights_df=pd.read_csv("c:\\temp\\weights_df_2005_2024.csv")
-weights_df = weights_df.drop(weights_df.columns[[0]], axis=1)
+######合并权重数据#############
 
-weights_df.rename(columns={'p03563_f001':'日期',
-                                  'p03563_f002': '代码',
-                                  'p03563_f003': '名称',
-                                  'p03563_f004': '权重'}, inplace=True)
+
+weights_df_1 = weights_df_1.rename(columns={
+    "date": "datetime",
+    "代码": "code",
+    "权重": "weight",})
+
+#取字段
+weights_df_1=weights_df_1[['datetime','code','名称','weight']]
+
+
+# 将 ranked_data_2 的索引重置为普通列
+ranked_data_2 = ranked_data_2.reset_index()
+# 将 weights_df_1 的 datetime 列转换为 datetime64[ns] 类型
+weights_df_1['datetime'] = pd.to_datetime(weights_df_1['datetime'].astype(str), format='%Y%m%d')
+# 合并两个 DataFrame
+merged_data = pd.merge(ranked_data_2, weights_df_1[['datetime', 'code', 'weight']], on=['datetime', 'code'], how='left')
+# 将 datetime 和 code 设置回索引
+merged_data.set_index(['datetime', 'code'], inplace=True)
+
 
 
